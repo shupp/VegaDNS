@@ -1,0 +1,100 @@
+BEFORE YOU INSTALL
+
+*   make sure PHP 4 or higher is installed on your web server, and that both
+    register_globals and safe_mode are turned OFF, at least for this 
+    VirtualHost
+*   make sure wget is installed (http://www.gnu.org/directory/wget.html).
+    Many distributions already have this installed.  wget is used for importing 
+    via AXFR, and also for dumping the SQL records to the djbdns data file.  
+    wget must be within the webserver's PATH environment
+*   make sure MySQL is installed, and that you have an account/database for
+    vegadns,  or the ability to create an account and database.  Again, many
+    distributions already have this installed.
+*   make sure djbdns (http://cr.yp.to/djbdns.html), ucspi-tcp 
+    (http://cr.yp.to/ucspi-tcp.html), and  daemontools 
+    (http://cr.yp.to/daemontools/install.html) are all installed.
+*   make sure you create the djbdns accounts Gtinydns and Gdnslog for later use.
+
+INSTALL VegaDNS
+
+NOTE:   The Following steps assume your ServerRoot is /usr/local/apache, and 
+        that your daemontools service directory is /service.
+
+        Please substitute the appropriate paths if necessary.
+
+        Likewise, you should substitue "myserver" for your real hostname, and 
+        x.x in "vegadns-x.x" with the version of VegaDNS you are using.
+
+1.  Change into your web server's DocumentRoot  like so:
+
+    cd /usr/local/apache/htdocs/
+
+2.  Get and unpack vegadns source:
+
+    wget www.vegadns.org/download/vegadns-current.tgz
+    tar -xzf vegadns-current.tgz
+
+3.  Setup SQL account (replace 'secret' below with your desired password):
+
+    mysqladmin -u root create vegadns -p
+    mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER ON vegadns.* TO vegadns@localhost IDENTIFIED BY 'secret'" mysql -p
+
+4.  Create the private vegadns directories for templates, sessions in your 
+    web server's ServerRoot, and have them owned by the user/group that the
+    web server runs as (nobody:nobody in this example)
+
+    mkdir -p /usr/local/apache/vegadns/templates_c
+    mkdir /usr/local/apache/vegadns/configs
+    mkdir /usr/local/apache/vegadns/cache
+    mkdir /usr/local/apache/vegadns/sessions
+
+    chown -R nobody:nobody /usr/local/apache/vegadns
+    chmod -R 770 /usr/local/apache/vegadns
+
+5.  Edit the vegadns-x.x/src/config.php file.  Make *sure* that the 
+    "private_dirs" variable is set properly, as well as the MySQL account
+    information, and and also the "vegadns_url" variable.
+
+6.  Create a tinydns service on 127.0.0.1 for testing
+
+    tinydns-conf Gtinydns Gdnslog /etc/tinydns 127.0.0.1
+    ln -s /etc/tinydns /service
+
+7.  Log into VegaDNS for the first time to create the tables, and update the 
+    default login information by pointing your web browser to:
+
+    http://myserver/vegadns-x.x/
+
+    Next, you should edit "default_records" so that new domains have the proper
+    SOA record, and that they have name servers, etc.  Once this is done, you 
+    can add or import a domain, then setup the data dumps in the next step.
+
+8.  To install the update-data.sh script (currently located in the root 
+    directory of vegadns), you will need to first edit the VEGADNS variable to 
+    point to the correct url.  You may also need to update the TINYDNSDIR 
+    variable if you used something other than /etc/tinydns.
+
+    Try exectuting the update-data.sh shell script.  Once you confirm that 
+    this is working correctly, move update-data.sh to /usr/local/sbin/ and then 
+    add it to cron to run every 10 minutes or so, whatever is appropriate.  
+    You'll an entry to your crontab like so:
+
+    # Update tinydns with VegaDNS data
+    */10 * * * * /usr/local/sbin/update-data.sh
+
+    NOTE: If intend to run update_data.sh from an IP other than 127.0.0.1, then
+    you will need to add that IP to $trusted_hosts in config.php
+
+    Done!
+
+    To report success:
+    % ( echo 'First M. Last'; echo `uname -a` ) | mail hostmaster@shupp.org
+
+
+NOTE ON AXFR
+
+    To use the Import domains via AXFR, you must first setup the remote host to 
+    allow AXFR request from this machine.  Note that if your VegaDNS machine 
+    has multiple IP addresses, that you allow AXFR from the same IP that the 
+    outbound request is made.  Look in the logs of the remote server if you 
+    are having problems connecting.

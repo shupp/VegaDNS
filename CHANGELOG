@@ -1,0 +1,310 @@
+* 1.1.6 
+    - Bill Shupp (hostmaster@shupp.org)
+     3/6/2006
+        - Change group_id to a.group_id in domains.php for broken where clause
+        - Check for PTR typr before appending domain name to in-addr.arpa for 
+          add/edit records.
+    1/31/2006
+        - Fix conditions for add_account_now in check_account_data.php
+        - Change perm_type to perms_type in users.php (typo)
+    1/26/2006
+        - Add new configuration option $mysql_socket.  If set to '', the 
+          system default is used.
+        - Update copyright dates
+        - Added canCreate/Edit/DeleteDefaultRecords functions to permissions.php
+        - Move checks for isMyGroup into the top index.php file so it's only done once
+        - Fix fail variable typos in users.php
+    11/30/2005
+        - Re-enabled basic log viewing
+        - Use permissions object for checking restrictions in records.php
+        - Update users.php to use pagination.php
+        - Improvements to users.php permissions support
+    11/23/2005
+        - Update Smarty to 2.6.10
+    11/18/2005
+        - Use permissions object for checking domain restrictions in domains.php
+        - Add canDeleteDomains() to permissions, update README.permissions
+        - Move sorting code from records and domains into functions
+        - Move pagination code from records.php and domains.php to
+          new pagination.php
+        - Maintain domain/record mode, as well as domain and record_id in
+          menu expansion URLs
+        - Update TODO
+    11/2/2005
+        - Create initial group_permissions for VegaDNS group
+    10/27/2005
+        - Cosmetic fix for broken tree hierarchy in getMenuRows(),
+          remove tnpi.html guide.
+        - Move images/tnpi/* to images/
+
+* 1.1.5 9/5/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fix path disclosure warning due to illegal "_" in session_name
+        - Moved all messages into _SESSION['message'], accessed  via the 
+          set_msg(), set_msg_err(), and display_msg() functions
+        - Added README.permissions
+
+* 1.1.4 4/24/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Get accounts working with new group structure
+        - Removed main menu, now default to groups
+        - Add groups section
+        - new group support in domains
+        - Clean up database column names for consistency, and also make 
+          everything lower case
+    - Bob Hutchinson (hutchlists@midwales.com)
+        - add pagination to accounts
+
+    3/2/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Got menu expansion (i.e. NicTool style) working
+        - Fix order of alphanumeric listing searches - tnx ringo@vianet.ca
+        - Add timeout error message.
+        - Moved session_start.php code into index.php
+
+    2/26/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Move menu items to left side of screen
+        - Fix PTR records for AXFR import
+          (axfr-get was displaying some characters in octal format)
+        - index.php cleanups
+
+* 1.1.3 2/22/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Woops, forgot to save the $message fix mentioned below
+        - Add $state/$email conditions to new java script focus in header.tpl
+        - Removed unused $tinydns_ip from config.php
+    - Bob Hutchinson (hutchlists@midwales.com)
+        - use dnsname instead of dnsq[r] if $name is an IP in dnsquery.php for
+          easier PTR lookups.
+
+* 1.1.2 2/22/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fix undefined $message in records.php
+        - Fix undefined index/variable notices in domains.php
+        - Fix broken email notification for inactive domains.
+        - Fix recent dates in CHANGELOG.  Duh.
+        - Fix undefined soa['ttl'] indexes in functions.php
+    - Bob Hutchinson (hutchlists@midwales.com)
+        - New whois query interface
+    - Kim.Lars.Jakobsen@bec.dk
+        - Add simple javascript function to focus on email input of login form
+
+* 1.1.1 2/14/2005
+    - Rodrigo Borges Pereira rbpereira@interacesso.pt
+        - Several bugfixes in records, default_records, and import domains
+
+* 1.1.0 2/9/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Add GPL for copy of GPL License.  Update COPYING to reflect multiple
+          licenses now in use.
+        - Update CREDITS, UPGRADE
+        - Set error_reporting(E_ALL) as recommended by ADODB
+        - Switched to ADODB for multiple database support.  Only MySQL is being
+          tested at this time.  (see http://adodb.sf.net)
+        - Make IPv6 support optional since it requires patches to djbdns and 
+          ucspi
+    - Logan Michels (logan@stfunoob.com)
+        - Add IPv6 support
+    - Darrel O'pry (dopry@thing.net)
+        - Add SRV support
+
+* 0.9.9.1 9/7/2005
+    - Backported changes from 1.1.5:
+        * SECURITY *
+        - Fix path disclosure warning due to illegal "_" in session_name
+        * SECURITY *
+        - Moved all messages into _SESSION['message'], accessed via the 
+          set_msg(), set_msg_err(), and display_msg() functions
+    - Backported changes from 1.1.4:
+        - Moved session_start.php code into index.php
+        - Fix order of alphanumeric listing searches - tnx ringo@vianet.ca
+
+* 0.9.9 12/4/2005
+    - Bill Shupp (hostmaster@shupp.org)
+        - Update Smarty to 2.6.7
+        - remove src link in md5upgrade directory.  Use ini_set() instead
+        - update string escapes in authenticate_user() for mysql queries
+          - tnx Darrel O'pry
+        - updates to check_domain_name_format() to allow for wildcards, as well
+          as DOMAIN substitutions in default records (0.9.8 broke these). Also
+          disallow ".." in any record name.
+
+* 0.9.8 12/8/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Use case insensitive eregi() instead of ereg() for domain sanity check
+
+      11/21/2004
+    - Len Padilla (vegadns.users@padilla.net)
+        - Add sanity checking when adding domains
+
+      10/21/2004
+    - Len Padilla (vegadns.users@padilla.net)
+        - Add sanity checking when adding RRs
+
+* 0.9.7 10/15/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Update version this time.. -tnx Roger Tulen
+    - Bob Hutchinson (hutchlists@midwales.com)
+        - Bugfix for records sort code -tnx Roger Tulen
+        - Fixed pagination math domains.php
+
+* 0.9.6 10/11/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Minor fixes for new sorting code.  - tnx Bob Hutchinson
+
+* 0.9.5 10/9/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Change background.png to a jpeg for IE display problems
+        - Added pngfix.js for more IE png bug workarounds
+            (script is from http://homepage.ntlworld.com/bobosola/index.htm)
+        - Rewrote much of the sorting code logic, made it available to 
+          all pages.
+    - Bob Hutchinson (hutchlists@midwales.com)
+        - New sorting code
+
+* 0.9 9/23/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Allow for default TXT records
+        - Updates to update-data.sh - added error checking/reporting, and is 
+          safer.  Also runs under sh instead of bash.
+        - Removed "> /dev/null" from INSTALL instructions of update-data.sh.
+
+* 0.9b1 9/18/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added DNS Query tool (frontend to dnsq[r])
+        - Update TODO
+        - Update for menu template
+        - Set "Content-type: text/plain" for get_data - tnx Conny Brunnkvist
+        - Updated Smarty to 2.6.5
+        - Updated INSTALL to mention turning off register_globals and safe_mode
+
+      9/7/2004
+    - Rodrigo Borges Pereira <rbpereira@interacesso.pt>
+        - List domains by first character
+
+      8/22/2004
+    - Karl Shea <karl@karlshea.com>
+        - only run "make" if the data file has changed (to eliminate 
+          unnecessary ixfr traffic)
+
+      7/28/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - New vegadns logo, colors
+
+      7/27/2004
+    - Ondrej Novy (onovy@nomi.cz)
+        - added ability to use default values during AXFR imports.
+
+      7/14/2004
+    - bob <hutchlists@midwales.com>
+        - Fix for missing distance value in default MX record creation
+
+      4/6/2004
+    - Conny Brunnkvist <kop@ninzin.net>
+        - update order by argument in data.php for better sorting
+
+* 0.8.1 6/18/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fix for type display in edit_records
+        - Small bug in update records SQL statement
+        - Allow for optional trailing "." in records
+
+* 0.8 6/17/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Make sure PTR records are within the appropriate zone
+        - Added multiple trusted_hosts example in config.php
+        - Added ability to edit records
+
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added more logging
+        - Updates to INSTALL,TODO
+
+      5/19/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added md5upgrade script, UPGRADE documentation.
+        - Updated create_tables.php to support md5 passwords
+        - Updated text in help.tpl
+
+      4/27/2004
+    - Ondrej Novy (onovy@nomi.cz)
+        - Switched from clear text to md5  passwords
+
+      4/25/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added view_log mode
+        - Cycle <tr> bgcolors in list templates - tnx Ryan White
+
+* 0.7 4/22/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added domains/record searches
+        - Some cleanup in soa display logic
+        - Upated TODO
+
+* 0.6.6 4/21/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fixed pagination errors when a user has no domains
+        - Addeded new timeout variable to verify_session(), it's now in sync
+          with authenticate_user()
+
+* 0.6.5 4/21/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fixed multiple missing $ in config.php
+        - Added pagination of records
+        - Moved timeout to config.php
+        - Added trusted hosts to config.php.  Only allow trusted hosts to 
+          access get_data (127.0.0.1 by default) - tnx Ryan White
+        - Added version to header.tpl
+        - Updated TODO, INSTALL
+
+* 0.6.1 3/20/2004
+    - Ondrej Novy (onovy@nomi.cz)
+        - Fix for multiple VegaDNS server support in update-data.sh
+
+* 0.6 3/19/2004
+    - Ondrej Novy (onovy@nomi.cz)
+        - Escape shell command in axfr_get.php
+        - Disable register_globals in .htaccess instead of httpd.conf
+        - Fix variable name typo in index.php (for error message)
+        - Update to style sheet
+        - Added support for multiple VegaDNS servers in update-data.sh
+        - Updated all templates to be valid HTML 4.01 - Thanks!
+
+    - Bill Shupp (hostmaster@shupp.org)
+        - Set content type via meta tag
+        - Switch to wget instead of lynx
+        - Updated Smarty to version 2.6.2
+        - Default mysql user info now matches that in INSTALL
+        - Use FULL path to index file for VEGADNS variable in update-data.sh
+        - session cleanups
+
+* 0.5 1/25/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added check for existing default records before trying to add them
+        - Removed link for view log until it's done
+        - Added TXT support
+
+* 0.4 1/21/2004
+    - Bill Shupp (hostmaster@shupp.org)
+        - Added Style Sheet, updated design/logo
+        - Moved remaining html (style related) from src to templates
+        - Updated INSTALL, TODO
+        - Updated copyright notices
+
+* 0.3 12/27/2003
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fixed many "undefined index" errors
+
+* 0.2 12/25/2003
+    - Bill Shupp (hostmaster@shupp.org)
+        - Ported to Smarty template engine for separation of html from php
+        - Added Default Records
+        - Removed nameservers array, since default records are now in place
+        - Updated INSTALL, README, TODO
+        - Fixed some things in the help section
+        - Many cleanups
+        - Added Email notifications for inactive domains
+        - Fixed typo in update-data.sh
+
+* 0.1 11/26/2003
+    - Initial Public Rlease

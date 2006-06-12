@@ -1,0 +1,2 @@
+php_flag session.use_trans_sid 0
+php_flag register_globals off

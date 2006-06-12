@@ -1,0 +1,11 @@
+VegaDNS was written by Bill Shupp.  Initial Development was sponsored by George
+Donnelly at Zettai.Net (http://www.zettai.net)
+
+The initial database design was inspired by the one used with Inter7's dnsadmin:
+http://inter7.com/dnsadmin/schema.txt
+
+As of 1.1.4, the left menu, as well as the new subgroup structure,
+are highly inspired by NicTool (www.nictool.com).  The dir_tree images directly
+from NicTool, and the HTML is only slightly modified.
+
+See CHANGELOG for specific contributions by users.

@@ -1,0 +1,128 @@
+This documents all functions in the permissions object
+
+
+permissions($email)
+- The constructor.
+- Globalizes $senior_perms from config.php
+- Assigns $this->account (logged in user's account array) based on $email
+- Assigns $this->groups (logged in user's sub-groups array)
+- Assigns $this->account['permissions'] (logged in user's account's permissions)
+
+account_info($email)
+- Returns account data array for account with email $email
+- Used by $this->account
+
+getSubGroups($id)
+- Returns array of sub-groups for group_id $id, or NULL
+- Used by getAllSubgroups
+
+returnGroup($id, $g)
+- Returns array of group_id $id if $g is NULL or a subgroup of $id, or NULL
+- Used by returnGroup, isMyGroup, isMyAccount
+
+getAllSubgroups($id)
+- Returns recursive array of sub-groups with group_id $id, or NULL
+- Used by getAllSubgroups
+
+getMenuRows($g,$top,$final_sub)
+- Returns HTMl tables for displaying navigation menu of group $g
+- Uses args $top, $final_sub, as well as variables $parent_subs, $indent, and 
+  $parent_subs_count to make this happen.
+- Big mess, needs lots of cleanup.  HTML should be moved out of this function 
+  if possible
+- Based heavily on TNPI's NicTool layout (HTML is copied)
+
+isMyGroup($g)
+- Returns group array of group_id $g if it's a subgroup of $this->groups
+- Used by canDeleteGroup, canEditGroup
+- Should this be boolean?
+
+isMyAccount($id)
+- Boolean - return TRUE if $id is in my group or subgroups
+- Used by canEditAccount
+
+returnUserPermissions($id)
+- Returns permissions array for user_id $id, or INHERIT if permissions should 
+  be inherited from the user's group
+- Used by canCreateUsers, canDeleteUsers, permissions
+
+returnGroupParentID($id)
+- Returns parent_group_id for group_id $id, or NULL
+- Not used within object.
+
+returnGroupPermissions($id)
+- Returns permissions array for group_id $id, or NULL
+- Used by permissions, canCreateUsers, canDeleteUsers
+
+returnSubgroupsQuery($g,$string)
+- Recusively returns subgroup query string for group_id $g, and appends it to 
+  string $string if $string is not NULL.
+- For use in determining SQL query syntax.
+- Not used within object.
+
+canCreateSubGroups()
+- Boolean, TRUE or FALSE for $this->account
+
+canCreateDomains()
+- Boolean, TRUE or FALSE for $this->account
+
+canEditDomains()
+- Boolean, TRUE or FALSE for $this->account
+
+canDeleteDomains()
+- Boolean, TRUE or FALSE for $this->account
+
+canCreateAccounts()
+- Boolean, TRUE or FALSE for $this->account
+
+canEditAccount($id)
+- Boolean, TRUE or FALSE for $this->account, or FALSE for any other $id
+
+userID_to_GroupID($user_id)
+- Returns group_id for user_id $user_id, or NULL
+ 
+canEditSubGroups()
+- Boolean, TRUE or FALSE for $this->account
+
+canDeleteGroup($g)
+- Boolean, TRUE or FALSE for $this->account, or FALSE for any other $g
+
+canEditGroup($g)
+- Boolean, TRUE or FALSE for $this->account, or FALSE for any other $g, or 
+  TRUE if $g is NULL
+- Should this be looked at?
+
+canCreateUsers($id,$g)
+- Boolean, TRUE if user_id $id is a senior_admin, TRUE if $id can create 
+  accounts, otherwise FALSE
+
+canDeleteUsers($id,$g)
+- Boolean, TRUE if user_id $id is a senior_admin, TRUE if $id can delete 
+  accounts, otherwise FALSE
+
+canDeleteUser($id)
+- Boolean or NULL. NULL if user_id $id does not exist, TRUE if the caller can 
+  delete accounts and $id's group_id is with the callers groups, otherwise FALSE
+- Calls canDeleteUsers(NULL,NULL)
+
+returnGroupID($name)
+- Returns group_id for group where name is $name, or NULL
+
+returnUserID($email)
+- Returns user_id for account with email $email, or NULL
+
+returnCreateGroupPermQuery($name)
+- Returns SQL string for creating new groups, based on both the user's 
+  permissions and senior permissions.
+
+returnEditGroupPermQuery($id)
+- Returns SQL string for editing group permissions, based on both the user's 
+  permissions and senior permissions.
+
+returnEditAccountPermQuery($id,$inherit)
+- Returns SQL string for editing user permissions, based on both the user's 
+  permissions and senior permissions.
+
+returnCreateUserPermQuery($email)
+- Returns SQL string for creating user permissions, based on both the user's 
+  permissions and senior permissions.

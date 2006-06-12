@@ -1,0 +1,87 @@
+A {
+  text-decoration: none;
+}
+A:link {
+  color: #3301A4;
+}
+A:visited {
+  color: #3301A4;
+}
+A:hover {
+  color: black;
+  background: #eeeeee;
+  border: blue;
+}
+A:active {
+  color: blue;
+}
+body {
+  #background-color: #AFA6E8;
+  text-decoration: none;
+  font-family: Verdana,Helvetica,sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+  margin-left: 0px;
+  margin-top: 15px
+  margin-width: 0px;
+  margin-height: 15px;
+}
+font {
+  text-decoration: none;
+  font-family: Verdana,Helvetica,sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+}
+.error {
+  text-decoration: none;
+  font-family: Verdana,Helvetica,sans-serif;
+  font-size: 12px;
+  color: red;
+  font-weight: normal;
+}
+td {
+  text-decoration: none;
+  font-family: Verdana,Helvetica,sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+}
+td.white {
+  #background-color: #ffffff;
+  text-decoration: underline;
+  font-family: Verdana,Helvetica,sans-serif;
+  font-size: 12px;
+  font-style: none;
+  font-weight: bold;
+}
+td.border {
+  background-color: #dccfff;
+  border-top: 1px solid #666;
+  border-left:1px solid #666;
+  border-bottom: 1px solid #666;
+  border-right: 1px solid #666;
+}
+td.underline {
+  background-color: white;
+  border-bottom: 1px solid #666;
+}
+select {
+    color: black;
+    text-decoration: none;
+    font-family: Verdana,Helvetica,sans-serif;
+    font-size: 10px;
+    font-weight: normal;
+}
+input {
+    color: black;
+    text-decoration: none;
+    font-family: Verdana,Helvetica,sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+}
+hr {
+    #background-color: #AFA6E8;
+    background-color: #666;
+    #background-color: purple;
+    height: 1px;
+    border: 0;
+}

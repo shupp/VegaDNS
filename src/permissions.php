@@ -1,0 +1,766 @@
+<?php
+
+
+/*
+ * 
+ * VegaDNS - DNS Administration Tool for use with djbdns
+ * 
+ * CREDITS:
+ * Written by Bill Shupp
+ * <bill@merchbox.com>
+ * 
+ * LICENSE:
+ * This software is distributed under the GNU General Public License
+ * Copyright 2003-2006, MerchBox.Com
+ * see COPYING for details
+ * 
+ * 
+ * Thanks to NicTool for many ideas for the subgroup structure, as well as 
+ * permissions options.
+ * 
+ * 
+ * 
+ */ 
+
+if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
+    header('Location:../index.php');
+    exit;
+}
+
+
+class permissions {
+
+    var $account = '';
+    var $groups = '';
+
+    // Constructor
+    function permissions($email) {
+        global $senior_perms;
+        $this->account = $this->account_info($email);
+        $this->groups = $this->getAllSubGroups($this->account['group_id']);
+        // Setup permissions
+        if($this->account['account_type'] == 'senior_admin') {
+            $perms = $senior_perms;
+        } else {
+            $perms = $this->returnUserPermissions($this->account['user_id']);
+            if($perms == "INHERIT") {
+                // GET GROUP PERMS
+                $perms = $this->returnGroupPermissions($this->account['group_id']);
+            }
+        }
+        $this->account['permissions'] = $perms;
+    }
+
+    // Get current account settings
+    function account_info($email) {
+        global $db;
+        $q = "select * from accounts where email=".$db->Quote($email);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        return $result->FetchRow();
+    }
+
+    function getSubGroups($id) {
+        global $db;
+        $q = "select group_id from groups where group_id != ".$db->Quote($id)." and parent_group_id = ".$db->Quote($id);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) {
+            return NULL;
+        } else {
+            $count = 0;
+            while(!$result->EOF) {
+                $row[$count] = $result->FetchRow();
+                $count++;
+            }
+            return $row;
+        }
+    }
+
+    function returnGroup($id, $g) {
+        if($g == NULL) $g = $this->groups;
+
+        if($g['group_id'] == $id) {
+            $array = $g;
+        } else {
+            if(!isset($g['subgroups'])) {
+                $array = NULL;
+            } else {
+                while(list($key,$val) = each($g['subgroups'])) {
+                    $temp = $this->returnGroup($id, $val);
+                    if($temp['group_id'] == $id) {
+                        $array = $temp;
+                        break;
+                    } else {
+                        $array = NULL;
+                    }
+                }
+            }
+        }
+        return $array;
+    }
+
+    function getAllSubgroups($id) {
+        global $db;
+        // Get Top
+        $q = "select * from groups where group_id=".$db->Quote($id)." LIMIT 1";
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) {
+            return NULL;
+        } else {
+            $top = $result->FetchRow();
+        }
+        // Get subgroups
+        $subs = $this->getSubGroups($top['group_id']);
+        if($subs == NULL) {
+            return $top;
+        } else {
+            $count = 0;
+            while(list($key,$val) = each($subs)) {
+                $top['subgroups'][$count] = $this->getAllSubgroups($val['group_id']);
+                $count++;
+            }
+            return $top;
+        }
+        
+    }
+
+    function getMenuRows($g,$top,$final_sub) {
+        global $base_url, $parent_subs;
+        static $indent = 0;
+        static $parent_subs_count = 0;
+
+        $out = '';
+        if(isset($_SESSION['expanded'])) {
+            $expanded = $_SESSION['expanded'];
+        } else {
+            $expanded = '';
+        }
+
+        // Figure out expansion stuff
+        if($top == NULL && $expanded != NULL) {
+            $ex = explode(',', $expanded);
+            while(list($key,$val) = each($ex)) {
+                if($g['group_id'] == $val) {
+                    $is_expanded = 1;
+                    $expand_image = 'dirtree_minus_';
+                    $new_expand = array_trim(explode(',', $expanded), $val);
+                    $expand_url = '&expanded='.implode(',', $new_expand);
+                    break;
+                } else {
+                    $is_expanded = 0;
+                    $expand_image = 'dirtree_plus_';
+                    $expand_url = "&expanded=$expanded,".$g['group_id'];
+                }
+            }
+        } else {
+            if($top != NULL) {
+                $is_expanded = 1;
+            } else {
+                $is_expanded = 0;
+            }
+            $expand_image = 'dirtree_plus_';
+            $expand_url = '&expanded='.$g['group_id'];
+        }
+
+        // Figure out subgroups and bottom tree image shape
+        if(isset($g['subgroups'])) {
+            // echo "FINAL SUB: $final_sub";
+            $do_subgroups = 1;
+            // $h_bottom_image = 'tee';
+            $log_suffix = 'tee';
+            if($is_expanded == 1) {
+                $h_bottom_image = 'tee';
+                if($final_sub != NULL && !$top) {
+                    $log_suffix = 'elbow';
+                }
+            } else if($final_sub == NULL){
+                $h_bottom_image = 'tee';
+            } else {
+                $h_bottom_image = 'elbow';
+            }
+        } else {
+            if($is_expanded == 1) {
+                $h_bottom_image = 'tee';
+                if($final_sub == NULL) {
+                    $log_suffix = 'tee';
+                } else {
+                    $log_suffix = 'elbow';
+                }
+            } else if($final_sub == NULL) {
+                $h_bottom_image = 'tee';
+                $log_suffix = 'tee';
+            } else {
+                $h_bottom_image = 'elbow';
+                $log_suffix = 'elbow';
+            }
+            $do_subgroups = 0;
+        }
+
+        // Setup URLs
+        $homeurl = "<a href=\"$base_url&mode=groups&group=".$g['group_id']."\">";
+        $plusminusurl = "<a href=\"$base_url$expand_url&group=".$_SESSION['group'];
+        // Retain current mode/domain/record
+        if(isset($_REQUEST['mode'])) $plusminusurl .= "&mode=".$_REQUEST['mode'];
+        if(isset($_REQUEST['domain'])) $plusminusurl .= "&domain=".$_REQUEST['domain'];
+        if(isset($_REQUEST['record_id'])) $plusminusurl .= "&record_id=".$_REQUEST['record_id'];
+        if(isset($_REQUEST['record_mode'])) $plusminusurl .= "&record_mode=".$_REQUEST['record_mode'];
+        if(isset($_REQUEST['domain_mode'])) $plusminusurl .= "&domain_mode=".$_REQUEST['domain_mode'];
+
+        $plusminusurl .= "\">";
+        $groupurl = "<a href=\"$base_url&mode=groups&group=".$g['group_id']."\">";
+        $domainsurl = "<a href=\"$base_url&mode=domains&group=".$g['group_id']."\">";
+        $usersurl = "<a href=\"$base_url&mode=users&group=".$g['group_id']."\">";
+        $logurl = "<a href=\"$base_url&mode=log&group=".$g['group_id']."\">";
+
+        // Padding for vertical bar
+        $count = 1;
+        $padding = '';
+        while($count < $indent) {
+            if($parent_subs_count < $parent_subs) {
+                $padding .= "<td><img src=\"images/dirtree_vertical.gif\" border=\"0\"></td>";
+            } else {
+                $padding .= "<td><img src=\"images/transparent.gif\" height=\"17\" width=\"17\" border=\"0\"></td>";
+            }
+            $count++;
+        }
+
+        // Figure out which item is highlighted (active)
+        $groupsbg = '';
+        $domainsbg = '';
+        $usersbg = '';
+        $logbg = '';
+        if(isset($_SESSION['group']) && $_SESSION['group'] == $g['group_id']) {
+            if(isset($_REQUEST['mode'])) {
+                if ($_REQUEST['mode'] == 'domains' || $_REQUEST['mode'] == 'records') {
+                    $domainsbg = ' class="white"';
+                } else if($_REQUEST['mode'] == 'users') {
+                    $usersbg = ' class="white"';
+                } else if($_REQUEST['mode'] == 'log') {
+                    $logbg = ' class="white"';
+                } else if($_REQUEST['mode'] == 'groups') {
+                    $groupsbg = ' class="white"';
+                }
+            } else {
+                    $groupsbg = ' class="white"';
+            }
+        } else if($top != NULL) {
+            if(!isset($_SESSION['group']) || $_SESSION['group'] == 'NULL') 
+                $groupsbg = ' class="white"';
+        }
+
+        if($top != NULL) {
+            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" alt=\"home\" src=\"images/home.png\"></td><td$groupsbg>$homeurl".$g['name']."</a></td></tr></table>\n";
+        } else {
+            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td>$plusminusurl<img border=\"0\" alt=\"home\" src=\"images/$expand_image$h_bottom_image.gif\"><td>$groupurl<img border=\"0\" alt=\"home\" src=\"images/group.gif\"></a></td><td$groupsbg>$groupurl".$g['name']."</a></td></tr></table>\n";
+        }
+
+
+        if($top != NULL || $is_expanded) {
+            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_tee.gif\"><td><img border=\"0\" src=\"images/newfolder.png\"></td><td$domainsbg>".$domainsurl."Domains</a></td></tr></table>\n";
+            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_tee.gif\"></td><td><img border=\"0\" src=\"images/user_folder.png\"></td><td$usersbg>".$usersurl."Users</a></td></tr></table>\n";
+            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_$log_suffix.gif\"></td><td><img border=\"0\" src=\"images/newfolder.png\"></td><td$logbg>".$logurl."Log</a></td></tr></table>\n";
+        }
+
+        $indent++;
+        if($is_expanded == 1) {
+            $counter = 0;
+            $last_sub = NULL;
+            while($do_subgroups == 1 && list($key,$val) = each($g['subgroups'])) {
+                if($top != NULL) $parent_subs_count++;
+                $counter++;
+                $out .=  "<!-- COUNTER: $counter COUNT: ".count($g['subgroups'])." -->\n";
+                if($counter == count($g['subgroups'])) $last_sub = 1;
+                $out .= $this->getMenuRows($val,NULL,$last_sub);
+            }
+        }
+        $indent--;
+        return $out;
+    }
+
+    function isMyGroup($g) {
+        if(($temp = $this->returnGroup($g, NULL)) == NULL) {
+            return NULL;
+        } else {
+            return $temp;
+        }
+    }
+
+    function isMyAccount($id) {
+
+        // Fetch group_id
+        if(($g = $this->userID_to_GroupID($id)) == NULL) {
+            return FALSE;
+        } else if(($temp = $this->returnGroup($g, NULL)) == NULL) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+    }
+
+    function returnUserPermissions($id) {
+        global $db;
+        $q = "select * from user_permissions where user_id=".$db->Quote($id);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) return NULL;
+        $perms = $result->FetchRow();
+        if($perms['inherit_group_perms'] == 1) {
+            return 'INHERIT';
+        } else {
+            return $perms;
+        }
+        
+    }
+
+    function returnGroupParentID($id) {
+        global $db;
+        $q = "select parent_group_id from groups where group_id=".$db->Quote($id);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) return NULL;
+        $row = $result->FetchRow();
+        return $row['parend_group_id'];
+    }
+
+    function returnGroupPermissions($id) {
+        global $db;
+        $q = "select * from group_permissions where group_id=".$db->Quote($id);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) return NULL;
+        $perms = $result->FetchRow();
+        if($perms['inherit_group_perms'] == 1) {
+            // Find the parent permissions
+            $inherit = TRUE;
+            while($inherit != FALSE) {
+                // Get parent ID
+                $parent = $this->returnParentGroupID($id);
+                $q = "select * from group_permissions where group_id=".$db->Quote($parent);
+                $result = $db->Execute($q) or die($db->ErrorMsg());
+                if($result->RecordCount() == 0) return NULL;
+                $perms = $result->FetchRow();
+                if($perms['inherit_group_perms'] == 1) {
+                    $id = $parent;
+                    continue;
+                } else {
+                    $inherit = FALSE;
+                }
+            }
+        }
+        return $perms;
+    }
+
+    function returnSubgroupsQuery($g,$string) {
+
+        if($string == NULL) {
+            $string = " group_id='".$g['group_id']."'";
+        } else {
+            $string .= " or group_id='".$g['group_id']."'";
+        }
+
+        if(!isset($g['subgroups'])) {
+            return $string;
+        } else {
+            $temp = " ";
+            while(list($key,$val) = each($g['subgroups'])) {
+                $temp .= $this->returnSubgroupsQuery($val, $temp);
+            }
+        }
+        return $string.$temp;
+    }
+
+    function canCreateSubGroups() {
+        if($this->account['permissions']['group_create'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canCreateDomains() {
+        if($this->account['permissions']['domain_create'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canEditDomains() {
+        if($this->account['permissions']['domain_edit'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDeleteDomains() {
+        if($this->account['permissions']['domain_delete'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canCreateRecord() {
+        if($this->account['permissions']['record_create'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDeleteRecord() {
+        if($this->account['permissions']['record_delete'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canEditRecord() {
+        if($this->account['permissions']['record_edit'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDelegateRecord() {
+        if($this->account['permissions']['record_delegate'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canCreateDefaultRecords() {
+        if($this->account['permissions']['default_record_create'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canEditDefaultRecords() {
+        if($this->account['permissions']['default_record_edit'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDeleteDefaultRecords() {
+        if($this->account['permissions']['default_record_delete'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canEditUser($id) {
+        if($this->account['permissions']['accouedit'] == 1) {
+            if($this->isMyAccount($id)) {
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canEditSelf() {
+        if($this->account['permissions']['self_edit'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function userID_to_GroupID($user_id) {
+        global $db;
+
+        $q = "select group_id from accounts where user_id=".$db->Quote($user_id);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) {
+            return NULL;
+        }
+
+        $row = $result->FetchRow();
+        return $row['group_id'];
+            
+    }
+
+    function canEditSubGroups() {
+        if($this->account['permissions']['group_edit'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDeleteGroup($g) {
+        if($this->account['permissions']['group_delete'] == 1) {
+            if($g == NULL) {
+                return TRUE;
+            } else if($this->isMyGroup($g)) {
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canEditGroup($g) {
+        if($this->account['permissions']['group_edit'] == 1) {
+            if($g == NULL) {
+                return TRUE;
+            } else if($this->isMyGroup($g)) {
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        } else {
+            return FALSE;
+        }
+    }
+
+
+    function canCreateUsers($id,$g) {
+
+        // Senior Admins can do anything
+        if($this->account['account_type'] == 'senior_admin') return TRUE;
+
+        // See if it's the logged in user
+        if($id == NULL) {
+            if($this->account['permissions']['accoucreate'] == 1) {
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        }
+
+        // Else look up the permissions
+
+        global $db;
+
+        $perms = $this->returnUserPermissions($id);
+        if($perms == "INHERIT") {
+            // GET GROUP PERMS
+            $perms = $this->returnGroupPermissions($g);
+        } else if($perms == NULL) {
+            return FALSE;
+        } else if($perms['group_create'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDeleteUsers($id,$g) {
+
+        // Senior Admins can do anything
+        if($this->account['account_type'] == 'senior_admin') return TRUE;
+
+        // See if it's the logged in user
+        if($id == NULL) {
+            if($this->account['permissions']['accoudelete'] == 1) {
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        }
+
+        // Else look up the permissions
+
+        global $db;
+
+        $perms = $this->returnUserPermissions($id);
+        if($perms == "INHERIT") {
+            // GET GROUP PERMS
+            $perms = $this->returnGroupPermissions($g);
+        } else if($perms == NULL) {
+            return FALSE;
+        } else if($perms['group_create'] == 1) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    function canDeleteUser($id) {
+
+        if($this->canDeleteUsers(NULL,NULL) == FALSE) {
+            return FALSE;
+        } else {
+            global $db;
+            $q = "select group_id from accounts where user_id='$id'";
+            $result = $db->Execute($q) or die($db->ErrorMsg());
+            if($result->RecordCount() == 0) return NULL;
+            $row = $result->FetchRow();
+            if($this->isMyGroup($row['group_id']) != NULL) {
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        }
+    }
+
+    function returnGroupID($name) {
+        global $db;
+        $q = "select group_id from groups where name=".$db->Quote($name);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) return NULL;
+        $row = $result->FetchRow();
+        return $row['group_id'];
+    }
+
+    function returnUserID($email) {
+        global $db;
+        $q = "select user_id from accounts where email=".$db->Quote($email);
+        $result = $db->Execute($q) or die($db->ErrorMsg());
+        if($result->RecordCount() == 0) return NULL;
+        $row = $result->FetchRow();
+        return $row['user_id'];
+    }
+
+
+    function returnCreateGroupPermQuery($name) {
+        global $senior_perms,$db;
+        // Get permissions key list from senior_perms array
+        // Then compare user perms against $_REQUEST elements 
+
+        $u_perms = $this->account['permissions'];
+        $perm_array = array();
+
+        while(list($key,$val) = each($senior_perms)) {
+            if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
+                if(isset($_REQUEST[$key])) {
+                    $perm_array[$key] = 1;
+                } else {
+                    $perm_array[$key] = 0;
+                }
+            }
+        }
+
+        // Now that the perm_array is built, let's build the query string
+        if(($id = $this->returnGroupID($name)) == NULL) return NULL;
+
+
+        // Build colmns, values
+        $col_string = "";
+        $val_string = "";
+        while(list($key,$val) = each($perm_array)) {
+            $col_string .= ",$key";
+            $val_string .= ",$val";
+        }
+        $q = "insert into group_permissions (group_id$col_string) values('$id'$val_string)" ;
+
+        // INHERIT???
+
+        return $q;
+    }
+
+    function returnEditGroupPermQuery($id) {
+        global $senior_perms,$db;
+
+        // Get permissions key list from senior_perms array
+        // Then compare user perms against $_REQUEST elements 
+
+        $u_perms = $this->account['permissions'];
+        $perm_array = array();
+
+        while(list($key,$val) = each($senior_perms)) {
+            if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
+                if(isset($_REQUEST[$key])) {
+                    $perm_array[$key] = 1;
+                } else {
+                    $perm_array[$key] = 0;
+                }
+            }
+        }
+
+        // Build set string
+        $edit_string = "";
+        $counter = 0;
+        while(list($key,$val) = each($perm_array)) {
+            $edit_string .= " $key=".$db->Quote($val);
+            $counter++;
+            if($counter < count($perm_array)) $edit_string .= ",";
+        }
+        $q = "update group_permissions set $edit_string where group_id='$id'";
+
+        return $q;
+    }
+
+    function returnEditAccountPermQuery($id,$inherit) {
+        global $default_perms,$user_perms,$db;
+
+        // If we are inheriting, just set that
+        if($inherit != NULL) {
+            $q = "update user_permissions set inherit_group_perms = 1  where user_id='$id'";
+            return $q;
+        }
+
+        // Otherwise get permissions key list from default_perms array
+        // Then compare user perms against $_REQUEST elements 
+
+        $perm_array = array();
+
+        while(list($key,$val) = each($default_perms)) {
+            if(isset($_REQUEST[$key])) {
+                $perm_array[$key] = 1;
+            } else {
+                $perm_array[$key] = 0;
+            }
+        }
+
+        // Build set string
+        $edit_string = " inherit_group_perms = 0, ";
+        $counter = 0;
+        while(list($key,$val) = each($perm_array)) {
+            $edit_string .= " $key=".$db->Quote($val);
+            $counter++;
+            if($counter < count($perm_array)) $edit_string .= ",";
+        }
+        $q = "update user_permissions set $edit_string where user_id='$id'";
+
+        return $q;
+    }
+
+    function returnCreateUserPermQuery($email) {
+        global $senior_perms,$db;
+        // Get permissions key list from senior_perms array
+        // Then compare user perms against $_REQUEST elements 
+
+        $u_perms = $this->account['permissions'];
+        $perm_array = array();
+
+        while(list($key,$val) = each($senior_perms)) {
+            if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
+                if(isset($_REQUEST[$key])) {
+                    $perm_array[$key] = 1;
+                } else {
+                    $perm_array[$key] = 0;
+                }
+            }
+        }
+
+        // Now that the perm_array is built, let's build the query string
+        if(($id = $this->returnUserID($email)) == NULL) return NULL;
+
+
+        // Build colmns, values
+        $col_string = "";
+        $val_string = "";
+        while(list($key,$val) = each($perm_array)) {
+            $col_string .= ",$key";
+            $val_string .= ",$val";
+        }
+        $q = "insert into user_permissions (user_id$col_string) values('$id'$val_string)" ;
+
+        // INHERIT???
+
+        return $q;
+    }
+
+
+};
