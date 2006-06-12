@@ -1,0 +1,43 @@
+** UPGRADING FROM 0.9.8 OR LOWER PLEASE READ **                  2/4/2005
+
+The smarty core code has been moved.  You will need to remove the old templates
+to avoid errors by issuing:
+
+sudo rm /usr/local/apache/vegadns/templates_c/*
+
+
+
+
+** UPGRADING FROM 0.9b1 OR LOWER PLEASE READ **                 9/23/2004
+
+You should remove the "> /dev/null" from your cron entry of update-data.sh.
+update-data.sh now provides some errors, and you want to get them.
+
+
+
+
+
+** UPGRADING FROM 0.7 OR LOWER PLEASE READ **                   5/19/2004
+
+As of version 0.8, passwords are no longer stored as plain text, but rather as 
+md5 hashes.  In order for your old passwords to work, you need to run the md5upgrade patch, which is located in the md5upgrade directory of your VegaDNS source.
+
+To upgrade, just point your browser to:
+
+http://your-server/vegadns-x.x/md5upgrade/index.php
+
+(replacing your-server with your hostname, and x.x with your new version)
+
+This script will verify that your accounts table does not have the correct 
+Password field length.  It will then provide you with an upgrade link.  When 
+you follow  this link, the Password field length will be changed for the 
+accounts table, and then each password will be replaced with the corresponding
+md5 hash.  Once this is complete, your users will be able to log in 
+successfully.
+
+Also note that since passwords are no longer stored in clear text, if you 
+forget your password, the system will generate a new one for you upon request.
+
+
+Bill Shupp
+hostmaster@shupp.org

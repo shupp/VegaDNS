@@ -1,0 +1,39 @@
+OVERVIEW
+
+VegaDNS is a tinydns administration tool written in PHP to allow easy 
+administration of DNS records through a web browser.
+
+FEATURES
+
+* Tiered access with Senior Admin, Group Admin, and User levels
+* Import multiple domains at once via AXFR
+* Uses PHP Sessions, no cookies required
+* Uses Smarty Template engine for clear separation of PHP from HTML
+* Web configurable Default Records to auto-populate new domains with
+* Free (GPL)
+
+REQUIREMENTS
+
+* PHP 4 (Requires register_globals to be Off for security)
+* MySQL
+* djbdns (http://cr.yp.to/djbdns.html)
+* ucspi-tcp (http://cr.yp.to/ucspi-tcp.html)
+* daemontools (http://cr.yp.to/daemontools/install.html)
+* wget (http://www.gnu.org/directory/wget.html)
+
+INSTALL
+see INSTALL
+
+LICENSE
+see LICENSE
+
+NON-COMMERICAL SUPPORT
+
+* Support Mailing List: users@vegadns.org 
+    (subscribe: users-subscribe@vegadns.org)
+* Announce Mailing List: announce@vegadns.org 
+    (subscribe: announce-subscribe@vegadns.org)
+
+COMMERCIAL SUPPORT
+
+* Please contact bill@merchbox.com for quote

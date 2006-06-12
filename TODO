@@ -1,0 +1,7 @@
+HIGH PRIORITY
+
+LOWER PRIORITY
+* More logging
+* Merge record.php and default_records.php (and supporting files)
+* Add ability to upload data files (one domain at a time)
+* Add checkbox for automatic PTR records when creating A records?
