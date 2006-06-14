@@ -220,7 +220,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         exit;
     }
     // make sure it's at least a correct domain name
-	if (!eregi("^[\.a-z0-9-]+$",$domain)) {
+    if (!eregi("^[\.a-z0-9-]+$",$domain)) {
         set_msg_err("Error: domain $domain does not appear to be a valid domain name");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
@@ -267,76 +267,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     if($id == -1) die("Error getting domain id");
     dns_log($id,"added domain $domain with status $domain_status");
 
-    // Get default records
-    if($user_info['Account_Type'] == 'user') {
-        $q = "select * from default_records where default_type='group' and group_owner_id='".$user_info['gid']."'";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0) {
-            // Get system default records
-            $q = "select * from default_records where default_type='system'";
-            $result = mysql_query($q) or die(mysql_error());
-         }
-    } else if($user_info['Account_Type'] == 'group_admin') {
-        $q = "select * from default_records where default_type='group' and group_owner_id='".$user_info['cid']."'";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0) {
-            // Get system default records
-            $q = "select * from default_records where default_type='system'";
-            $result = mysql_query($q) or die(mysql_error());
-        }
-    } else if($user_info['Account_Type'] == 'senior_admin') {
-        // Get system default records
-        $q = "select * from default_records where default_type='system'";
-        $result = mysql_query($q) or die(mysql_error());
-    }
-
-    if(mysql_num_rows($result) == 0) {
-        set_msg_err("Error: you have not yet setup default records");
-        header("Location: $base_url");
-        exit;
-    }
-
-    // Build arrays
-    $counter = 0;
-    while($row = mysql_fetch_array($result)) {
-        if($row['type'] == 'S' && !isset($soa_array)) {
-            $soa_array = $row;
-        } else {
-            $records_array[$counter] = $row;
-            $counter++;
-        }
-    }
-
-
-    // Add SOA record
-    $host = ereg_replace("DOMAIN", $domain, $soa_array['host']);
-    $val = ereg_replace("DOMAIN", $domain, $soa_array['val']);
-    $q = "insert into records (domain_id,host,type,val,ttl)
-            values('$id',
-            '".mysql_escape_string($host)."',
-            'S',
-            '$val',
-            '".$soa_array['ttl']."')";
-    mysql_query($q) or die(mysql_error());
-    dns_log($id, "added soa");
-            
-    // Add default records
-
-    if(is_array($records_array)) {
-        while(list($key,$row) = each($records_array)) {
-            $host = ereg_replace("DOMAIN", $domain, $row['host']);
-            $val = ereg_replace("DOMAIN", $domain, $row['val']);
-            $q = "insert into records (domain_id,host,type,val,distance,ttl)
-                values('$id',
-                '".mysql_escape_string($host)."',
-                '".$row['type']."',
-                '$val',
-                '".$row['distance']."',
-                '".$row['ttl']."')";
-            mysql_query($q) or die(mysql_error());
-            dns_log($id, "added ".$row['type']." $host with value $val");
-        }
-    }
+    add_default_records($domain, $user_info);
 
     // Email the support address if an inactive domain is added
     $body = "inactive domain \"$domain\" added by ".$user_info['Email']."\n\n";
@@ -602,21 +533,22 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             }
 	}
         if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']=="on") {
-	 $counter=0;
-         while ($ns = $def_ns[$counter]) {
-	  $host = ereg_replace("DOMAIN", $domain, $ns['host']);
-          $q = "insert into records 
-                (domain_id,host,type,val,distance,ttl) 
-                values(
-                $domain_id,
-                '".mysql_escape_string($host)."',
-                'N',
-                '".mysql_escape_string($ns['val'])."',
-                '".$ns['distance']."',
-                '".$ns['ttl']."')";
-          mysql_query($q) or die(mysql_error().$q);	  
-	  $counter++;
-	 }
+            $counter=0;
+            while (isset($def_ns[$counter])) {
+                $ns = $def_ns[$counter];
+                $host = ereg_replace("DOMAIN", $domain, $ns['host']);
+                $q = "insert into records 
+                    (domain_id,host,type,val,distance,ttl) 
+                    values(
+                        $domain_id,
+                        '".mysql_escape_string($host)."',
+                        'N',
+                        '".mysql_escape_string($ns['val'])."',
+                        '".$ns['distance']."',
+                        '".$ns['ttl']."')";
+                mysql_query($q) or die(mysql_error().$q);	  
+                $counter++;
+            }
 	}
         $log_entry = "imported via axfr from ".$_REQUEST['hostname'];
         dns_log($domain_id,$log_entry);
