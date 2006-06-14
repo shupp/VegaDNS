@@ -22,18 +22,20 @@
  *                month values (Gary Loescher)
  *           - 1.3.1 added support for choosing format for
  *                day values (Marcus Bointon)
- *           - 1.3.2 suppport negative timestamps, force year
+ *           - 1.3.2 support negative timestamps, force year
  *             dropdown to include given date unless explicitly set (Monte)
  * @link http://smarty.php.net/manual/en/language.function.html.select.date.php {html_select_date}
  *      (Smarty online manual)
  * @version 1.3.2
- * @author   Andrei Zmievski
+ * @author Andrei Zmievski
+ * @author Monte Ohrt <monte at ohrt dot com>
  * @param array
  * @param Smarty
  * @return string
  */
 function smarty_function_html_select_date($params, &$smarty)
 {
+    require_once $smarty->_get_plugin_filepath('shared','escape_special_chars');
     require_once $smarty->_get_plugin_filepath('shared','make_timestamp');
     require_once $smarty->_get_plugin_filepath('function','html_options');
     /* Default values. */
@@ -78,6 +80,7 @@ function smarty_function_html_select_date($params, &$smarty)
     $day_empty       = null;
     $month_empty     = null;
     $year_empty      = null;
+    $extra_attrs     = '';
 
     foreach ($params as $_key=>$_value) {
         switch ($_key) {
@@ -119,8 +122,12 @@ function smarty_function_html_select_date($params, &$smarty)
                 break;
 
             default:
-                $smarty->trigger_error("[html_select_date] unknown parameter $_key", E_USER_WARNING);
-
+                if(!is_array($_value)) {
+                    $extra_attrs .= ' '.$_key.'="'.smarty_function_escape_special_chars($_value).'"';
+                } else {
+                    $smarty->trigger_error("html_select_date: extra attribute '$_key' cannot be an array", E_USER_NOTICE);
+                }
+                break;
         }
     }
 
@@ -194,11 +201,11 @@ function smarty_function_html_select_date($params, &$smarty)
         if (null !== $all_extra){
             $month_result .= ' ' . $all_extra;
         }
-        $month_result .= '>'."\n";
+        $month_result .= $extra_attrs . '>'."\n";
 
         $month_result .= smarty_function_html_options(array('output'     => $month_names,
                                                             'values'     => $month_values,
-                                                            'selected'   => $a=$time[1] ? strftime($month_value_format, mktime(0, 0, 0, (int)$time[1], 1, 2000)) : '',
+                                                            'selected'   => (int)$time[1] ? strftime($month_value_format, mktime(0, 0, 0, (int)$time[1], 1, 2000)) : '',
                                                             'print_result' => false),
                                                       $smarty);
         $month_result .= '</select>';
@@ -230,7 +237,7 @@ function smarty_function_html_select_date($params, &$smarty)
         if (null !== $day_extra){
             $day_result .= ' ' . $day_extra;
         }
-        $day_result .= '>'."\n";
+        $day_result .= $extra_attrs . '>'."\n";
         $day_result .= smarty_function_html_options(array('output'     => $days,
                                                           'values'     => $day_values,
                                                           'selected'   => $time[2],
@@ -253,7 +260,7 @@ function smarty_function_html_select_date($params, &$smarty)
             if (null !== $year_extra){
                 $year_result .= ' ' . $year_extra;
             }
-            $year_result .= '>';
+            $year_result .= ' />';
         } else {
             $years = range((int)$start_year, (int)$end_year);
             if ($reverse_years) {
@@ -276,7 +283,7 @@ function smarty_function_html_select_date($params, &$smarty)
             if (null !== $year_extra){
                 $year_result .= ' ' . $year_extra;
             }
-            $year_result .= '>'."\n";
+            $year_result .= $extra_attrs . '>'."\n";
             $year_result .= smarty_function_html_options(array('output' => $years,
                                                                'values' => $yearvals,
                                                                'selected'   => $time[0],
