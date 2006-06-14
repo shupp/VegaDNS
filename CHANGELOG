@@ -1,5 +1,9 @@
 * 1.1.6 
     - Bill Shupp (hostmaster@shupp.org)
+     6/13/2006
+        - Update Smarty to 2.6.14
+        - Update ADODB to 4.90
+        - Fix parse error in help.php
      3/6/2006
         - Change group_id to a.group_id in domains.php for broken where clause
         - Check for PTR typr before appending domain name to in-addr.arpa for 

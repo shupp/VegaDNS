@@ -62,7 +62,7 @@ if(!isset($_REQUEST['mode'])) {
             $body .= "The VegaDNS Team";
 
             mail(strtolower($_REQUEST['username']),"Requested information",$body, "Return-path: $supportemail\r\nFrom: \"$supportname\" <$supportemail>");
-            set_msg("Your password has been mailed to you";
+            set_msg("Your password has been mailed to you");
             header("Location: ".$_SERVER['PHP_SELF']."?".SID);
 
         }
