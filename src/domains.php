@@ -343,7 +343,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     $body .= "\n\nThanks,\n\n";
     $body .= "VegaDNS";
 
-    mail(strtolower($_REQUEST['username']),"New Inactive Domain Created",$body
+    mail($email,"New Inactive Domain Created",$body
 , "Return-path: $supportemail\r\nFrom: \"$supportname\" <$supportemail>");
 
     set_msg("Domain $domain added successfully!");

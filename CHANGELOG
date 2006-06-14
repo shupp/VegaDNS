@@ -1,5 +1,7 @@
-* 0.9.9.2 6/13/2006
+* 0.9.9.2 6/14/2006
     - Bill Shupp (hostmaster@shupp.org)
+        - Fixe wrong mail() argument in domains.php
+
         - Added Robin Bowes changes
             - Change error_reporting to E_ALL
             - Add "-R" to the tcpclient command.
