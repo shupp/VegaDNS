@@ -40,7 +40,7 @@ $q = "CREATE TABLE accounts (
 ) TYPE=MyISAM";
 mysql_query($q) or die(mysql_error());
 
-$q = "INSERT INTO accounts VALUES (0,0,'test@test.com','".md5(test)."','Test','User','','senior_admin','active')";
+$q = "INSERT INTO accounts VALUES (0,0,'test@test.com','".md5('test')."','Test','User','','senior_admin','active')";
 mysql_query($q) or die(mysql_error()."<br>".$q);
 
 $q = "CREATE TABLE active_sessions (

@@ -35,7 +35,7 @@ function authenticate_user($email, $password) {
     mysql_query("delete from active_sessions where time < $oldsessions");
     $result = mysql_query("select Email from accounts where 
         Email='".mysql_real_escape_string(strtolower($email))."' and 
-        Password='".md5($password)."' and
+        Password='".$password."' and
         Status='active' LIMIT 1") or die(mysql_error());
     $resultarray = mysql_fetch_array($result);
     if($resultarray['Email'] != "") {
@@ -294,36 +294,39 @@ function verify_record($name,$type,$address,$distance,$ttl) {
 function parse_soa($soa) {
 
     $email_soa = explode(":", $soa['host']);
-    $array['tldemail'] = $email_soa[0];
-    $array['tldhost'] = $email_soa[1];
-
+    if (isset($email_soa[0])) {
+        $array['tldemail'] = $email_soa[0];
+    }
+    if (isset($email_soa[1])) {
+        $array['tldhost'] = $email_soa[1];
+    }
     $ttls_soa = explode(":", $soa['val']);
     // ttl
-    if($soa['ttl'] == "") {
+    if(!isset($soa['ttl']) || $soa['ttl'] == "") {
         $array['ttl'] = 86400;
     } else {
         $array['ttl'] = $soa['ttl'];
     }
     // refresh
-    if($ttls_soa[0] == "") {
+    if(!isset($ttls_soa[0]) || $ttls_soa[0] == "") {
         $array['refresh'] = 16384;
     } else {
         $array['refresh'] = $ttls_soa[0];
     }
     // retry
-    if($ttls_soa[1] == "") {
+    if (!isset($ttls_soa[1]) || $ttls_soa[1] == "") {
         $array['retry'] = 2048;
     } else {
         $array['retry'] = $ttls_soa[1];
     }
     // expiration
-    if($ttls_soa[2] == "") {
+    if (!isset($ttls_soa[2]) || $ttls_soa[2] == "") {
         $array['expire'] = 1048576;
     } else {
         $array['expire'] = $ttls_soa[2];
     }
     // min
-    if($ttls_soa[3] == "") {
+    if(!isset($ttls_soa[3]) || $ttls_soa[3] == "") {
         $array['minimum'] = 2560;
     } else {
         $array['minimum'] = $ttls_soa[3];
@@ -381,6 +384,7 @@ function parse_dataline($line) {
     // Strip first char
     $stripped = ereg_replace("^.", "", $line);
     $array = explode(":", $stripped);
+    $out_array = '';
 
     // Format the array according to the type
     if(strncmp('+', $line, 1) == 0) {

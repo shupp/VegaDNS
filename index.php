@@ -23,6 +23,7 @@ ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 ini_set('allow_url_fopen', 0);
 ini_set('session.use_cookies',0);
+ini_set('error_reporting', E_ALL);
 
 // Check that register_globals is off
 if(ini_get('register_globals')) {

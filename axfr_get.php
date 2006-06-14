@@ -45,7 +45,7 @@ $hostname = $_REQUEST['hostname'];
 $rand = rand();
 $file = "/tmp/$domain.$rand";
 
-$command = "/usr/local/bin/tcpclient '".escapeshellcmd($hostname)."' 53 /usr/local/bin/axfr-get '".escapeshellcmd($domain)."' $file $file.tmp 2>&1";
+$command = "/usr/local/bin/tcpclient -R '".escapeshellcmd($hostname)."' 53 /usr/local/bin/axfr-get '".escapeshellcmd($domain)."' $file $file.tmp 2>&1";
 exec($command, $out);
 
 // Print any errors first

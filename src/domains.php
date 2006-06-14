@@ -531,10 +531,10 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     $counter = 0;
     // default SOA and NS
-    if ($_REQUEST['default_soa']=="on")
+    if (isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on")
      $def_soa=mysql_fetch_array(
       mysql_query("SELECT host,val FROM default_records WHERE type='S'"));
-    if ($_REQUEST['default_ns']=="on") {
+    if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']=="on") {
      $q=mysql_query("SELECT host,val,distance,ttl FROM default_records WHERE type='N'");
      while ($l = mysql_fetch_array($q))
       $def_ns[]=$l;
@@ -582,11 +582,11 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             if($line_key != 'domain' && !ereg("^#", $value)) {
                 $result = parse_dataline($value);
                 if(is_array($result)) {
-		    if (($_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
+		    if ((isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
 		     $result['val']=$def_soa['val'];
 		     $result['host']=$def_soa['host'];
 		    }
-		    if (($_REQUEST['default_ns']!="on") || ($result['type']!='N')) {
+		    if ((isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']!="on") || ($result['type']!='N')) {
                      $q = "insert into records 
                          (domain_id,host,type,val,distance,ttl) 
                          values(
@@ -601,7 +601,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
                 }
             }
 	}
-        if ($_REQUEST['default_ns']=="on") {
+        if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']=="on") {
 	 $counter=0;
          while ($ns = $def_ns[$counter]) {
 	  $host = ereg_replace("DOMAIN", $domain, $ns['host']);
