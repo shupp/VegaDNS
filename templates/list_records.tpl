@@ -80,8 +80,7 @@
 </tr>
 <tr bgcolor="#cccccc">
   <td>Records</td>
-  <td align="right" width="11%"><a href="{$apply_default_records_url}">Apply Default Records</a></td>
-  <td align="right" width="6%" nowrap><a href="{$add_record_url}">add record</a></td>
+  <td align="right" width="5%" nowrap><a href="{$add_record_url}">add record</a></td>
   <td align="right" width="5%" nowrap><a href="{$view_log_url}">view log</a></td>
   </tr>
 </table>

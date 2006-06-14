@@ -230,7 +230,6 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     $smarty->assign('display_soa', $display_soa);
     $smarty->assign('add_record_url', "$base_url&mode=records&record_mode=add_record&domain=$domain");
     $smarty->assign('view_log_url', "$base_url&mode=records&record_mode=view_log&domain=$domain");
-    $smarty->assign('apply_default_records_url', "$base_url&mode=records&record_mode=apply_default_records&domain=$domain");
 
     $smarty->assign('all_url', "$base_url&mode=records&domain=$domain&page=all&sortfield=$sortfield&sortway=$sortway&search=".urlencode($search));
     $smarty->assign('first_record', $first_record);
@@ -537,35 +536,6 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         header("Location: $base_url&mode=records&domain=".urlencode($domain));
         exit;
     }
-
-} else if($_REQUEST['record_mode'] == 'apply_default_records') {
-    // apply default records
-    // echo "It's working!";
-    $smarty->assign('domain', $domain);
-    $smarty->assign('cancel_url', "$base_url&mode=records&domain=".urlencode($domain)."&record_mode=delete_cancelled");
-    $smarty->assign('apply_url', "$base_url&mode=records&record_mode=apply_default_records_now&domain=".urlencode($domain));
-    $smarty->display('header.tpl');
-    $smarty->display('apply_default_records_confirm.tpl');
-    $smarty->display('footer.tpl');
-
-    exit;
-
-} else if($_REQUEST['record_mode'] == 'apply_default_records_now') {
-    // apply default records
-    // make sure the domain was given
-    if(!isset($_REQUEST['domain'])) {
-        set_msg_err("Error: no domain");
-        $smarty->display('header.tpl');
-        $smarty->display('footer.tpl');
-        exit;
-    }
-
-    add_default_records($domain, $user_info);
-
-    set_msg("Default records applied successfully");
-    header("Location: $base_url&mode=records&domain=".urlencode($domain));
-
-    exit; 
 
 } else {
 

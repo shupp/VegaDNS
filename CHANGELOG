@@ -7,8 +7,6 @@
                 -tnx Bob Hutchinson.
             - Lots of undefined index error fixes
             - Removed MD5 function from query in authenticate_user function
-            - Move default records code to a function, add 
-                "apply default records to all domains".
 
 * 0.9.9.1 9/7/2005
     - Backported changes from 1.1.5:
