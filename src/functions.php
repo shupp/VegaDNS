@@ -35,7 +35,7 @@ function authenticate_user($email, $password) {
     mysql_query("delete from active_sessions where time < $oldsessions");
     $result = mysql_query("select Email from accounts where 
         Email='".mysql_real_escape_string(strtolower($email))."' and 
-        Password='".$password."' and
+        Password='".md5($password)."' and
         Status='active' LIMIT 1") or die(mysql_error());
     $resultarray = mysql_fetch_array($result);
     if($resultarray['Email'] != "") {

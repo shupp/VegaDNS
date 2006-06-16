@@ -97,7 +97,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
         Phone='".mysql_escape_string($_REQUEST['phone'])."', 
         Email='".mysql_escape_string(strtolower($_REQUEST['email_address']))."'";
     if ($_REQUEST['password']!="") {
-     $q .=  ", Password='".md5(mysql_escape_string($_REQUEST['password']))."'";
+     $q .=  ", Password='".md5($_REQUEST['password'])."'";
     }
     if($user_info['Account_Type'] == 'senior_admin') {
         $q .= ", Account_Type='".$_REQUEST['account_type']."'";
@@ -176,7 +176,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
                 '".mysql_escape_string($_REQUEST['last_name'])."',
                 '".mysql_escape_string($_REQUEST['email_address'])."',
                 '".mysql_escape_string($_REQUEST['phone'])."',
-                '".md5(mysql_escape_string($_REQUEST['password']))."',";
+                '".md5($_REQUEST['password'])."',";
         if($user_info['Account_Type'] == 'group_admin') {
             $q .= " 'user',
                     'active')";
