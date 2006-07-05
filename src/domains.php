@@ -412,6 +412,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             exit;
         }
     }
+    $domain = $dom_row['domain'];
 
 
     $q = "delete from domains where domain_id='".$_REQUEST['domain_id']."'";
@@ -531,13 +532,22 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     $counter = 0;
     // default SOA and NS
-    if (isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on")
-     $def_soa=mysql_fetch_array(
-      mysql_query("SELECT host,val FROM default_records WHERE type='S'"));
-    if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']=="on") {
-     $q=mysql_query("SELECT host,val,distance,ttl FROM default_records WHERE type='N'");
-     while ($l = mysql_fetch_array($q))
-      $def_ns[]=$l;
+    if (isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=='on')
+        $def_soa = mysql_fetch_array(
+            mysql_query("SELECT host,val FROM default_records WHERE type='S'")
+        );
+    if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns'] == 'on') {
+        $q = "SELECT host,val,distance,ttl FROM default_records WHERE type='N'";
+        $result = mysql_query($q) or die(mysql_error());
+        if(mysql_num_rows($result) >= 1) {
+            $def_cnt = 0;
+            while ($def_row = mysql_fetch_array($result)) {
+                $def_ns[$def_cnt] = $def_row;
+                $def_cnt++;
+            }
+        } else {
+            $def_ns = '';
+        }
     }
 
     while(list($key,$domain) = each($array)) {
@@ -570,6 +580,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         }
     }
 
+
     // ADD TO SQL
     while(list($key,$line) = each($domains_array)) {
         $domain = $line['domain'];
@@ -578,49 +589,51 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         mysql_query($q) or die(mysql_error());
         $domain_id = get_dom_id($domain);
 
+        $skip_ns = 'FALSE';
+        if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns'] == 'on') {
+            $skip_ns = 'TRUE';
+            if(is_array($def_ns)) {
+                foreach ($def_ns as $ns) {
+	                $host = ereg_replace("DOMAIN", $domain, $ns['host']);
+                    $q = "insert into records 
+                        (domain_id,host,type,val,distance,ttl) 
+                        values(
+                        $domain_id,
+                        '".mysql_escape_string($host)."',
+                        'N',
+                        '".mysql_escape_string($ns['val'])."',
+                        '".$ns['distance']."',
+                        '".$ns['ttl']."')";
+                    mysql_query($q) or die(mysql_error().$q);	  
+	                $counter++;
+	            }
+	        }
+	    }
         while(list($line_key,$value) = each($line)) {
             if($line_key != 'domain' && !ereg("^#", $value)) {
                 $result = parse_dataline($value);
-                if(is_array($result)) {
-		    if ((isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
-		     $result['val']=$def_soa['val'];
-		     $result['host']=$def_soa['host'];
+                if(!is_array($result)) continue;
+		        if ((isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
+		            $result['val']=$def_soa['val'];
+		            $result['host']=$def_soa['host'];
+		        }
+		        // if ((isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']!="on") || ($result['type']!='N')) {
+		        if ($result['type'] == 'N' && $skip_ns == 'TRUE') continue;
+                $q = "insert into records 
+                    (domain_id,host,type,val,distance,ttl) 
+                    values(
+                        $domain_id,
+                        '".mysql_escape_string(ereg_replace("[\]052", "*", $result['host']))."',
+                        '".$result['type']."',
+                        '".mysql_escape_string($result['val'])."',
+                        '".$result['distance']."',
+                        '".$result['ttl']."')";
+                mysql_query($q) or die(mysql_error().$q);
 		    }
-		    if ((isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']!="on") || ($result['type']!='N')) {
-                     $q = "insert into records 
-                         (domain_id,host,type,val,distance,ttl) 
-                         values(
-                             $domain_id,
-                             '".mysql_escape_string(ereg_replace("[\]052", "*", $result['host']))."',
-                             '".$result['type']."',
-                             '".mysql_escape_string($result['val'])."',
-                             '".$result['distance']."',
-                             '".$result['ttl']."')";
-                     mysql_query($q) or die(mysql_error().$q);
-		    }
-                }
-            }
+	    }
 	}
-        if (isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']=="on") {
-	 $counter=0;
-         while ($ns = $def_ns[$counter]) {
-	  $host = ereg_replace("DOMAIN", $domain, $ns['host']);
-          $q = "insert into records 
-                (domain_id,host,type,val,distance,ttl) 
-                values(
-                $domain_id,
-                '".mysql_escape_string($host)."',
-                'N',
-                '".mysql_escape_string($ns['val'])."',
-                '".$ns['distance']."',
-                '".$ns['ttl']."')";
-          mysql_query($q) or die(mysql_error().$q);	  
-	  $counter++;
-	 }
-	}
-        $log_entry = "imported via axfr from ".$_REQUEST['hostname'];
-        dns_log($domain_id,$log_entry);
-    }
+    $log_entry = "imported via axfr from ".$_REQUEST['hostname'];
+    dns_log($domain_id,$log_entry);
     set_msg("Domains added successfully!");
     header("Location: $base_url");
     exit;

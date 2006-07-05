@@ -141,6 +141,12 @@ if($_REQUEST['user_mode'] == 'edit_account') {
 
 } else if($_REQUEST['user_mode'] == 'add_account_now') {
 
+    // Set account id based on user type
+    $id = set_edit_id($user_info);
+
+    // Get account info
+    $account_info = get_account_info($id);
+
     // Make sure this is a senior admin
     if($user_info['Account_Type'] != 'senior_admin'
         && $user_info['Account_Type'] != 'group_admin') {

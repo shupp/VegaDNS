@@ -1,3 +1,7 @@
+* 0.9.9.4 7/5/2006
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fix problems in add_account_now and import_domains
+
 * 0.9.9.3 6/15/2006
     - Bill Shupp (hostmaster@shupp.org)
         - Re-add md5() in authenticate_user().  Its removal broke logins in
