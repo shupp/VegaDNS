@@ -57,7 +57,7 @@ if(!isset($_REQUEST['mode'])) {
 	    $db->Execute("update accounts set password='".md5($newpass)."' where user_id=".$fa[0]) or die($db->ErrorMsg);
             $body = "Here is your requested information:\n\n";
             $body .= "Your new password is: ".$newpass."\n\n";
-            $body .= "If you have further questions, please contact $supportemailm\n";
+            $body .= "If you have further questions, please contact $supportemail\n";
             $body .= "\n\nThanks,\n\n";
             $body .= "The VegaDNS Team";
 
