@@ -57,7 +57,7 @@ if(!isset($_REQUEST['mode'])) {
 	    mysql_query("update accounts set Password='".md5($newpass)."' where cid=".$fa[0]);
             $body = "Here is your requested information:\n\n";
             $body .= "Your new password is: ".$newpass."\n\n";
-            $body .= "If you have further questions, please contact $supportemailm\n";
+            $body .= "If you have further questions, please contact $supportemail\n";
             $body .= "\n\nThanks,\n\n";
             $body .= "The VegaDNS Team";
 

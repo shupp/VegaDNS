@@ -1,3 +1,7 @@
+* 0.9.9.5 7/18/2006
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fix typo in line 60 that generated a warning
+
 * 0.9.9.4 7/5/2006
     - Bill Shupp (hostmaster@shupp.org)
         - Fix problems in add_account_now and import_domains
