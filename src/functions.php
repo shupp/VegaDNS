@@ -331,6 +331,12 @@ function parse_soa($soa) {
     } else {
         $array['minimum'] = $ttls_soa[3];
     }
+    // serial
+    if(!isset($ttls_soa[4]) || $ttls_soa[4] == "") {
+        $array['serial'] = '';
+    } else {
+        $array['serial'] = $ttls_soa[4];
+    }
 
     return $array;
 
@@ -370,7 +376,7 @@ function build_data_line($row,$domain) {
         $s = "C".$row['host'].":".$row['val'].":".$row['ttl']."\n";
     } else if($row['type'] == 'S') {
         $soa = parse_soa($row);
-        $s = "Z".$domain.":".$soa['tldhost'].":".$soa['tldemail']."::".$soa['refresh'].":".$soa['retry'].":".$soa['expire'].":".$soa['minimum'].":".$soa['ttl']."\n";
+        $s = "Z".$domain.":".$soa['tldhost'].":".$soa['tldemail'].":".$soa['serial'].":".$soa['refresh'].":".$soa['retry'].":".$soa['expire'].":".$soa['minimum'].":".$soa['ttl']."\n";
     } else {
         $s = "\n";
     }
@@ -414,7 +420,7 @@ function parse_dataline($line) {
     } else if(strncmp('Z', $line, 1) == 0) {
         $out_array['host'] = $array[2].":".$array[1];
         $out_array['type'] = 'S';
-        $out_array['val'] = $array[4].":".$array[5].":".$array[6].":".$array[7];
+        $out_array['val'] = $array[4].":".$array[5].":".$array[6].":".$array[7].":".$array[3];
         $out_array['distance'] = '';
         $out_array['ttl'] = $array[8];
     } else if(strncmp('^', $line, 1) == 0) {

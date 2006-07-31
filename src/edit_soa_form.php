@@ -66,4 +66,10 @@ if(isset($_REQUEST['minimum'])) {
     $smarty->assign('minimum',  $soa['minimum']);
 }
 
+if(isset($_REQUEST['serial'])) {
+    $smarty->assign('serial',  $_REQUEST['serial']);
+} else {
+    $smarty->assign('serial',  $soa['serial']);
+}
+
 $smarty->display('edit_soa_form.tpl');

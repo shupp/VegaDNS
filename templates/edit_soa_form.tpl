@@ -26,6 +26,11 @@
         <td align="left">hostmaster.{$domain|escape}</td>
     </tr>
     <tr bgcolor="#eeeeee">
+        <td>Serial Number</td>
+        <td align="left"><input type="text" name="serial" size=10 value="{$serial}"></td>
+        <td align="left">(leave blank for djbdns default)</td>
+    </tr>
+    <tr bgcolor="#eeeeee">
         <td>TTL</td>
         <td align="left"><input type="text" name="ttl" size=10 value="{$ttl}"></td>
         <td align="left">86400</td>

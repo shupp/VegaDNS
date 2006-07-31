@@ -25,6 +25,11 @@
         <td align="left">hostmaster.DOMAIN</td>
     </tr>
     <tr bgcolor="#eeeeee">
+        <td>Serial</td>
+        <td align="left"><input type="text" name="serial" size=10 value="{$soa_array.serial}"></td>
+        <td align="left">(leave blank for djbdns default)</td>
+    </tr>
+    <tr bgcolor="#eeeeee">
         <td>TTL</td>
         <td align="left"><input type="text" name="ttl" size=10 value="{$soa_array.ttl}"></td>
         <td align="left">86400</td>
