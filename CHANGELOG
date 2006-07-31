@@ -1,3 +1,7 @@
+* 0.9.9.6 7/31/2006
+    - Bill Shupp (hostmaster@shupp.org)
+        - Add serial record support
+
 * 0.9.9.5 7/18/2006
     - Bill Shupp (hostmaster@shupp.org)
         - Fix typo in line 60 that generated a warning
