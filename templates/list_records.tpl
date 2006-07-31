@@ -31,7 +31,7 @@
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Serial Number:</td>
-      <td width="40%" nowrap>Default</td>
+      <td width="40%" nowrap>{$serial}</td>
       <td width="10%" nowrap>Minimum TTL:&nbsp</td>
       <td width="40%" nowrap>{$minimum}</td>
   </tr>
