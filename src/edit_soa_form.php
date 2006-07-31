@@ -72,4 +72,8 @@ if(isset($_REQUEST['serial'])) {
     $smarty->assign('serial',  $soa['serial']);
 }
 
-$smarty->display('edit_soa_form.tpl');
+if($_REQUEST['mode'] == 'default_records') {
+    $smarty->display('edit_default_soa_form.tpl');
+} else {
+    $smarty->display('edit_soa_form.tpl');
+}
