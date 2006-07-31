@@ -220,6 +220,11 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         $smarty->assign('tldemail', $soa_array['tldemail']);
         $smarty->assign('tldhost', $soa_array['tldhost']);
         $smarty->assign('edit_soa_url', "$base_url&mode=records&record_mode=edit_soa&domain=$domain");
+        if(strlen($soa_array['serial']) == 0 ) {
+            $smarty->assign('serial', '(using djbdns default)');
+        } else {
+            $smarty->assign('serial', $soa_array['serial']);
+        }
         $smarty->assign('refresh', $soa_array['refresh']);
         $smarty->assign('retry', $soa_array['retry']);
         $smarty->assign('expire', $soa_array['expire']);
@@ -428,13 +433,13 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     
     // Build array
     $array['host'] = $_REQUEST['contactaddr'].':'.$_REQUEST['primary_name_server'];
-    $array['val'] = $_REQUEST['refresh'].':'.$_REQUEST['retry'].':'.$_REQUEST['expire'].':'.$_REQUEST['minimum'];
+    $array['val'] = $_REQUEST['refresh'].':'.$_REQUEST['retry'].':'.$_REQUEST['expire'].':'.$_REQUEST['minimum'].':'.$_REQUEST['serial'];
 
     $return = parse_soa($array);
 
     // Update table
     $host = $return['tldemail'].':'.$return['tldhost'];
-    $val = $return['refresh'].':'.$return['retry'].':'.$return['expire'].':'.$return['minimum'];
+    $val = $return['refresh'].':'.$return['retry'].':'.$return['expire'].':'.$return['minimum'].':'.$return['serial'];
     $q = "update records set host='$host',
         val='$val',
         ttl='".$_REQUEST['ttl']."'  where type='S' and 
