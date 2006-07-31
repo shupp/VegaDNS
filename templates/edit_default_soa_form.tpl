@@ -1,6 +1,6 @@
 <form action="{$php_self}">
 <input type="hidden" name="state" value="{$state}">
-<input type="hidden" name="mode" value="records">
+<input type="hidden" name="mode" value="default_records">
 <input type="hidden" name="domain" value="{$domain|escape}">
 <input type="hidden" name="{$session_name}" value="{$session_id}">
 <input type="hidden" name="record_mode" value="edit_soa_now">
@@ -17,13 +17,13 @@
     <table border=0 "width=100%">
     <tr bgcolor="#eeeeee">
         <td nowrap>Primary Name Server</td>
-        <td align="left"><input type="text" name="primary_name_server" value="{$primary_name_server|escape}"></td>
+        <td align="left"><input type="text" name="primary_name_server" value="ns1.myserver.com"></td>
         <td>defaults:</td>
     </tr>
     <tr bgcolor="#eeeeee">
         <td nowrap>Contact Address</td>
-        <td align="left"><input type=text name="contactaddr" value="{$contactaddr|escape}"></td>
-        <td align="left">hostmaster.{$domain|escape}</td>
+        <td align="left"><input type=text name="contactaddr" value="hostmaster.DOMAIN"></td>
+        <td align="left">hostmaster.DOMAIN</td>
     </tr>
     <tr bgcolor="#eeeeee">
         <td>TTL</td>
