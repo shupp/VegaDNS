@@ -1,3 +1,9 @@
+* 0.9.10 9/5/2006
+    - Bill Shupp (hostmaster@shupp.org)
+        - Update CREDITS
+        - Fix php notice in records.php
+        - Fix default soa records problems
+
 * 0.9.9.6 7/31/2006
     - Bill Shupp (hostmaster@shupp.org)
         - Add serial record support

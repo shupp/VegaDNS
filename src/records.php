@@ -423,7 +423,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     }
 
     // Check email
-    if($_REQUEST['contactaddr'] == "") {
+    if(!isset($_REQUEST['contactaddr']) || $_REQUEST['contactaddr'] == "") {
         set_msg_err("Error: missing email address");
         $smarty->display('header.tpl');
         require('src/edit_soa_form.php');

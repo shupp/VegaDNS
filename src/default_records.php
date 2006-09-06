@@ -275,7 +275,7 @@ if(!isset($_REQUEST['record_mode'])) {
 
 
     // Check email
-    if($_REQUEST['tldemail'] == "") {
+    if(!isset($_REQUEST['contactaddr']) || $_REQUEST['contactaddr'] == "") {
         set_msg_err("Error: missing contact address");
         $smarty->display('header.tpl');
         require('src/edit_default_soa_form.php');
@@ -302,7 +302,7 @@ if(!isset($_REQUEST['record_mode'])) {
         $new_soa = 0;
     }
     // Build array from $_REQUEST
-    $array['host'] = $_REQUEST['tldemail'].':'.$_REQUEST['tldhost'];
+    $array['host'] = $_REQUEST['contactaddr'].':'.$_REQUEST['primary_name_server'];
     $array['val'] = $_REQUEST['refresh'].':'.$_REQUEST['retry'].':'.$_REQUEST['expire'].':'.$_REQUEST['minimum'];
 
     $return = parse_soa($array);

@@ -6,3 +6,6 @@ http://inter7.com/dnsadmin/schema.txt
 
 The background image and style sheet (modified) came from the phpSysInfo source
 (http://phpsysinfo.sf.net)
+
+SOA Serial Number support was sponsored by Dan Delaney, Christian Oswald, Chris
+Lukas, Sean Klechak, Ryan Morales and Mark Andrich.
