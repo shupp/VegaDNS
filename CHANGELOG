@@ -3,6 +3,7 @@
         - Update CREDITS
         - Fix php notice in records.php
         - Fix default soa records problems
+        - Update Copyrights for 2006 in vegadns-stable
 
 * 0.9.9.6 7/31/2006
     - Bill Shupp (hostmaster@shupp.org)

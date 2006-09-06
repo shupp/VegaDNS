@@ -11,7 +11,7 @@
  * 
  * LICENSE:
  * This software is distributed under the GNU General Public License
- * Copyright 2003-2005, MerchBox.Com
+ * Copyright 2003-2006, MerchBox.Com
  * see COPYING for details
  * 
  */ 
@@ -37,7 +37,7 @@ $mysql_pass = 'secret';
 $mysql_db = 'vegadns';
 
 // Local URL 
-$vegadns_url = 'http://127.0.0.1/vegadns-0.9.9.6/';
+$vegadns_url = 'http://127.0.0.1/vegadns-0.9.10/';
 
 // Contact info used in from/to addresses of email notifactions for inactive
 // domains
@@ -68,7 +68,7 @@ $dns_tools_dir = '/usr/local/bin';
 // NO NEED TO EDIT BELOW THIS LINE //
 /////////////////////////////////////
 
-$version = '0.9.9.6';
+$version = '0.9.10';
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF']) 
     && !ereg(".*/axfr_get.php$", $_SERVER['PHP_SELF'])) {

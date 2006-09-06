@@ -10,7 +10,7 @@
  * 
  * LICENSE:
  * This software is distributed under the GNU General Public License
- * Copyright 2003-2005, MerchBox.Com
+ * Copyright 2003-2006, MerchBox.Com
  * see COPYING for details
  * 
  */ 
