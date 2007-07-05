@@ -640,22 +640,21 @@ function parse_dataline($line) {
             $out_array['distance'] = '';
             $out_array['ttl'] = $array[3];
         }
-	if($array[1] == '33') {
-	   // DOPRY:
-	   $out_array['host'] = $array[0];
-           $out_array['type'] = 'V';
+	    if($array[1] == '33') {
+	        // DOPRY:
+	        $out_array['host'] = $array[0];
+            $out_array['type'] = 'V';
 
-	   // decode the rdata octets
-	   $srv_rdata = decode_rdata('cccq',$array[2]);
-	   $out_array['val'] = $srv_rdata[3];
-           $out_array['distance'] = $srv_rdata[0];
-	   $out_array['weight'] = $srv_rdata[1];
-	   $out_array['port'] = $srv_rdata[2];
-           // back to your regularly scheduled programming.
+	        // decode the rdata octets
+	        $srv_rdata = decode_rdata('cccq',$array[2]);
+	        $out_array['val'] = $srv_rdata[3];
+            $out_array['distance'] = $srv_rdata[0];
+	        $out_array['weight'] = $srv_rdata[1];
+	        $out_array['port'] = $srv_rdata[2];
+            // back to your regularly scheduled programming.
 
-           $out_array['ttl'] = $array[3];
- 
-	}
+            $out_array['ttl'] = $array[3];
+	    }
     }
     return $out_array;
 
