@@ -40,7 +40,7 @@
     tinydns administration - version {$version}<p>
 {/if}
     {* Display messages *}
-    <br>{php}display_msg(){/php}</b><br>
+    <br>{$message}</b><br>
     <p>
 
 {include file="$modulePath/$tplFile"}
@@ -54,6 +54,5 @@
 </tr>
 </table>
 </center>
-execution time: {php}display_execution_time(){/php} seconds
 </body>
 </html>
