@@ -1,40 +1,65 @@
 <?php
 
 
-/*
+/**
+ * Framework_User_VegaDNS 
  * 
- * VegaDNS - DNS Administration Tool for use with djbdns
- * 
- * CREDITS:
- * Written by Bill Shupp
- * <bill@merchbox.com>
- * 
- * LICENSE:
- * This software is distributed under the GNU General Public License
- * Copyright 2003-2006, MerchBox.Com
- * see COPYING for details
- * 
- * 
- * Thanks to NicTool for many ideas for the subgroup structure, as well as 
- * permissions options.
- * 
- * 
- * 
- */ 
+ * @package VegaDNS
+ * @copyright 2007 Bill Shupp
+ * @author Bill Shupp <hostmaster@shupp.org> 
+ * @license GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ */
+class Framework_User_VegaDNS extends Framework_User {
 
-if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
-    header('Location:../index.php');
-    exit;
-}
+    /**
+     * account 
+     * 
+     * Where the logged in user's account info is stored
+     * 
+     * @var mixed
+     * @access public
+     */
+    public $account = null;
+    /**
+     * groups 
+     * 
+     * An array of the logged in users groups
+     * 
+     * @var mixed
+     * @access public
+     */
+    public $groups = null;
+    static public $gidFlagValues = array(
+            'inherit_group_perms'   => 0x01,
+            'accouedit'             => 0x02,
+            'accoucreate'           => 0x04,
+            'accoudelete'           => 0x08,
+            'group_edit'            => 0x0100,
+            'group_create'          => 0x020,
+            'group_delete'          => 0x040,
+            'domain_edit'           => 0x080,
+            'domain_create'         => 0x0100,
+            'domain_delegate'       => 0x0200,
+            'domain_delete'         => 0x0400,
+            'record_edit'           => 0x0800,
+            'record_create'         => 0x01000,
+            'record_delete'         => 0x02000,
+            'record_delegate'       => 0x04000,
+            'default_record_edit'   => 0x08000,
+            'default_record_create' => 0x010000,
+            'default_record_delete' => 0x020000,
+            'rrtype_allow_n'        => 0x040000,
+            'rrtype_allow_a'        => 0x080000,
+            'rrtype_allow_3'        => 0x0100000,
+            'rrtype_allow_6'        => 0x0200000,
+            'rrtype_allow_m'        => 0x0400000,
+            'rrtype_allow_p'        => 0x0800000,
+            'rrtype_allow_t'        => 0x01000000,
+            'rrtype_allow_v'        => 0x02000000,
+            'rrtype_allow_all'      => 0x04000000
+            );
 
-
-class permissions {
-
-    var $account = '';
-    var $groups = '';
-
-    // Constructor
-    function permissions($email) {
+    function __constructor($email) {
         global $senior_perms;
         $this->account = $this->account_info($email);
         $this->groups = $this->getAllSubGroups($this->account['group_id']);
