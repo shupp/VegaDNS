@@ -65,7 +65,6 @@ class Framework_User extends Framework_Object_DB
                 WHERE ".Framework::$site->config->user->userField."='".$userID."'";
 
         $result = $this->db->getRow($sql);
-        print_r($result);exit;
         if (!PEAR::isError($result) && is_array($result)) {
             $this->data = $result;
         } else {

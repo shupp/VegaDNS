@@ -30,17 +30,17 @@ class Framework_DB_None implements Framework_DB_Interface
      * @access public
      * @return void
      */
-    public function start(n)
+    public function start($dsn)
     {
         Framework::$db = null;
     }
     /**
-     * frameworkStopDB 
+     * stop 
      * 
      * @access public
      * @return void
      */
-    public function frameworkStopDB()
+    public function stop()
     {
         Framework::$db = null;
     }

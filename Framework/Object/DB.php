@@ -31,13 +31,15 @@ abstract class Framework_Object_DB extends Framework_Object
      * $db
      *
      * @access protected
-     * @var object $db Instance of PEAR DB connection
+     * @var object $db
      * @see DB
      */
     protected $db = null;
 
     /**
      * driver 
+     * 
+     * Database Driver class
      * 
      * @var mixed
      * @access protected
@@ -85,11 +87,11 @@ abstract class Framework_Object_DB extends Framework_Object
                 }
             }
 
-            $dbDriver = new $class;
+            self::$dbDriver = new $class;
         }
 
         if (is_null(Framework::$db)) {
-            $dbDriver->start($dsn);
+            self::$dbDriver->start($dsn);
         }
 
         return Framework::$db;
@@ -120,14 +122,16 @@ abstract class Framework_Object_DB extends Framework_Object
     /**
      * stopDB
      * 
+     * Disconnect DB
+     * 
      * @static
      * @access public
      * @return void
      */
-    public function stopDB()
+    static public function stopDB()
     {
         if (!is_null($this->dbDriver)) {
-            $this->dbDriver->stop($this->db);
+            self::$dbDriver->stop($this->db);
         }
     }
 
