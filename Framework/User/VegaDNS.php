@@ -59,7 +59,9 @@ class Framework_User_VegaDNS extends Framework_User {
             'rrtype_allow_all'      => 0x04000000
             );
 
-    function __constructor($email) {
+    function __construct() {
+        parent::__construct();
+        return;
         global $senior_perms;
         $this->account = $this->account_info($email);
         $this->groups = $this->getAllSubGroups($this->account['group_id']);

@@ -41,6 +41,7 @@ abstract class Framework_Object_DB extends Framework_Object
      * 
      * Database Driver class
      * 
+     * @static
      * @var mixed
      * @access protected
      */
@@ -124,14 +125,13 @@ abstract class Framework_Object_DB extends Framework_Object
      * 
      * Disconnect DB
      * 
-     * @static
      * @access public
      * @return void
      */
-    static public function stopDB()
+    private function stopDB()
     {
         if (!is_null($this->dbDriver)) {
-            self::$dbDriver->stop($this->db);
+            $this->dbDriver->stop($this->db);
         }
     }
 
