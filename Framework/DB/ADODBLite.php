@@ -11,7 +11,7 @@
  * @filesource
  */
 
-require_once 'adodb/adodb.inc.php';
+require_once 'adodb_lite/adodb.inc.php';
 
 /**
  * Framework_DB_ADODBLite
