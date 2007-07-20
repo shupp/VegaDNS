@@ -2,13 +2,17 @@
 <framework>
     <!-- set to 1 to send debug info to logFile -->
     <debug>0</debug>
-    <dsn>mysql://vegadns:secret@localhost/vegadns</dsn>
+    <dsn>mysql://root:@localhost/test</dsn>
+    <dbClass>ADODBLite</dbClass>
     <!-- inactivity timeout - in seconds -->
     <inactiveTimeout>600</inactiveTimeout>
     <maxPerPage>50</maxPerPage>
     <logFile>/tmp/vegadns.log</logFile>
     <user>
         <userClass>VegaDNS</userClass>
+        <userTable>accounts</userTable>
+        <userField>user_id</userField>
+        <defaultUser>1</defaultUser>
         <userLocaleDir>Framework/Site/Default/locale</userLocaleDir>
     </user>
 </framework>

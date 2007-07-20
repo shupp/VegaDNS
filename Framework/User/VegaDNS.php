@@ -787,5 +787,31 @@ class Framework_User_VegaDNS extends Framework_User {
         return $q;
     }
 
+    protected function getUserData($userID) 
+    {
+        if (is_null($userID)) {
+            $session = & Framework_Session::singleton();
+            $userID = $session->{Framework::$site->config->user->userField};
+            if (is_null($userID)) {
+                $userID = (string)Framework::$site->config->user->defaultUser;
+            } else {
+                $userID = $session->{(string)Framework::$site->config->user->userField};
+            }
+        }
+
+        $sql = "SELECT *
+                FROM ".Framework::$site->config->user->userTable."
+                WHERE ".Framework::$site->config->user->userField."='".$userID."'";
+
+        $result = $this->db->Execute($sql);
+        if ($result->RecordCount() > 0) {
+            $this->data = $result->FetchRow();
+        } else {
+            throw new Framework_Exception('Could not look up userID');
+        }
+
+    }
+    
+
 
 };
