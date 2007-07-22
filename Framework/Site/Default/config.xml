@@ -13,7 +13,7 @@
         <userClass>VegaDNS</userClass>
         <userTable>accounts</userTable>
         <userField>user_id</userField>
-        <defaultUser>1</defaultUser>
+        <defaultUser>0</defaultUser>
         <userLocaleDir>Framework/Site/Default/locale</userLocaleDir>
     </user>
 </framework>
