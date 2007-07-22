@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `accounts`;
 CREATE TABLE `accounts` (
-  user_id           INT(11) NOT NULL AUTO_INCREMENT,
-  group_id           INT(11) DEFAULT '1',
+  user_id       INT(11) NOT NULL AUTO_INCREMENT,
+  group_id      INT(11) DEFAULT '1',
   email         CHAR(60) NOT NULL DEFAULT '',
   password      CHAR(34) NOT NULL DEFAULT '',
   first_name    CHAR(20) NOT NULL DEFAULT '',
