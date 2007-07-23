@@ -78,6 +78,21 @@ class Framework_User_VegaDNS extends Framework_User {
         $this->account['permissions'] = $perms;
     }
 
+    public function authenticate($email, $password)
+    {
+        $sql = "SELECT user_id FROM `accounts` WHERE email=" . $this->db->Quote($email) . " AND password = " . $this->db->Quote($password);
+        try {
+            $result = $this->db->Execute($sql);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
+        if ($result->RecordCount() == 0) {
+            return false;
+        }
+        $this->data = $result->FetchRow();
+        return true;
+    }
+
     // Get current account settings
     function account_info($email) {
         global $db;
