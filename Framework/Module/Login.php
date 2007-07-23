@@ -44,7 +44,7 @@ class Framework_Module_Login extends Framework_Auth_No
                 return;
             }
             $this->session->__set(Framework::$site->config->defaultUser, 
-                            $this->user[Framework::$site->config->defaultUser]);
+                            $this->user->data[Framework::$site->config->defaultUser]);
             $this->session->__set('lastActionTime', time());
             header('Location: ./index.php?module=Home');
             return;
