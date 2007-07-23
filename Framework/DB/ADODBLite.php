@@ -11,6 +11,7 @@
  * @filesource
  */
 
+require_once 'adodb_lite/adodb-exceptions.inc.php';
 require_once 'adodb_lite/adodb.inc.php';
 
 /**
@@ -33,7 +34,11 @@ implements Framework_DB_Interface
      */
     public function start($dsn)
     {
-        Framework::$db = ADONewConnection($dsn);
+        try {
+            Framework::$db = ADONewConnection($dsn);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
     }
     /**
      * stop 
@@ -44,7 +49,7 @@ implements Framework_DB_Interface
      */
     public function stop(&$db)
     {
-        if (is_object($db)) {
+        if ($db->IsConnected()) {
             $db->Close();
         }
     }
