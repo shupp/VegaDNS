@@ -1,5 +1,4 @@
-<?php
-
+<?php 
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
@@ -44,9 +43,10 @@ class Framework_Module_Login extends Framework_Auth_No
                 $this->session->__set('userID', null);
                 return;
             }
-            $this->session->__set('userID', $this->user['userID']);
+            $this->session->__set(Framework::$site->config->defaultUser, 
+                            $this->user[Framework::$site->config->defaultUser]);
             $this->session->__set('lastActionTime', time());
-            header("Location: ./index.php?module=Home");
+            header('Location: ./index.php?module=Home');
             return;
         } else {
             $this->setData('QF_Form', $form->toHtml());
