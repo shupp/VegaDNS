@@ -1,9 +1,0 @@
-drop table accounts;
-drop table active_sessions;
-drop table default_records;
-drop table domains;
-drop table group_permissions;
-drop table groups;
-drop table log;
-drop table records;
-drop table user_permissions;
