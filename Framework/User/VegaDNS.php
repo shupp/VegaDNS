@@ -65,7 +65,7 @@ class Framework_User_VegaDNS extends Framework_User {
         $this->groups = $this->getAllSubGroups($this->data['group_id']);
         // Setup permissions
         if($this->data['account_type'] == 'senior_admin') {
-            $perms = $senior_perms;
+            $perms = $this->senior_perms;
         } else {
             $perms = $this->returnUserPermissions($this->account['user_id']);
             if($perms == "INHERIT") {
@@ -93,16 +93,14 @@ class Framework_User_VegaDNS extends Framework_User {
 
     // Get current account settings
     function account_info($email) {
-        global $db;
-        $q = "select * from accounts where email=".$db->Quote($email);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select * from accounts where email=".$this->db->Quote($email);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         return $result->FetchRow();
     }
 
     function getSubGroups($id) {
-        global $db;
-        $q = "select group_id from groups where group_id != ".$db->Quote($id)." and parent_group_id = ".$db->Quote($id);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select group_id from groups where group_id != ".$this->db->Quote($id)." and parent_group_id = ".$this->db->Quote($id);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) {
             return NULL;
         } else {
@@ -139,10 +137,9 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function getAllSubgroups($id) {
-        global $db;
         // Get Top
-        $q = "select * from groups where group_id=".$db->Quote($id)." LIMIT 1";
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select * from groups where group_id=".$this->db->Quote($id)." LIMIT 1";
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) {
             return NULL;
         } else {
@@ -337,9 +334,8 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnUserPermissions($id) {
-        global $db;
-        $q = "select * from user_permissions where user_id=".$db->Quote($id);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select * from user_permissions where user_id=".$this->db->Quote($id);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) return NULL;
         $perms = $result->FetchRow();
         if($perms['inherit_group_perms'] == 1) {
@@ -351,18 +347,16 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnGroupParentID($id) {
-        global $db;
-        $q = "select parent_group_id from groups where group_id=".$db->Quote($id);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select parent_group_id from groups where group_id=".$this->db->Quote($id);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) return NULL;
         $row = $result->FetchRow();
         return $row['parend_group_id'];
     }
 
     function returnGroupPermissions($id) {
-        global $db;
-        $q = "select * from group_permissions where group_id=".$db->Quote($id);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select * from group_permissions where group_id=".$this->db->Quote($id);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) return NULL;
         $perms = $result->FetchRow();
         if($perms['inherit_group_perms'] == 1) {
@@ -371,8 +365,8 @@ class Framework_User_VegaDNS extends Framework_User {
             while($inherit != FALSE) {
                 // Get parent ID
                 $parent = $this->returnParentGroupID($id);
-                $q = "select * from group_permissions where group_id=".$db->Quote($parent);
-                $result = $db->Execute($q) or die($db->ErrorMsg());
+                $q = "select * from group_permissions where group_id=".$this->db->Quote($parent);
+                $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
                 if($result->RecordCount() == 0) return NULL;
                 $perms = $result->FetchRow();
                 if($perms['inherit_group_perms'] == 1) {
@@ -514,17 +508,14 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function userID_to_GroupID($user_id) {
-        global $db;
-
-        $q = "select group_id from accounts where user_id=".$db->Quote($user_id);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select group_id from accounts where user_id=".$this->db->Quote($user_id);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) {
             return NULL;
         }
 
         $row = $result->FetchRow();
         return $row['group_id'];
-            
     }
 
     function canEditSubGroups() {
@@ -580,8 +571,6 @@ class Framework_User_VegaDNS extends Framework_User {
 
         // Else look up the permissions
 
-        global $db;
-
         $perms = $this->returnUserPermissions($id);
         if($perms == "INHERIT") {
             // GET GROUP PERMS
@@ -611,8 +600,6 @@ class Framework_User_VegaDNS extends Framework_User {
 
         // Else look up the permissions
 
-        global $db;
-
         $perms = $this->returnUserPermissions($id);
         if($perms == "INHERIT") {
             // GET GROUP PERMS
@@ -631,9 +618,8 @@ class Framework_User_VegaDNS extends Framework_User {
         if($this->canDeleteUsers(NULL,NULL) == FALSE) {
             return FALSE;
         } else {
-            global $db;
             $q = "select group_id from accounts where user_id='$id'";
-            $result = $db->Execute($q) or die($db->ErrorMsg());
+            $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
             if($result->RecordCount() == 0) return NULL;
             $row = $result->FetchRow();
             if($this->isMyGroup($row['group_id']) != NULL) {
@@ -645,18 +631,16 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnGroupID($name) {
-        global $db;
-        $q = "select group_id from groups where name=".$db->Quote($name);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select group_id from groups where name=".$this->db->Quote($name);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) return NULL;
         $row = $result->FetchRow();
         return $row['group_id'];
     }
 
     function returnUserID($email) {
-        global $db;
-        $q = "select user_id from accounts where email=".$db->Quote($email);
-        $result = $db->Execute($q) or die($db->ErrorMsg());
+        $q = "select user_id from accounts where email=".$this->db->Quote($email);
+        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if($result->RecordCount() == 0) return NULL;
         $row = $result->FetchRow();
         return $row['user_id'];
@@ -664,14 +648,13 @@ class Framework_User_VegaDNS extends Framework_User {
 
 
     function returnCreateGroupPermQuery($name) {
-        global $senior_perms,$db;
         // Get permissions key list from senior_perms array
         // Then compare user perms against $_REQUEST elements 
 
         $u_perms = $this->account['permissions'];
         $perm_array = array();
 
-        while(list($key,$val) = each($senior_perms)) {
+        while(list($key,$val) = each($this->senior_perms)) {
             if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
                 if(isset($_REQUEST[$key])) {
                     $perm_array[$key] = 1;
@@ -700,7 +683,6 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnEditGroupPermQuery($id) {
-        global $senior_perms,$db;
 
         // Get permissions key list from senior_perms array
         // Then compare user perms against $_REQUEST elements 
@@ -708,7 +690,7 @@ class Framework_User_VegaDNS extends Framework_User {
         $u_perms = $this->account['permissions'];
         $perm_array = array();
 
-        while(list($key,$val) = each($senior_perms)) {
+        while(list($key,$val) = each($this->senior_perms)) {
             if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
                 if(isset($_REQUEST[$key])) {
                     $perm_array[$key] = 1;
@@ -722,7 +704,7 @@ class Framework_User_VegaDNS extends Framework_User {
         $edit_string = "";
         $counter = 0;
         while(list($key,$val) = each($perm_array)) {
-            $edit_string .= " $key=".$db->Quote($val);
+            $edit_string .= " $key=".$this->db->Quote($val);
             $counter++;
             if($counter < count($perm_array)) $edit_string .= ",";
         }
@@ -732,8 +714,6 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnEditAccountPermQuery($id,$inherit) {
-        global $default_perms,$user_perms,$db;
-
         // If we are inheriting, just set that
         if($inherit != NULL) {
             $q = "update user_permissions set inherit_group_perms = 1  where user_id='$id'";
@@ -757,7 +737,7 @@ class Framework_User_VegaDNS extends Framework_User {
         $edit_string = " inherit_group_perms = 0, ";
         $counter = 0;
         while(list($key,$val) = each($perm_array)) {
-            $edit_string .= " $key=".$db->Quote($val);
+            $edit_string .= " $key=".$this->db->Quote($val);
             $counter++;
             if($counter < count($perm_array)) $edit_string .= ",";
         }
@@ -767,14 +747,13 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnCreateUserPermQuery($email) {
-        global $senior_perms,$db;
         // Get permissions key list from senior_perms array
         // Then compare user perms against $_REQUEST elements 
 
         $u_perms = $this->account['permissions'];
         $perm_array = array();
 
-        while(list($key,$val) = each($senior_perms)) {
+        while(list($key,$val) = each($this->senior_perms)) {
             if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
                 if(isset($_REQUEST[$key])) {
                     $perm_array[$key] = 1;
