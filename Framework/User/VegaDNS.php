@@ -12,15 +12,6 @@
 class Framework_User_VegaDNS extends Framework_User {
 
     /**
-     * account 
-     * 
-     * Where the logged in user's account info is stored
-     * 
-     * @var mixed
-     * @access public
-     */
-    public $account = null;
-    /**
      * groups 
      * 
      * An array of the logged in users groups
@@ -34,7 +25,7 @@ class Framework_User_VegaDNS extends Framework_User {
             'accouedit'             => 0x02,
             'accoucreate'           => 0x04,
             'accoudelete'           => 0x08,
-            'group_edit'            => 0x0100,
+            'group_edit'            => 0x010,
             'group_create'          => 0x020,
             'group_delete'          => 0x040,
             'domain_edit'           => 0x080,
@@ -59,14 +50,21 @@ class Framework_User_VegaDNS extends Framework_User {
             'rrtype_allow_all'      => 0x04000000
             );
 
+    /**
+     * seniorPerms 
+     * 
+     * All permissions but inherit
+     * 
+     * @var float
+     * @access private
+     */
+    private $seniorPerms = 134217726; 
+
     function __construct() {
         parent::__construct();
-        return;
-        global $senior_perms;
-        $this->account = $this->account_info($email);
-        $this->groups = $this->getAllSubGroups($this->account['group_id']);
+        $this->groups = $this->getAllSubGroups($this->data['group_id']);
         // Setup permissions
-        if($this->account['account_type'] == 'senior_admin') {
+        if($this->data['account_type'] == 'senior_admin') {
             $perms = $senior_perms;
         } else {
             $perms = $this->returnUserPermissions($this->account['user_id']);
@@ -824,11 +822,54 @@ class Framework_User_VegaDNS extends Framework_User {
         if ($result->RecordCount() > 0) {
             $this->data = $result->FetchRow();
         } else {
-            throw new Framework_Exception('Could not look up userID');
+            throw new Framework_Exception('Could not look up {Framework::$site->config->user->userField}');
         }
 
     }
-    
 
+    /**
+     * getBit 
+     * 
+     * Get bit value
+     * 
+     * @param mixed $bitmap 
+     * @param mixed $bit 
+     * @access public
+     * @return bool $bit
+     */
+    public function getBit($bitmap, $bit)
+    {
+        if (!isset($this->gidFlagValues[$bit])) {
+            throw new Framework_Exception("Error - unknown bit value specified: $bit");
+        }
+        $bitValue = $this->gidFlagValues[$bit];
+        return ($bitmap&$bitValue) ? true : false;
+    }
+
+    /**
+     * setBit 
+     * 
+     * Set bit flag.
+     * 
+     * @param mixed $bitmap 
+     * @param mixed $bit 
+     * @param bool $value 
+     * @access public
+     * @return void
+     * @throws Framework_Exception if $bit is unknown
+     * @see getBit()
+     */
+    public function setBit(&$bitmap, $bit, $value)
+    {
+        if (!isset($this->gidFlagValues[$bit])) {
+            throw new Framework_Exception("Unknown GID Bit value specified. $bit");
+        }
+        if (!is_bool($value)) {
+            throw new Framework_Exception('Non-boolean value specified: ' . var_dump($value));
+        }
+        $bitValue = $this->gidFlagValues[$bit];
+        $bitmap = (int)$value|(~(int)$bitValue&(int)$bitmap);
+    }
 
 };
+?>
