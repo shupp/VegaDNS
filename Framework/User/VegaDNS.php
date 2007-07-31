@@ -92,9 +92,21 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     // Get current account settings
-    function account_info($email) {
-        $q = "select * from accounts where email=".$this->db->Quote($email);
-        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
+    function getAccountInfo($userID) {
+
+        $sql = "SELECT *
+                FROM ".Framework::$site->config->user->userTable."
+                WHERE ".Framework::$site->config->user->userField."='".$userID."'";
+
+        try {
+            $result = $this->db->Execute($sql);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
+        
+        if ($result->RecordCount() == 0) {
+            return NULL;
+        }
         return $result->FetchRow();
     }
 
@@ -793,17 +805,11 @@ class Framework_User_VegaDNS extends Framework_User {
             }
         }
 
-        $sql = "SELECT *
-                FROM ".Framework::$site->config->user->userTable."
-                WHERE ".Framework::$site->config->user->userField."='".$userID."'";
-
-        $result = $this->db->Execute($sql);
-        if ($result->RecordCount() > 0) {
-            $this->data = $result->FetchRow();
-        } else {
+        $result = $this->getAccountInfo($userID);
+        if($result == NULL) {
             throw new Framework_Exception('Could not look up {Framework::$site->config->user->userField}');
         }
-
+        $this->data = $result;
     }
 
     /**
@@ -847,6 +853,7 @@ class Framework_User_VegaDNS extends Framework_User {
             throw new Framework_Exception('Non-boolean value specified: ' . var_dump($value));
         }
         $bitValue = $this->gidFlagValues[$bit];
+        $value = ($value == true) ? $bitValue : 0;
         $bitmap = (int)$value|(~(int)$bitValue&(int)$bitmap);
     }
 
