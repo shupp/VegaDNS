@@ -20,11 +20,11 @@ class Framework_User_VegaDNS extends Framework_User {
      * @access public
      */
     public $groups = null;
-    static public $gidFlagValues = array(
+    static public $permFlagValues = array(
             'inherit_group_perms'   => 0x01,
-            'accouedit'             => 0x02,
-            'accoucreate'           => 0x04,
-            'accoudelete'           => 0x08,
+            'account_edit'          => 0x02,
+            'account_create'        => 0x04,
+            'account_delete'        => 0x08,
             'group_edit'            => 0x010,
             'group_create'          => 0x020,
             'group_delete'          => 0x040,
@@ -58,27 +58,18 @@ class Framework_User_VegaDNS extends Framework_User {
      * @var float
      * @access private
      */
-    private $seniorPerms = 134217726; 
-
-    function __construct() {
-        parent::__construct();
-        $this->groups = $this->getAllSubGroups($this->data['group_id']);
-        // Setup permissions
-        if($this->data['account_type'] == 'senior_admin') {
-            $perms = $this->senior_perms;
-        } else {
-            $perms = $this->returnUserPermissions($this->account['user_id']);
-            if($perms == "INHERIT") {
-                // GET GROUP PERMS
-                $perms = $this->returnGroupPermissions($this->account['group_id']);
-            }
-        }
-        $this->account['permissions'] = $perms;
-    }
+    private $seniorPerms = 134217726; // All but inherit_group_permissions
+    /**
+     * defaultPerms 
+     * 
+     * @var float
+     * @access private
+     */
+    private $defaultPerms = 134217615; // All but account/group create/delete/edit
 
     public function authenticate($email, $password)
     {
-        $sql = "SELECT user_id FROM `accounts` WHERE email=" . $this->db->Quote($email) . " AND password = " . $this->db->Quote($password);
+        $sql = "SELECT user_id FROM `accounts` WHERE email=" . $this->db->Quote($email) . " AND password = MD5(" . $this->db->Quote($password) . ")";
         try {
             $result = $this->db->Execute($sql);
         } catch (Exception $e) {
@@ -88,15 +79,21 @@ class Framework_User_VegaDNS extends Framework_User {
             return false;
         }
         $this->data = $result->FetchRow();
+        $session = & Framework_Session::singleton();
+        $session->__set((string)Framework::$site->config->user->userField, 
+                $this->data[(string)Framework::$site->config->user->userField]);
         return true;
     }
 
     // Get current account settings
     function getAccountInfo($userID) {
 
-        $sql = "SELECT *
-                FROM ".Framework::$site->config->user->userTable."
-                WHERE ".Framework::$site->config->user->userField."='".$userID."'";
+        $sql = "SELECT a.*, b.perm_value AS user_perms, c.perm_value AS group_perms
+                FROM " . (string)Framework::$site->config->user->userTable . " a 
+                LEFT JOIN user_permissions b ON a.user_id = b.user_id
+                LEFT JOIN group_permissions c on a.group_id = c.group_id
+                WHERE a." . (string)Framework::$site->config->user->userField 
+                . " = " . $this->db->Quote($userID);
 
         try {
             $result = $this->db->Execute($sql);
@@ -113,11 +110,11 @@ class Framework_User_VegaDNS extends Framework_User {
     function getSubGroups($id) {
         $q = "select group_id from groups where group_id != ".$this->db->Quote($id)." and parent_group_id = ".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) {
+        if ($result->RecordCount() == 0) {
             return NULL;
         } else {
             $count = 0;
-            while(!$result->EOF) {
+            while (!$result->EOF) {
                 $row[$count] = $result->FetchRow();
                 $count++;
             }
@@ -126,17 +123,17 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function returnGroup($id, $g) {
-        if($g == NULL) $g = $this->groups;
+        if ($g == NULL) $g = $this->groups;
 
-        if($g['group_id'] == $id) {
+        if ($g['group_id'] == $id) {
             $array = $g;
         } else {
-            if(!isset($g['subgroups'])) {
+            if (!isset($g['subgroups'])) {
                 $array = NULL;
             } else {
-                while(list($key,$val) = each($g['subgroups'])) {
+                while (list($key,$val) = each($g['subgroups'])) {
                     $temp = $this->returnGroup($id, $val);
-                    if($temp['group_id'] == $id) {
+                    if ($temp['group_id'] == $id) {
                         $array = $temp;
                         break;
                     } else {
@@ -152,18 +149,18 @@ class Framework_User_VegaDNS extends Framework_User {
         // Get Top
         $q = "select * from groups where group_id=".$this->db->Quote($id)." LIMIT 1";
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) {
+        if ($result->RecordCount() == 0) {
             return NULL;
         } else {
             $top = $result->FetchRow();
         }
         // Get subgroups
         $subs = $this->getSubGroups($top['group_id']);
-        if($subs == NULL) {
+        if ($subs == NULL) {
             return $top;
         } else {
             $count = 0;
-            while(list($key,$val) = each($subs)) {
+            while (list($key,$val) = each($subs)) {
                 $top['subgroups'][$count] = $this->getAllSubgroups($val['group_id']);
                 $count++;
             }
@@ -178,17 +175,17 @@ class Framework_User_VegaDNS extends Framework_User {
         static $parent_subs_count = 0;
 
         $out = '';
-        if(isset($_SESSION['expanded'])) {
+        if (isset($_SESSION['expanded'])) {
             $expanded = $_SESSION['expanded'];
         } else {
             $expanded = '';
         }
 
         // Figure out expansion stuff
-        if($top == NULL && $expanded != NULL) {
+        if ($top == NULL && $expanded != NULL) {
             $ex = explode(',', $expanded);
-            while(list($key,$val) = each($ex)) {
-                if($g['group_id'] == $val) {
+            while (list($key,$val) = each($ex)) {
+                if ($g['group_id'] == $val) {
                     $is_expanded = 1;
                     $expand_image = 'dirtree_minus_';
                     $new_expand = array_trim(explode(',', $expanded), $val);
@@ -201,7 +198,7 @@ class Framework_User_VegaDNS extends Framework_User {
                 }
             }
         } else {
-            if($top != NULL) {
+            if ($top != NULL) {
                 $is_expanded = 1;
             } else {
                 $is_expanded = 0;
@@ -211,30 +208,30 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         // Figure out subgroups and bottom tree image shape
-        if(isset($g['subgroups'])) {
+        if (isset($g['subgroups'])) {
             // echo "FINAL SUB: $final_sub";
             $do_subgroups = 1;
             // $h_bottom_image = 'tee';
             $log_suffix = 'tee';
-            if($is_expanded == 1) {
+            if ($is_expanded == 1) {
                 $h_bottom_image = 'tee';
-                if($final_sub != NULL && !$top) {
+                if ($final_sub != NULL && !$top) {
                     $log_suffix = 'elbow';
                 }
-            } else if($final_sub == NULL){
+            } else if ($final_sub == NULL){
                 $h_bottom_image = 'tee';
             } else {
                 $h_bottom_image = 'elbow';
             }
         } else {
-            if($is_expanded == 1) {
+            if ($is_expanded == 1) {
                 $h_bottom_image = 'tee';
-                if($final_sub == NULL) {
+                if ($final_sub == NULL) {
                     $log_suffix = 'tee';
                 } else {
                     $log_suffix = 'elbow';
                 }
-            } else if($final_sub == NULL) {
+            } else if ($final_sub == NULL) {
                 $h_bottom_image = 'tee';
                 $log_suffix = 'tee';
             } else {
@@ -248,11 +245,11 @@ class Framework_User_VegaDNS extends Framework_User {
         $homeurl = "<a href=\"$base_url&mode=groups&group=".$g['group_id']."\">";
         $plusminusurl = "<a href=\"$base_url$expand_url&group=".$_SESSION['group'];
         // Retain current mode/domain/record
-        if(isset($_REQUEST['mode'])) $plusminusurl .= "&mode=".$_REQUEST['mode'];
-        if(isset($_REQUEST['domain'])) $plusminusurl .= "&domain=".$_REQUEST['domain'];
-        if(isset($_REQUEST['record_id'])) $plusminusurl .= "&record_id=".$_REQUEST['record_id'];
-        if(isset($_REQUEST['record_mode'])) $plusminusurl .= "&record_mode=".$_REQUEST['record_mode'];
-        if(isset($_REQUEST['domain_mode'])) $plusminusurl .= "&domain_mode=".$_REQUEST['domain_mode'];
+        if (isset($_REQUEST['mode'])) $plusminusurl .= "&mode=".$_REQUEST['mode'];
+        if (isset($_REQUEST['domain'])) $plusminusurl .= "&domain=".$_REQUEST['domain'];
+        if (isset($_REQUEST['record_id'])) $plusminusurl .= "&record_id=".$_REQUEST['record_id'];
+        if (isset($_REQUEST['record_mode'])) $plusminusurl .= "&record_mode=".$_REQUEST['record_mode'];
+        if (isset($_REQUEST['domain_mode'])) $plusminusurl .= "&domain_mode=".$_REQUEST['domain_mode'];
 
         $plusminusurl .= "\">";
         $groupurl = "<a href=\"$base_url&mode=groups&group=".$g['group_id']."\">";
@@ -263,8 +260,8 @@ class Framework_User_VegaDNS extends Framework_User {
         // Padding for vertical bar
         $count = 1;
         $padding = '';
-        while($count < $indent) {
-            if($parent_subs_count < $parent_subs) {
+        while ($count < $indent) {
+            if ($parent_subs_count < $parent_subs) {
                 $padding .= "<td><img src=\"images/dirtree_vertical.gif\" border=\"0\"></td>";
             } else {
                 $padding .= "<td><img src=\"images/transparent.gif\" height=\"17\" width=\"17\" border=\"0\"></td>";
@@ -277,47 +274,47 @@ class Framework_User_VegaDNS extends Framework_User {
         $domainsbg = '';
         $usersbg = '';
         $logbg = '';
-        if(isset($_SESSION['group']) && $_SESSION['group'] == $g['group_id']) {
-            if(isset($_REQUEST['mode'])) {
+        if (isset($_SESSION['group']) && $_SESSION['group'] == $g['group_id']) {
+            if (isset($_REQUEST['mode'])) {
                 if ($_REQUEST['mode'] == 'domains' || $_REQUEST['mode'] == 'records') {
                     $domainsbg = ' class="white"';
-                } else if($_REQUEST['mode'] == 'users') {
+                } else if ($_REQUEST['mode'] == 'users') {
                     $usersbg = ' class="white"';
-                } else if($_REQUEST['mode'] == 'log') {
+                } else if ($_REQUEST['mode'] == 'log') {
                     $logbg = ' class="white"';
-                } else if($_REQUEST['mode'] == 'groups') {
+                } else if ($_REQUEST['mode'] == 'groups') {
                     $groupsbg = ' class="white"';
                 }
             } else {
                     $groupsbg = ' class="white"';
             }
-        } else if($top != NULL) {
-            if(!isset($_SESSION['group']) || $_SESSION['group'] == 'NULL') 
+        } else if ($top != NULL) {
+            if (!isset($_SESSION['group']) || $_SESSION['group'] == 'NULL') 
                 $groupsbg = ' class="white"';
         }
 
-        if($top != NULL) {
+        if ($top != NULL) {
             $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" alt=\"home\" src=\"images/home.png\"></td><td$groupsbg>$homeurl".$g['name']."</a></td></tr></table>\n";
         } else {
             $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td>$plusminusurl<img border=\"0\" alt=\"home\" src=\"images/$expand_image$h_bottom_image.gif\"><td>$groupurl<img border=\"0\" alt=\"home\" src=\"images/group.gif\"></a></td><td$groupsbg>$groupurl".$g['name']."</a></td></tr></table>\n";
         }
 
 
-        if($top != NULL || $is_expanded) {
+        if ($top != NULL || $is_expanded) {
             $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_tee.gif\"><td><img border=\"0\" src=\"images/newfolder.png\"></td><td$domainsbg>".$domainsurl."Domains</a></td></tr></table>\n";
             $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_tee.gif\"></td><td><img border=\"0\" src=\"images/user_folder.png\"></td><td$usersbg>".$usersurl."Users</a></td></tr></table>\n";
             $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_$log_suffix.gif\"></td><td><img border=\"0\" src=\"images/newfolder.png\"></td><td$logbg>".$logurl."Log</a></td></tr></table>\n";
         }
 
         $indent++;
-        if($is_expanded == 1) {
+        if ($is_expanded == 1) {
             $counter = 0;
             $last_sub = NULL;
-            while($do_subgroups == 1 && list($key,$val) = each($g['subgroups'])) {
-                if($top != NULL) $parent_subs_count++;
+            while ($do_subgroups == 1 && list($key,$val) = each($g['subgroups'])) {
+                if ($top != NULL) $parent_subs_count++;
                 $counter++;
                 $out .=  "<!-- COUNTER: $counter COUNT: ".count($g['subgroups'])." -->\n";
-                if($counter == count($g['subgroups'])) $last_sub = 1;
+                if ($counter == count($g['subgroups'])) $last_sub = 1;
                 $out .= $this->getMenuRows($val,NULL,$last_sub);
             }
         }
@@ -326,7 +323,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function isMyGroup($g) {
-        if(($temp = $this->returnGroup($g, NULL)) == NULL) {
+        if (($temp = $this->returnGroup($g, NULL)) == NULL) {
             return NULL;
         } else {
             return $temp;
@@ -336,9 +333,9 @@ class Framework_User_VegaDNS extends Framework_User {
     function isMyAccount($id) {
 
         // Fetch group_id
-        if(($g = $this->userID_to_GroupID($id)) == NULL) {
+        if (($g = $this->userID_to_GroupID($id)) == NULL) {
             return FALSE;
-        } else if(($temp = $this->returnGroup($g, NULL)) == NULL) {
+        } else if (($temp = $this->returnGroup($g, NULL)) == NULL) {
             return FALSE;
         } else {
             return TRUE;
@@ -348,9 +345,11 @@ class Framework_User_VegaDNS extends Framework_User {
     function returnUserPermissions($id) {
         $q = "select * from user_permissions where user_id=".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) {
+            return 'INHERIT';
+        }
         $perms = $result->FetchRow();
-        if($perms['inherit_group_perms'] == 1) {
+        if ($perms['inherit_group_perms'] == 1) {
             return 'INHERIT';
         } else {
             return $perms;
@@ -361,7 +360,7 @@ class Framework_User_VegaDNS extends Framework_User {
     function returnGroupParentID($id) {
         $q = "select parent_group_id from groups where group_id=".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return NULL;
         $row = $result->FetchRow();
         return $row['parend_group_id'];
     }
@@ -369,19 +368,19 @@ class Framework_User_VegaDNS extends Framework_User {
     function returnGroupPermissions($id) {
         $q = "select * from group_permissions where group_id=".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return NULL;
         $perms = $result->FetchRow();
-        if($perms['inherit_group_perms'] == 1) {
+        if ($perms['inherit_group_perms'] == 1) {
             // Find the parent permissions
             $inherit = TRUE;
-            while($inherit != FALSE) {
+            while ($inherit != FALSE) {
                 // Get parent ID
                 $parent = $this->returnParentGroupID($id);
                 $q = "select * from group_permissions where group_id=".$this->db->Quote($parent);
                 $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-                if($result->RecordCount() == 0) return NULL;
+                if ($result->RecordCount() == 0) return NULL;
                 $perms = $result->FetchRow();
-                if($perms['inherit_group_perms'] == 1) {
+                if ($perms['inherit_group_perms'] == 1) {
                     $id = $parent;
                     continue;
                 } else {
@@ -394,17 +393,17 @@ class Framework_User_VegaDNS extends Framework_User {
 
     function returnSubgroupsQuery($g,$string) {
 
-        if($string == NULL) {
+        if ($string == NULL) {
             $string = " group_id='".$g['group_id']."'";
         } else {
             $string .= " or group_id='".$g['group_id']."'";
         }
 
-        if(!isset($g['subgroups'])) {
+        if (!isset($g['subgroups'])) {
             return $string;
         } else {
             $temp = " ";
-            while(list($key,$val) = each($g['subgroups'])) {
+            while (list($key,$val) = each($g['subgroups'])) {
                 $temp .= $this->returnSubgroupsQuery($val, $temp);
             }
         }
@@ -412,7 +411,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canCreateSubGroups() {
-        if($this->account['permissions']['group_create'] == 1) {
+        if ($this->account['permissions']['group_create'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -420,7 +419,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canCreateDomains() {
-        if($this->account['permissions']['domain_create'] == 1) {
+        if ($this->account['permissions']['domain_create'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -428,7 +427,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditDomains() {
-        if($this->account['permissions']['domain_edit'] == 1) {
+        if ($this->account['permissions']['domain_edit'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -436,7 +435,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canDeleteDomains() {
-        if($this->account['permissions']['domain_delete'] == 1) {
+        if ($this->account['permissions']['domain_delete'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -444,7 +443,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canCreateRecord() {
-        if($this->account['permissions']['record_create'] == 1) {
+        if ($this->account['permissions']['record_create'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -452,7 +451,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canDeleteRecord() {
-        if($this->account['permissions']['record_delete'] == 1) {
+        if ($this->account['permissions']['record_delete'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -460,7 +459,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditRecord() {
-        if($this->account['permissions']['record_edit'] == 1) {
+        if ($this->account['permissions']['record_edit'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -468,7 +467,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canDelegateRecord() {
-        if($this->account['permissions']['record_delegate'] == 1) {
+        if ($this->account['permissions']['record_delegate'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -476,7 +475,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canCreateDefaultRecords() {
-        if($this->account['permissions']['default_record_create'] == 1) {
+        if ($this->account['permissions']['default_record_create'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -484,7 +483,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditDefaultRecords() {
-        if($this->account['permissions']['default_record_edit'] == 1) {
+        if ($this->account['permissions']['default_record_edit'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -492,7 +491,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canDeleteDefaultRecords() {
-        if($this->account['permissions']['default_record_delete'] == 1) {
+        if ($this->account['permissions']['default_record_delete'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -500,8 +499,8 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditUser($id) {
-        if($this->account['permissions']['accouedit'] == 1) {
-            if($this->isMyAccount($id)) {
+        if ($this->account['permissions']['accouedit'] == 1) {
+            if ($this->isMyAccount($id)) {
                 return TRUE;
             } else {
                 return FALSE;
@@ -512,7 +511,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditSelf() {
-        if($this->account['permissions']['self_edit'] == 1) {
+        if ($this->account['permissions']['self_edit'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -522,7 +521,7 @@ class Framework_User_VegaDNS extends Framework_User {
     function userID_to_GroupID($user_id) {
         $q = "select group_id from accounts where user_id=".$this->db->Quote($user_id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) {
+        if ($result->RecordCount() == 0) {
             return NULL;
         }
 
@@ -531,7 +530,7 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditSubGroups() {
-        if($this->account['permissions']['group_edit'] == 1) {
+        if ($this->account['permissions']['group_edit'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -539,10 +538,10 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canDeleteGroup($g) {
-        if($this->account['permissions']['group_delete'] == 1) {
-            if($g == NULL) {
+        if ($this->account['permissions']['group_delete'] == 1) {
+            if ($g == NULL) {
                 return TRUE;
-            } else if($this->isMyGroup($g)) {
+            } else if ($this->isMyGroup($g)) {
                 return TRUE;
             } else {
                 return FALSE;
@@ -553,10 +552,10 @@ class Framework_User_VegaDNS extends Framework_User {
     }
 
     function canEditGroup($g) {
-        if($this->account['permissions']['group_edit'] == 1) {
-            if($g == NULL) {
+        if ($this->account['permissions']['group_edit'] == 1) {
+            if ($g == NULL) {
                 return TRUE;
-            } else if($this->isMyGroup($g)) {
+            } else if ($this->isMyGroup($g)) {
                 return TRUE;
             } else {
                 return FALSE;
@@ -570,11 +569,11 @@ class Framework_User_VegaDNS extends Framework_User {
     function canCreateUsers($id,$g) {
 
         // Senior Admins can do anything
-        if($this->account['account_type'] == 'senior_admin') return TRUE;
+        if ($this->account['account_type'] == 'senior_admin') return TRUE;
 
         // See if it's the logged in user
-        if($id == NULL) {
-            if($this->account['permissions']['accoucreate'] == 1) {
+        if ($id == NULL) {
+            if ($this->account['permissions']['accoucreate'] == 1) {
                 return TRUE;
             } else {
                 return FALSE;
@@ -584,12 +583,12 @@ class Framework_User_VegaDNS extends Framework_User {
         // Else look up the permissions
 
         $perms = $this->returnUserPermissions($id);
-        if($perms == "INHERIT") {
+        if ($perms == "INHERIT") {
             // GET GROUP PERMS
             $perms = $this->returnGroupPermissions($g);
-        } else if($perms == NULL) {
+        } else if ($perms == NULL) {
             return FALSE;
-        } else if($perms['group_create'] == 1) {
+        } else if ($perms['group_create'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -599,11 +598,11 @@ class Framework_User_VegaDNS extends Framework_User {
     function canDeleteUsers($id,$g) {
 
         // Senior Admins can do anything
-        if($this->account['account_type'] == 'senior_admin') return TRUE;
+        if ($this->account['account_type'] == 'senior_admin') return TRUE;
 
         // See if it's the logged in user
-        if($id == NULL) {
-            if($this->account['permissions']['accoudelete'] == 1) {
+        if ($id == NULL) {
+            if ($this->account['permissions']['accoudelete'] == 1) {
                 return TRUE;
             } else {
                 return FALSE;
@@ -613,12 +612,12 @@ class Framework_User_VegaDNS extends Framework_User {
         // Else look up the permissions
 
         $perms = $this->returnUserPermissions($id);
-        if($perms == "INHERIT") {
+        if ($perms == "INHERIT") {
             // GET GROUP PERMS
             $perms = $this->returnGroupPermissions($g);
-        } else if($perms == NULL) {
+        } else if ($perms == NULL) {
             return FALSE;
-        } else if($perms['group_create'] == 1) {
+        } else if ($perms['group_create'] == 1) {
             return TRUE;
         } else {
             return FALSE;
@@ -627,14 +626,14 @@ class Framework_User_VegaDNS extends Framework_User {
 
     function canDeleteUser($id) {
 
-        if($this->canDeleteUsers(NULL,NULL) == FALSE) {
+        if ($this->canDeleteUsers(NULL,NULL) == FALSE) {
             return FALSE;
         } else {
             $q = "select group_id from accounts where user_id='$id'";
             $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-            if($result->RecordCount() == 0) return NULL;
+            if ($result->RecordCount() == 0) return NULL;
             $row = $result->FetchRow();
-            if($this->isMyGroup($row['group_id']) != NULL) {
+            if ($this->isMyGroup($row['group_id']) != NULL) {
                 return TRUE;
             } else {
                 return FALSE;
@@ -645,7 +644,7 @@ class Framework_User_VegaDNS extends Framework_User {
     function returnGroupID($name) {
         $q = "select group_id from groups where name=".$this->db->Quote($name);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return NULL;
         $row = $result->FetchRow();
         return $row['group_id'];
     }
@@ -653,7 +652,7 @@ class Framework_User_VegaDNS extends Framework_User {
     function returnUserID($email) {
         $q = "select user_id from accounts where email=".$this->db->Quote($email);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return NULL;
         $row = $result->FetchRow();
         return $row['user_id'];
     }
@@ -666,9 +665,9 @@ class Framework_User_VegaDNS extends Framework_User {
         $u_perms = $this->account['permissions'];
         $perm_array = array();
 
-        while(list($key,$val) = each($this->senior_perms)) {
-            if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
-                if(isset($_REQUEST[$key])) {
+        while (list($key,$val) = each($this->senior_perms)) {
+            if (isset($u_perms[$key]) && $u_perms[$key] == 1) {
+                if (isset($_REQUEST[$key])) {
                     $perm_array[$key] = 1;
                 } else {
                     $perm_array[$key] = 0;
@@ -677,13 +676,13 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         // Now that the perm_array is built, let's build the query string
-        if(($id = $this->returnGroupID($name)) == NULL) return NULL;
+        if (($id = $this->returnGroupID($name)) == NULL) return NULL;
 
 
         // Build colmns, values
         $col_string = "";
         $val_string = "";
-        while(list($key,$val) = each($perm_array)) {
+        while (list($key,$val) = each($perm_array)) {
             $col_string .= ",$key";
             $val_string .= ",$val";
         }
@@ -702,9 +701,9 @@ class Framework_User_VegaDNS extends Framework_User {
         $u_perms = $this->account['permissions'];
         $perm_array = array();
 
-        while(list($key,$val) = each($this->senior_perms)) {
-            if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
-                if(isset($_REQUEST[$key])) {
+        while (list($key,$val) = each($this->senior_perms)) {
+            if (isset($u_perms[$key]) && $u_perms[$key] == 1) {
+                if (isset($_REQUEST[$key])) {
                     $perm_array[$key] = 1;
                 } else {
                     $perm_array[$key] = 0;
@@ -715,10 +714,10 @@ class Framework_User_VegaDNS extends Framework_User {
         // Build set string
         $edit_string = "";
         $counter = 0;
-        while(list($key,$val) = each($perm_array)) {
+        while (list($key,$val) = each($perm_array)) {
             $edit_string .= " $key=".$this->db->Quote($val);
             $counter++;
-            if($counter < count($perm_array)) $edit_string .= ",";
+            if ($counter < count($perm_array)) $edit_string .= ",";
         }
         $q = "update group_permissions set $edit_string where group_id='$id'";
 
@@ -727,7 +726,7 @@ class Framework_User_VegaDNS extends Framework_User {
 
     function returnEditAccountPermQuery($id,$inherit) {
         // If we are inheriting, just set that
-        if($inherit != NULL) {
+        if ($inherit != NULL) {
             $q = "update user_permissions set inherit_group_perms = 1  where user_id='$id'";
             return $q;
         }
@@ -737,8 +736,8 @@ class Framework_User_VegaDNS extends Framework_User {
 
         $perm_array = array();
 
-        while(list($key,$val) = each($default_perms)) {
-            if(isset($_REQUEST[$key])) {
+        while (list($key,$val) = each($default_perms)) {
+            if (isset($_REQUEST[$key])) {
                 $perm_array[$key] = 1;
             } else {
                 $perm_array[$key] = 0;
@@ -748,10 +747,10 @@ class Framework_User_VegaDNS extends Framework_User {
         // Build set string
         $edit_string = " inherit_group_perms = 0, ";
         $counter = 0;
-        while(list($key,$val) = each($perm_array)) {
+        while (list($key,$val) = each($perm_array)) {
             $edit_string .= " $key=".$this->db->Quote($val);
             $counter++;
-            if($counter < count($perm_array)) $edit_string .= ",";
+            if ($counter < count($perm_array)) $edit_string .= ",";
         }
         $q = "update user_permissions set $edit_string where user_id='$id'";
 
@@ -765,9 +764,9 @@ class Framework_User_VegaDNS extends Framework_User {
         $u_perms = $this->account['permissions'];
         $perm_array = array();
 
-        while(list($key,$val) = each($this->senior_perms)) {
-            if(isset($u_perms[$key]) && $u_perms[$key] == 1) {
-                if(isset($_REQUEST[$key])) {
+        while (list($key,$val) = each($this->senior_perms)) {
+            if (isset($u_perms[$key]) && $u_perms[$key] == 1) {
+                if (isset($_REQUEST[$key])) {
                     $perm_array[$key] = 1;
                 } else {
                     $perm_array[$key] = 0;
@@ -776,13 +775,13 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         // Now that the perm_array is built, let's build the query string
-        if(($id = $this->returnUserID($email)) == NULL) return NULL;
+        if (($id = $this->returnUserID($email)) == NULL) return NULL;
 
 
         // Build colmns, values
         $col_string = "";
         $val_string = "";
-        while(list($key,$val) = each($perm_array)) {
+        while (list($key,$val) = each($perm_array)) {
             $col_string .= ",$key";
             $val_string .= ",$val";
         }
@@ -806,10 +805,12 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         $result = $this->getAccountInfo($userID);
-        if($result == NULL) {
-            throw new Framework_Exception('Could not look up {Framework::$site->config->user->userField}');
+        if ($result == NULL) {
+            throw new Framework_Exception("Could not look up " . (string)Framework::$site->config->user->userField);
         }
         $this->data = $result;
+        $this->data['permissions'] = $this->getPerms();
+        $this->groups = $this->getAllSubGroups($this->data['group_id']);
     }
 
     /**
@@ -824,10 +825,10 @@ class Framework_User_VegaDNS extends Framework_User {
      */
     public function getBit($bitmap, $bit)
     {
-        if (!isset($this->gidFlagValues[$bit])) {
+        if (!isset($this->permFlagValues[$bit])) {
             throw new Framework_Exception("Error - unknown bit value specified: $bit");
         }
-        $bitValue = $this->gidFlagValues[$bit];
+        $bitValue = $this->permFlagValues[$bit];
         return ($bitmap&$bitValue) ? true : false;
     }
 
@@ -846,15 +847,33 @@ class Framework_User_VegaDNS extends Framework_User {
      */
     public function setBit(&$bitmap, $bit, $value)
     {
-        if (!isset($this->gidFlagValues[$bit])) {
+        if (!isset($this->permFlagValues[$bit])) {
             throw new Framework_Exception("Unknown GID Bit value specified. $bit");
         }
         if (!is_bool($value)) {
             throw new Framework_Exception('Non-boolean value specified: ' . var_dump($value));
         }
-        $bitValue = $this->gidFlagValues[$bit];
+        $bitValue = $this->permFlagValues[$bit];
         $value = ($value == true) ? $bitValue : 0;
         $bitmap = (int)$value|(~(int)$bitValue&(int)$bitmap);
+    }
+
+    public function getPerms($account = null)
+    {
+        if (is_null($account)) {
+            $account = $this->data;
+        }
+        if ($this->data['account_type'] == 'senior_admin') {
+            return $this->seniorPerms;
+        }
+        if ($account['user_perms'] == NULL || 
+            $this->getBit($this->data['user_perms'], 'inherit_group_permissions')) {
+            if($account['group_perms'] == NULL) {
+                return $this->defaultPerms;
+            }
+            return $account['group_perms'];
+        }
+        return $account['user_perms'];
     }
 
 };
