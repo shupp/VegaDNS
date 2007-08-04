@@ -37,16 +37,14 @@ class Framework_Module_Login extends Framework_Auth_No
         $form = $this->createLoginForm();
         if ($form->validate()) {
             $result = $this->user->authenticate($_POST['email'], $_POST['password']);
-            if (PEAR::isError($result)) {
-                $this->setData('loginError', $result->getMessage());
+            if ($result !== TRUE) {
+                $this->setData('loginError', _("Login failed"));
                 $this->setData('QF_Form', $form->toHtml());
                 $this->session->__set('userID', null);
                 return;
             }
-            $this->session->__set(Framework::$site->config->defaultUser, 
-                            $this->user->data[Framework::$site->config->defaultUser]);
             $this->session->__set('lastActionTime', time());
-            header('Location: ./index.php?module=Home');
+            header('Location: ./index.php?module=Domains');
             return;
         } else {
             $this->setData('QF_Form', $form->toHtml());
