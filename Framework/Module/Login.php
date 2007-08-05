@@ -20,6 +20,13 @@
  */
 class Framework_Module_Login extends Framework_Auth_No
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->pageTemplateFile = 'loginPage.tpl';
+    }
+
     /**
      * __default
      *

@@ -7,27 +7,30 @@
         <!--[if gte IE 5.5000]>
         <script type="text/javascript" src="templates/pngfix.js"></script>
         <![endif]-->
+        {if !$logged_in}
+        {literal}
+        <script type="text/javascript">
+        function focus(){
+            document.vegadns.email.focus();
+        }
+        </script>
+        {/literal}
+        {/if}
     </HEAD>
 <body onload="focus()">
 <table border="0" height="100%" width="100%">
     <tr valign="top">
 
-{* menu type stuff *}
-<td class="border" width="20%" align="left">
-{* Display logged in/logout message *}
-&nbsp;<b>{$logged_in_email}</b> logged in<br>
-&nbsp<a href="{$logout_url}">log out</a>
-<hr>
-{include file='menu.tpl'}
-</td>
-<td align="center">
-<img src="images/vegadns-small.png" alt="VegaDNS"><p>
-{* Display messages *}
-<br>{$message}</b><br>
-<p>
+    {* everything else *}
+    <td align="center">
+    <img src="images/vegadns-big.png" alt="VegaDNS"><br>
+    tinydns administration - version {$version}<p>
+    {* Display messages *}
+    <br>{$message}</b><br>
+    <p>
 
 {include file="$modulePath/$tplFile"}
-
+</td>
 </tr>
 </table>
 </center>
