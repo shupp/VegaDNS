@@ -87,3 +87,7 @@ hr {
     height: 1px;
     border: 0;
 }
+.curMenOpt {
+    text-decoration: underline;
+    font-weight: bold;
+}
