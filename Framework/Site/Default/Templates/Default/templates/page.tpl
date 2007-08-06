@@ -16,6 +16,7 @@
             $("ul").Treeview({
                 speed: "fast",
                 store: true,
+                unique: true,
                 collapsed: true
             });
         });
