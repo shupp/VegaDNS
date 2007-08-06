@@ -20,7 +20,7 @@ class Framework_User_VegaDNS extends Framework_User {
      * @access public
      */
     public $groups = null;
-    static public $permFlagValues = array(
+    public $permFlagValues = array(
             'inherit_group_perms'   => 0x01,
             'account_edit'          => 0x02,
             'account_create'        => 0x04,
