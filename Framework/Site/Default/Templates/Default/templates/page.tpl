@@ -37,7 +37,7 @@
 <td align="center">
 <img src="images/vegadns-small.png" alt="VegaDNS"><p>
 {* Display messages *}
-<br>{$message}</b><br>
+<br><b>{$message}</b><br>
 <p>
 
 {include file="$modulePath/$tplFile"}
