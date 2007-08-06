@@ -6,11 +6,6 @@ class Framework_Module_Domains extends VegaDNS_Common
 
     public function __constructor()
     {
-        $group = $this->session->groupID;
-        $group_name_array = $this->user->returnGroup($group,NULL);
-        $this->data['group_name'] = $group_name_array['name'];
-        $this->data['group'] = $group;
-
         if ($this->user->getBit('domain_create')) {
             $smarty->assign('new_domain_url', $base_url."&module=Domains&domain_mode=add");
         }
@@ -50,7 +45,7 @@ class Framework_Module_Domains extends VegaDNS_Common
             $searchstring = "";
             $search = "";
             $scope = $_REQUEST['scope'];
-            $smarty->assign('scope', $_REQUEST['scope']);
+            $this->setData('scope', $_REQUEST['scope']);
     
             if ($scope != "num") {
                     $sq = " and domain regexp \"^[$scope" . strtoupper($scope) . "]\"";

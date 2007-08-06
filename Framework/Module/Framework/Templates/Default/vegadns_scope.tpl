@@ -1,0 +1,27 @@
+<a href="./?module={$module}&scope=num">0-9</a> | 
+<a href="./?module={$module}&scope=a">A</a> | 
+<a href="./?module={$module}&scope=b">B</a> | 
+<a href="./?module={$module}&scope=c">C</a> | 
+<a href="./?module={$module}&scope=d">D</a> | 
+<a href="./?module={$module}&scope=e">E</a> | 
+<a href="./?module={$module}&scope=f">F</a> | 
+<a href="./?module={$module}&scope=g">G</a> | 
+<a href="./?module={$module}&scope=h">H</a> | 
+<a href="./?module={$module}&scope=i">I</a> | 
+<a href="./?module={$module}&scope=j">J</a> | 
+<a href="./?module={$module}&scope=k">K</a> | 
+<a href="./?module={$module}&scope=l">L</a> | 
+<a href="./?module={$module}&scope=m">M</a> | 
+<a href="./?module={$module}&scope=n">N</a> | 
+<a href="./?module={$module}&scope=o">O</a> | 
+<a href="./?module={$module}&scope=p">P</a> | 
+<a href="./?module={$module}&scope=q">Q</a> | 
+<a href="./?module={$module}&scope=r">R</a> | 
+<a href="./?module={$module}&scope=s">S</a> | 
+<a href="./?module={$module}&scope=t">T</a> | 
+<a href="./?module={$module}&scope=u">U</a> | 
+<a href="./?module={$module}&scope=v">V</a> | 
+<a href="./?module={$module}&scope=w">W</a> | 
+<a href="./?module={$module}&scope=x">X</a> | 
+<a href="./?module={$module}&scope=y">Y</a> | 
+<a href="./?module={$module}&scope=z">Z</a>

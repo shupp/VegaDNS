@@ -18,7 +18,7 @@
 &nbsp;<b>{$logged_in_email}</b> logged in<br>
 &nbsp<a href="{$logout_url}">log out</a>
 <hr>
-{include file='menu.tpl'}
+{include file='framework:Framework+vegadns_menu.tpl'}
 </td>
 <td align="center">
 <img src="images/vegadns-small.png" alt="VegaDNS"><p>
