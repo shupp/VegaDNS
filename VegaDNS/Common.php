@@ -83,13 +83,14 @@ abstract class VegaDNS_Common extends Framework_Auth_User
     public function getMenuTree($g,$top = NULL)
     {
         $out = '';
+        $current = '';
         $groupstring = '';
         if (!is_null($g)) {
             $groupstring = "&amp;group_id={$g['group_id']}";
         }
         if (!is_null($top)) {
             $out .= "<ul>\n";
-            $out .= "<li><img src='images/home.png' border='0'alt='{$g['name']}' /> {$g['name']}</li>\n";
+            $out .= "<li {$current}><img src='images/home.png' border='0'alt='{$g['name']}' /> <a href=\"./?module=Groups&amp;group_id={$g['group_id']}\">{$g['name']}</a></li>\n";
         } else {
             $out .= "<ul>\n";
         }
@@ -100,14 +101,10 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         if (isset($g['subgroups'])) {
             while (list($key, $val) = each($g['subgroups'])) {
                 $class = '';
-                $current = '';
                 if ($this->user->isMyGroup($this->session->group_id, $val)) {
                     $class = 'class="open"';
                 }
-                if ($this->session->group_id == $val['group_id']) {
-                    $current = 'id="current"';
-                }
-                $out .= "<li {$current} {$class}><img src='images/group.gif' border='0'alt='{$val['name']}' /> <a href=\"./?module=Groups&amp;group_id={$val['group_id']}\">{$val['name']}</a>\n";
+                $out .= "<li {$class}><img src='images/group.gif' border='0'alt='{$val['name']}' /> <a href=\"./?module=Groups&amp;group_id={$val['group_id']}\">{$val['name']}</a>\n";
                 $out .= $this->getMenuTree($val);
                 $out .= "</li>\n";
             }
