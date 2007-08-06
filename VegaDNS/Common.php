@@ -8,6 +8,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         parent::__construct();
         $this->setData('module', $this->name);
         $this->setGroupID();
+        $this->setData('email', $this->user->myEmail());
     }
 
     public function getRequestSortWay()
@@ -52,7 +53,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         }
     }
 
-////////
     public function setGroupID()
     {
         if (isset($_REQUEST['group_id'])) {
@@ -68,7 +68,8 @@ abstract class VegaDNS_Common extends Framework_Auth_User
                     $this->session->__set('group_id', $this->user->myGroupID());
                 }
             }
-        } else if (!$this->session->group_id) {
+            $this->session->__set('group_id', $_REQUEST['group_id']);
+        } else if (is_null($this->session->group_id)) {
             $this->session->__set('group_id', $this->user->myGroupID());
         }
         $this->setData('group_id', $this->session->group_id);
@@ -76,10 +77,43 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         $group_name_array = $this->user->returnGroup($group_id,NULL);
         $this->setData('group_name', $group_name_array['name']);
         $this->setData('group_id', $group_id);
-        print_r($this->user->getMenuTree($this->user->groups,1));exit;
-        $this->setData('menurows', $this->user->getMenuTree($this->user->groups,1));
+        $this->setData('menurows', $this->getMenuTree($this->user->groups,1));
     }
-////////
 
+    public function getMenuTree($g,$top = NULL)
+    {
+        $out = '';
+        $groupstring = '';
+        if (!is_null($g)) {
+            $groupstring = "&amp;group_id={$g['group_id']}";
+        }
+        if (!is_null($top)) {
+            $out .= "<ul>\n";
+            $out .= "<li><img src='images/home.png' border='0'alt='{$g['name']}' /> {$g['name']}</li>\n";
+        } else {
+            $out .= "<ul>\n";
+        }
+
+        $out .= "<li><img src='images/newfolder.png' border='0' alt='Domains' /> <a href=\"./?module=Domains$groupstring\">Domains</a></li>\n";
+        $out .= "<li><img src='images/user_folder.png' border='0' alt='Users' /> <a href=\"./?module=Users$groupstring\">Users</a></li>\n";
+        $out .= "<li><img src='images/newfolder.png' border='0' alt='Log' /> <a href=\"./?module=Log$groupstring\">Log</a></li>\n";
+        if (isset($g['subgroups'])) {
+            while (list($key, $val) = each($g['subgroups'])) {
+                $class = '';
+                $current = '';
+                if ($this->user->isMyGroup($this->session->group_id, $val)) {
+                    $class = 'class="open"';
+                }
+                if ($this->session->group_id == $val['group_id']) {
+                    $current = 'id="current"';
+                }
+                $out .= "<li {$current} {$class}><img src='images/group.gif' border='0'alt='{$val['name']}' /> <a href=\"./?module=Groups&amp;group_id={$val['group_id']}\">{$val['name']}</a>\n";
+                $out .= $this->getMenuTree($val);
+                $out .= "</li>\n";
+            }
+        }
+        $out .= "</ul>\n";
+        return $out;
+    }
 }
 ?>

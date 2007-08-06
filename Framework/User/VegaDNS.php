@@ -101,6 +101,11 @@ class Framework_User_VegaDNS extends Framework_User {
         return $this->data['group_id'];
     }
 
+    public function myEmail()
+    {
+        return $this->data['email'];
+    }
+
     // Get current account settings
     function getAccountInfo($userID) {
 
@@ -185,191 +190,8 @@ class Framework_User_VegaDNS extends Framework_User {
         
     }
 
-    function getMenuTree($g,$top = NULL)
-    {
-        $groupstring = '';
-        if (!is_null($g)) {
-            $groupstring = "&group={$g['group_id']}";
-        }
-        if (!is_null($top)) {
-            $name = 'Home';
-            $topimage = 'home.png';
-            $out .= '<img src=images/home.jpg> ';
-        } else {
-            $name = $g['name'];
-            $topimage = 'group.gif';
-            $out .= '<img src=images/group.gif> ';
-        }
-
-        $out = '';
-        $out .= "<ul class='top'>\n";
-        $out .= "<li><img src='images/$topimage' border='0'/> <a href=\"./?&module=Groups$groupstring\">$name</li>\n";
-        $out .= "<li><img src='images/newfolder.png' border='0'/> <a href=\"./?module=Domains$groupstring\">Domains</li>\n";
-        $out .= "<li><img src='images/user_folder.png' border='0'/> <a href=\"./?module=Users$groupstring\">Users</li>\n";
-        $out .= "<li><img src='images/newfolder.png' border='0'/> <a href=\"./?module=Log$groupstring\">Log</li>\n";
-        if (isset($g['subgroups'])) {
-            $out .= "<li>\n";
-            $out .= $this->getMenuTree($g['subgroups']);
-            $out .= "<li>\n";
-        }
-        $out .= "</ul>\n";
-        return $out;
-    }
-
-    function oldgetMenuRows($g,$top,$final_sub,$parent_subs) {
-        static $indent = 0;
-        static $parent_subs_count = 0;
-
-        $out = '';
-        if (isset($_SESSION['expanded'])) {
-            $expanded = $_SESSION['expanded'];
-        } else {
-            $expanded = '';
-        }
-
-        // Figure out expansion stuff
-        if ($top == NULL && $expanded != NULL) {
-            $ex = explode(',', $expanded);
-            while (list($key,$val) = each($ex)) {
-                if ($g['group_id'] == $val) {
-                    $is_expanded = 1;
-                    $expand_image = 'dirtree_minus_';
-                    $new_expand = array_trim(explode(',', $expanded), $val);
-                    $expand_url = '&expanded='.implode(',', $new_expand);
-                    break;
-                } else {
-                    $is_expanded = 0;
-                    $expand_image = 'dirtree_plus_';
-                    $expand_url = "&expanded=$expanded,".$g['group_id'];
-                }
-            }
-        } else {
-            if ($top != NULL) {
-                $is_expanded = 1;
-            } else {
-                $is_expanded = 0;
-            }
-            $expand_image = 'dirtree_plus_';
-            $expand_url = '&expanded='.$g['group_id'];
-        }
-
-        // Figure out subgroups and bottom tree image shape
-        if (isset($g['subgroups'])) {
-            // echo "FINAL SUB: $final_sub";
-            $do_subgroups = 1;
-            // $h_bottom_image = 'tee';
-            $log_suffix = 'tee';
-            if ($is_expanded == 1) {
-                $h_bottom_image = 'tee';
-                if ($final_sub != NULL && !$top) {
-                    $log_suffix = 'elbow';
-                }
-            } else if ($final_sub == NULL){
-                $h_bottom_image = 'tee';
-            } else {
-                $h_bottom_image = 'elbow';
-            }
-        } else {
-            if ($is_expanded == 1) {
-                $h_bottom_image = 'tee';
-                if ($final_sub == NULL) {
-                    $log_suffix = 'tee';
-                } else {
-                    $log_suffix = 'elbow';
-                }
-            } else if ($final_sub == NULL) {
-                $h_bottom_image = 'tee';
-                $log_suffix = 'tee';
-            } else {
-                $h_bottom_image = 'elbow';
-                $log_suffix = 'elbow';
-            }
-            $do_subgroups = 0;
-        }
-
-        // Setup URLs
-        $homeurl = "<a href=\"./?&mode=groups&group=".$g['group_id']."\">";
-        $plusminusurl = "<a href=\"$base_url$expand_url&group=".$_SESSION['group'];
-        // Retain current mode/domain/record
-        if (isset($_REQUEST['mode'])) $plusminusurl .= "&mode=".$_REQUEST['mode'];
-        if (isset($_REQUEST['domain'])) $plusminusurl .= "&domain=".$_REQUEST['domain'];
-        if (isset($_REQUEST['record_id'])) $plusminusurl .= "&record_id=".$_REQUEST['record_id'];
-        if (isset($_REQUEST['record_mode'])) $plusminusurl .= "&record_mode=".$_REQUEST['record_mode'];
-        if (isset($_REQUEST['domain_mode'])) $plusminusurl .= "&domain_mode=".$_REQUEST['domain_mode'];
-
-        $plusminusurl .= "\">";
-        $groupurl = "<a href=\"$base_url&mode=groups&group=".$g['group_id']."\">";
-        $domainsurl = "<a href=\"$base_url&mode=domains&group=".$g['group_id']."\">";
-        $usersurl = "<a href=\"$base_url&mode=users&group=".$g['group_id']."\">";
-        $logurl = "<a href=\"$base_url&mode=log&group=".$g['group_id']."\">";
-
-        // Padding for vertical bar
-        $count = 1;
-        $padding = '';
-        while ($count < $indent) {
-            if ($parent_subs_count < $parent_subs) {
-                $padding .= "<td><img src=\"images/dirtree_vertical.gif\" border=\"0\"></td>";
-            } else {
-                $padding .= "<td><img src=\"images/transparent.gif\" height=\"17\" width=\"17\" border=\"0\"></td>";
-            }
-            $count++;
-        }
-
-        // Figure out which item is highlighted (active)
-        $groupsbg = '';
-        $domainsbg = '';
-        $usersbg = '';
-        $logbg = '';
-        if (isset($_SESSION['group']) && $_SESSION['group'] == $g['group_id']) {
-            if (isset($_REQUEST['mode'])) {
-                if ($_REQUEST['mode'] == 'domains' || $_REQUEST['mode'] == 'records') {
-                    $domainsbg = ' class="white"';
-                } else if ($_REQUEST['mode'] == 'users') {
-                    $usersbg = ' class="white"';
-                } else if ($_REQUEST['mode'] == 'log') {
-                    $logbg = ' class="white"';
-                } else if ($_REQUEST['mode'] == 'groups') {
-                    $groupsbg = ' class="white"';
-                }
-            } else {
-                    $groupsbg = ' class="white"';
-            }
-        } else if ($top != NULL) {
-            if (!isset($_SESSION['group']) || $_SESSION['group'] == 'NULL') 
-                $groupsbg = ' class="white"';
-        }
-
-        if ($top != NULL) {
-            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" alt=\"home\" src=\"images/home.png\"></td><td$groupsbg>$homeurl".$g['name']."</a></td></tr></table>\n";
-        } else {
-            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td>$plusminusurl<img border=\"0\" alt=\"home\" src=\"images/$expand_image$h_bottom_image.gif\"><td>$groupurl<img border=\"0\" alt=\"home\" src=\"images/group.gif\"></a></td><td$groupsbg>$groupurl".$g['name']."</a></td></tr></table>\n";
-        }
-
-
-        if ($top != NULL || $is_expanded) {
-            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_tee.gif\"><td><img border=\"0\" src=\"images/newfolder.png\"></td><td$domainsbg>".$domainsurl."Domains</a></td></tr></table>\n";
-            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_tee.gif\"></td><td><img border=\"0\" src=\"images/user_folder.png\"></td><td$usersbg>".$usersurl."Users</a></td></tr></table>\n";
-            $out .= "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>$padding<td><img border=\"0\" src=\"images/dirtree_$log_suffix.gif\"></td><td><img border=\"0\" src=\"images/newfolder.png\"></td><td$logbg>".$logurl."Log</a></td></tr></table>\n";
-        }
-
-        $indent++;
-        if ($is_expanded == 1) {
-            $counter = 0;
-            $last_sub = NULL;
-            while ($do_subgroups == 1 && list($key,$val) = each($g['subgroups'])) {
-                if ($top != NULL) $parent_subs_count++;
-                $counter++;
-                $out .=  "<!-- COUNTER: $counter COUNT: ".count($g['subgroups'])." -->\n";
-                if ($counter == count($g['subgroups'])) $last_sub = 1;
-                $out .= $this->getMenuRows($val,NULL,$last_sub);
-            }
-        }
-        $indent--;
-        return $out;
-    }
-
-    function isMyGroup($g) {
-        if (($temp = $this->returnGroup($g)) == NULL) {
+    function isMyGroup($g, $array = NULL) {
+        if (($temp = $this->returnGroup($g, $array)) == NULL) {
             return NULL;
         } else {
             return $temp;
