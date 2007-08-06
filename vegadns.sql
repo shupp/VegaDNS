@@ -13,7 +13,7 @@ CREATE TABLE `accounts` (
 ) TYPE=InnoDB;
 
 INSERT INTO accounts VALUES (1,1,'anon@example.com', MD5('test'),'Anonymous','Coward','','user','inactive');
-INSERT INTO accounts VALUES (2,2,'admin@example.com', MD5('test'),'Default','Administrator','','senior_admin','active');
+INSERT INTO accounts VALUES (2,1,'admin@example.com', MD5('test'),'Default','Administrator','','senior_admin','active');
 
 DROP TABLE IF EXISTS `domains`;
 CREATE TABLE domains (
