@@ -3,20 +3,34 @@
     <HEAD>
         <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
         <TITLE>VegaDNS Administration</TITLE>
-        <link rel="STYLESHEET" type="text/css" href="templates/core-style.css">
+        <link rel="STYLESHEET" type="text/css" href="vegadns-style.css">
+        <link rel="STYLESHEET" type="text/css" href="tree.css">
         <!--[if gte IE 5.5000]>
         <script type="text/javascript" src="templates/pngfix.js"></script>
         <![endif]-->
+        {literal}
+        <script src="jquery.pack.js" type="text/javascript"></script>
+        <script src="jquery.treeview.pack.js" type="text/javascript"></script>
+        <script type="text/javascript">
+        $(document).ready(function(){
+            $("ul").Treeview({
+                speed: "fast",
+                store: true,
+                collapsed: true
+            });
+        });
+        </script>
+        {/literal}
     </HEAD>
-<body onload="focus()">
-<table border="0" height="100%" width="100%">
+<body>
+<table border="0" width="100%">
     <tr valign="top">
 
 {* menu type stuff *}
 <td class="border" width="20%" align="left">
 {* Display logged in/logout message *}
-&nbsp;<b>{$logged_in_email}</b> logged in<br>
-&nbsp<a href="{$logout_url}">log out</a>
+&nbsp;<b>{$email}</b><br>
+&nbsp<a href="./?module=Login&amp;event=logoutNow">log out</a>
 <hr>
 {include file='framework:Framework+vegadns_menu.tpl'}
 </td>
