@@ -18,12 +18,11 @@ A:active {
 body {
   text-decoration: none;
   font-family: Verdana,Helvetica,sans-serif;
-  font-size: 10px;
+  /* font-size: 10px;*/
+  font-size: 68.75%;
   font-weight: normal;
   margin-left: 0px;
-  margin-top: 15px
-  margin-width: 0px;
-  margin-height: 15px;
+  margin-top: 15px;
 }
 font {
   text-decoration: none;
@@ -48,7 +47,6 @@ td.white {
   text-decoration: underline;
   font-family: Verdana,Helvetica,sans-serif;
   font-size: 12px;
-  font-style: none;
   font-weight: bold;
 }
 td.greyed {
@@ -88,5 +86,7 @@ hr {
     background-color: #666;
     height: 1px;
     border: 0;
-
-
+}
+#current {
+  text-decoration: underline;
+}
