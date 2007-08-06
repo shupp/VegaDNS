@@ -1,3 +1,4 @@
+            Domains in group "{$group_name}"<p>
     <table width="90%">
     <tr>
     <td class="border">
@@ -5,23 +6,12 @@
         <tr>
             <td colspan="6" align="center">
 
-            Domains in group {$group_name}<p>
             <table width="100%" border=0 cellspacing=0 cellpadding=3>
                 <tr valign="top">
                 <td align="left" colspan="2">
 
-                Listing {$first_item} - {$last_item} of {$totalitems} Domains {$searchtexttag}</td>
-                <td align="center" colspan="2">
-                {if $previous_url} <a href={$previous_url}>previous</a>
-                {else}previous{/if}
-                {if $next_url} <a href={$next_url}>next</a>
-                {else}next{/if}
-                {if $first_url} <a href={$first_url}>first</a>
-                {else}first{/if}
-                {if $last_url} <a href={$last_url}>last</a>
-                {else}last{/if}
-                <a href={$all_url}>all</a>
-                </td>
+                Listing {$start} - {$start + $limit} of {$total} Domains {$searchtexttag}</td>
+                <td align="center" colspan="2">{framework_pager}</td>
                 <td align="right" colspan="2">
                     <form action="{$php_self}">
                     <input type="hidden" name="state" value="{$state}">
