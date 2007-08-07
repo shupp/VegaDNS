@@ -744,5 +744,27 @@ class Framework_User_VegaDNS extends Framework_User {
         return $account['user_perms'];
     }
 
+    public function dnsLog($domain_id, $entry)
+    {
+        $session = & Framework_Session::singleton();
+        $name = $this->data['first_name']." ".$this->data['last_name'];
+        $q = "INSERT INTO log (user_id,group_id,email,Name,domain_id,entry,time) 
+        values(
+            " . $this->data['user_id'] . ",
+            " . $session->group_id.",
+            " . $this->db->Quote($this->data['email']) . ",
+            " . $this->db->Quote($name) . ",
+            " . $this->db->Quote($domain_id) . ",
+            " . $this->db->Quote($entry) . ",
+            " . time().")";
+
+        try {
+            $result = $this->db->Execute($q);
+        } catch (Exception $e) {;
+            throw new Framework_Exception($e->getMessage());
+        }
+    
+    }
+
 };
 ?>

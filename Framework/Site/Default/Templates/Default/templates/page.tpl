@@ -38,8 +38,10 @@
 <td align="center">
 <img src="images/vegadns-small.png" alt="VegaDNS"><p>
 {* Display messages *}
+{if $message}
 <br><b>{$message}</b><br>
 <p>
+{/if}
 
 {include file="$modulePath/$tplFile"}
 
