@@ -73,7 +73,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         } else if (is_null($this->session->group_id)) {
             $this->session->__set('group_id', $this->user->myGroupID());
         }
-        $this->setData('group_id', $this->session->group_id);
         $group_id = $this->session->group_id;
         $group_name_array = $this->user->returnGroup($group_id,NULL);
         $this->setData('group_name', $group_name_array['name']);
