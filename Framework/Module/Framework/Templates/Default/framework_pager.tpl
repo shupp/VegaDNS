@@ -18,7 +18,7 @@
 {else}
     <span class="next disabled">Next &raquo;</span>
 {/if}
-{if $start < $nav->getEnd()}
+{if $nav->start < $nav->getEnd()}
     <a class="end" href="{$url}{$s}start={$nav->getEnd()}">&raquo;</a>
 {else}
     <span class="end disabled">&raquo;</span>
