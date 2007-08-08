@@ -1,16 +1,3 @@
-    {*            {if $previous_url} <a href={$previous_url}>previous</a>
-                {else}previous{/if}
-                {if $next_url} <a href={$next_url}>next</a>
-                {else}next{/if}
-                {if $first_url} <a href={$first_url}>first</a>
-                {else}first{/if}
-                {if $last_url} <a href={$last_url}>last</a>
-                {else}last{/if}
-                <a href={$all_url}>all</a>
-*}
-
-
-
 <div class="framework_pager"{if strlen($params.id)} id="{$params.id}"{/if}>
 {if $nav->start > 0}
     <a class="begin" href="{$url}{$s}start={$nav->getBeginning()}">&laquo;</a>
@@ -20,7 +7,7 @@
     <span class="prev disabled">&laquo; Prev</span>
 {/if}
 {foreach key=key item=val from=$nav->getPageList()}
-    {if $start == $val}
+    {if $nav->start == $val}
         <a class="page current" href="{$url}{$s}start={$val}">{$key}</a>
     {else}
         <a class="page" href="{$url}{$s}start={$val}">{$key}</a>
