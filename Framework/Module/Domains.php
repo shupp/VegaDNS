@@ -63,7 +63,21 @@ class Framework_Module_Domains extends VegaDNS_Common
         }
     
         // Show domain list
-    
+
+        // First, count the total for pagination
+        $count_q = "SELECT COUNT(*)
+                FROM domains a 
+                LEFT JOIN groups b ON a.group_id = b.group_id 
+                WHERE ($groupquery) $searchstring $sq";
+        try {
+            $result = $this->db->Execute($count_q);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
+        $count_row = $result->FetchRow();
+        $this->paginate($count_row['COUNT(*)']);
+
+        // Now, do the actual select
         $q = "SELECT a.*, b.group_id, b.name 
                 FROM domains a 
                 LEFT JOIN groups b ON a.group_id = b.group_id 
@@ -72,21 +86,19 @@ class Framework_Module_Domains extends VegaDNS_Common
         // sort
         $sortway = $this->getRequestSortWay();
         $sortfield = $this->getSortfield('domains');
-    
-        $q .= "order by $sortfield $sortway ".( ($sortfield == "status") ? ", domain" : "" )."";
+        $where_q .= "ORDER BY $sortfield $sortway ".( ($sortfield == "status") ? ", domain" : "" );
+        $q .= $where_q . " LIMIT {$this->limit} OFFSET " . ($this->start);
     
         try {
             $result = $this->db->Execute($q);
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
-        $totalitems = $result->RecordCount();
-        $this->setData('total', $totalitems);
     
         // sort
         $sort_array['Domain'] = 'domain';
         $sort_array['Status'] = 'status';
-        $sort_array['Group'] = 'group_id';
+        $sort_array['Group'] = 'a.group_id';
     
         $sortbaseurl = "./?&module=Domains&page=".( ((isset($_REQUEST['page']) && $_REQUEST['page'] == 'all')) ? "all" : $page);
     
@@ -97,39 +109,32 @@ class Framework_Module_Domains extends VegaDNS_Common
             $this->data[$key] = $url;
         }
     
-        if ($totalitems > 0) {
-            $domain_count = 0;
+        if ($this->total > 0) {
             // Actually list domains
-            while (++$domain_count && !$result->EOF && ($row = $result->FetchRow())
-                && ($domain_count <= $last_item)) {
-    
-                if ($domain_count < $first_item) continue;
-    
+            for ($domain_count = 0; !$result->EOF && ($row = $result->FetchRow()); $domain_count++) {
                 $out_array[$domain_count]['domain'] = $row['domain'];
                 $out_array[$domain_count]['edit_url'] = "./?&mode=records&domain=".$row['domain'];
                 $out_array[$domain_count]['status'] = $row['status'];
-                $out_array[$domain_count]['group_name'] = get_groupowner_name($row['group_id']);
-                if ($user_info['account_type'] == 'senior_admin' || $user_info['account_type'] == 'group_admin') {
-                    $out_array[$domain_count]['change_owner_url'] = "./?&module=Domains&domain_mode=change_owner&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+                $out_array[$domain_count]['group_name'] = $row['name'];
+                if ($this->user->getBit($this->user->getPerms(), 'domain_delete')) {
+                    $out_array[$domain_count]['delete_url'] = "./?&module=Domains&event=delete&domain_id=".$row['domain_id']."&domain=".$row['domain'];
                 }
-                if ($row['status'] == 'inactive') {
-                    if ($user_info['account_type'] == 'senior_admin') {
-                        $out_array[$domain_count]['activate_url'] = "./?&module=Domains&domain_mode=activate_domain&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+                if ($this->user->getBit($this->user->getPerms(), 'domain_delegate')) {
+                    $out_array[$domain_count]['change_owner_url'] = "./?&module=Domains&event=delegate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+                }
+                if ($row['status'] == 'active') {
+                    if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
+                        $out_array[$domain_count]['deactivate_url'] = "./?&module=Domains&event=deactivate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
                     }
-                } else if ($row['status'] == 'active') {
-                    if ($user_info['account_type'] == 'senior_admin') {
-                        $out_array[$domain_count]['deactivate_url'] = "./?&module=Domains&domain_mode=deactivate_domain&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+                } else if ($row['status'] == 'inactive') {
+                    if ($this->user->isSeniorAdmin()) {
+                        $out_array[$domain_count]['activate_url'] = "./?&module=Domains&event=activate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
                     }
                 }
-                $out_array[$domain_count]['delete_url'] = "./?&module=Domains&domain_mode=delete&domain_id=".$row['domain_id']."&domain=".$row['domain'];
             }
         }
     
         $this->setData('all_url', "./?&module=Domains&page=all&sortfield=$sortfield&sortway=$sortway&search=".urlencode($search));
-        $this->setData('first_item', $first_item);
-        $this->setData('last_item', $last_item);
-        $this->setData('totalitems', $totalitems);
-        $this->setData('totalpages', $totalpages);
         if (isset($out_array)) {
             $this->setData('out_array', $out_array);
         }
@@ -149,7 +154,8 @@ class Framework_Module_Domains extends VegaDNS_Common
 
     protected function addForm()
     {
-        $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow&modal=true', '', 'class="thickbox"');
+        // $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow&modal=true', '', 'class="thickbox"');
+        $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow');
 
         $form->addElement('header', 'MyHeader', _('Add Domain'));
         $form->addElement('text', 'domain', _('Domain Name'));

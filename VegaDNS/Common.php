@@ -9,7 +9,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         $this->setData('module', $this->name);
         $this->setGroupID();
         $this->setData('email', $this->user->myEmail());
-        $this->setData('limit', (int)Framework::$site->config->maxPerPage);
     }
 
     public function getRequestSortWay()
@@ -132,6 +131,20 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         }
         $row = $result->FetchRow();
         return $row['domain_id'];
+    }
+
+    public function paginate($total) {
+        $this->setData('total', $total);
+        $this->setData('limit', (integer)Framework::$site->config->maxPerPage);
+        if (isset($_REQUEST['start']) && !ereg('[^0-9]', $_REQUEST['start'])) {
+            $start = $_REQUEST['start'];
+        }
+        if (!isset($start)) {
+            $start = 0;
+        }
+        $this->setData('start', $start);
+        $this->setData('currentPage', ceil($this->data['start'] / $this->data['limit']));
+        $this->setData('totalPages', ceil($this->data['total'] / $this->data['limit']));
     }
 }
 ?>

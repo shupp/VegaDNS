@@ -91,3 +91,42 @@ hr {
     text-decoration: underline;
     font-weight: bold;
 }
+
+/* Page Numbers */
+.framework_pager {
+    padding: 1em;
+    margin: 1em 0;
+    clear: left;
+    font-size: 85%;
+}
+
+.framework_pager a {
+    display: block;
+    float: left;
+    padding: 0.2em 0.5em;
+    margin-right: 0.1em;
+    border: 1px solid #fff;
+    background: #fff;
+    border: 1px solid #DCCFFF;
+    text-decoration: none;
+}
+
+.disabled {
+    display: block;
+    float: left;
+    padding: 0.2em 0.5em;
+    margin-right: 0.1em;
+    border: 1px solid #cccccc;
+    background: #fff;
+    text-decoration: none;
+}
+
+.framework_pager a.current {
+    border: 1px solid #3301A4;
+    font-weight: bold;
+    background: #DCCFFF;
+}
+
+.framework_pager a:hover {
+    border-color: #000000;
+}
