@@ -40,10 +40,10 @@ class Framework_Module_Domains extends VegaDNS_Common
     
         // Get scope of domain list, if it exists
         if (isset($_REQUEST['recursive'])) {
-            $groupquery = $this->user->returnSubgroupsQuery($this->user->returnGroup($group, NULL), NULL);
+            $groupquery = $this->user->returnSubgroupsQuery($this->user->returnGroup($this->group_id, NULL), NULL);
             $this->setData('recursive', ' checked');
         } else {
-            $groupquery = " a.group_id='$group'";
+            $groupquery = " a.group_id='{$this->group_id}'";
         }
     
         // Get scope of domain list, if it exists
