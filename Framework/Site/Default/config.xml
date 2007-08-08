@@ -8,6 +8,8 @@
     <!-- inactivity timeout - in seconds -->
     <inactiveTimeout>600</inactiveTimeout>
     <maxPerPage>50</maxPerPage>
+    <supportEmail>support@example.com</supportEmail>
+    <supportName>DNS Team</supportName>
     <logFile>/tmp/vegadns.log</logFile>
     <user>
         <userClass>VegaDNS</userClass>

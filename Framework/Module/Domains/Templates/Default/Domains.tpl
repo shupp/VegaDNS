@@ -35,7 +35,9 @@
 
             </td>
         </tr>
-        <tr><td colspan="4" align="right">{if $new_domain_url}<a href="{$new_domain_url}">New Domain</a>{else}New Domain{/if}</td>
+        <!-- <tr><td colspan="4" align="right">{if $new_domain_url}<a href="{$new_domain_url}&amp;height=300&amp;width=300&amp;TB_iframe=true" class="thickbox">New Domain</a>{/if}-->
+        <tr><td colspan="4" align="right">{if $new_domain_url}<a href="{$new_domain_url}">New Domain</a>
+            {else}New Domain{/if}</td>
         </tr>
         <tr>
             <td class="underline" nowrap>{$Domain}</td><td class="underline" nowrap>{$Status}</td>

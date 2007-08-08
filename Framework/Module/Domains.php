@@ -143,12 +143,13 @@ class Framework_Module_Domains extends VegaDNS_Common
         }
         $form = $this->addForm();
         $this->setData('form', $form->toHtml());
+        // $this->pageTemplateFile = 'thickbox.tpl';
         $this->tplFile = 'add.tpl';
     }
 
     protected function addForm()
     {
-        $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow');
+        $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow&modal=true', '', 'class="thickbox"');
 
         $form->addElement('header', 'MyHeader', _('Add Domain'));
         $form->addElement('text', 'domain', _('Domain Name'));
@@ -197,22 +198,26 @@ class Framework_Module_Domains extends VegaDNS_Common
         }
 
         $domain_id = $this->addDomainRecord($domain, $domain_status);
+        $this->addDefaultRecords($domain, $domain_id);
     
-        /* // email the support address if an inactive domain is added
+        // email the support address if an inactive domain is added
         $body = "$domain_status domain \"$domain\" added by {$this->session->email}\n\n";
         $body .= "\n\nThanks,\n\n";
         $body .= "VegaDNS";
     
+        $supportemail = (string)Framework::$site->config->supportEmail;
+        $supportname = (string)Framework::$site->config->supportName;
         mail($supportemail,
-            "New Inactive Domain Created",
+            "New $domain_status Domain Created",
             $body,
             "Return-path: $supportemail\r\nFrom: \"$supportname\" <$supportemail>");
     
-        $this->session->__set('message', "Domain $domain added successfully!");
-        header("Location: ./?module=Records&domain=".urlencode($domain));
-        return; */
         $this->setData('message', "Domain $domain added successfully!");
-        return $this->listDomains();
+        // $this->setData('continueUrl', "./?module=Records&domain=".urlencode($domain));
+        // $this->pageTemplateFile = 'thickbox.tpl';
+        $this->tplFile = 'addSuccess.tpl';
+        header("Location: ./?module=Records&domain=".urlencode($domain));
+        return;
     }
 
     private function addDomainRecord($domain, $domain_status)
@@ -236,7 +241,7 @@ class Framework_Module_Domains extends VegaDNS_Common
         return $id;
     }
 
-    private function addDefaultRecords()
+    private function addDefaultRecords($domain, $id)
     {
         // Try for group's records
         $q = "SELECT * FROM default_records WHERE default_type='group' and group_id='{$this->session->group_id}'";
@@ -280,6 +285,7 @@ class Framework_Module_Domains extends VegaDNS_Common
                 'S',
                 '$val',
                 '".$soa_array['ttl']."')";
+        $this->log->log($q);
         try {
             $result = $this->db->Execute($q);
         } catch (Exception $e) {
@@ -299,6 +305,7 @@ class Framework_Module_Domains extends VegaDNS_Common
                     '$val',
                     '".$row['distance']."',
                     '".$row['ttl']."')";
+                $this->log->log($q);
                 try {
                     $result = $this->db->Execute($q);
                 } catch (Exception $e) {
