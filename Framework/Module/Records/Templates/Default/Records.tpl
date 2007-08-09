@@ -2,42 +2,42 @@
 <table border=0 width="90%" bgcolor="white">
 <tr><td>
 
-{if $display_soa}
+{if $soa}
 <table border=0 width="100%">
 <tr bgcolor="#cccccc">
   <td>Properties (SOA)</td>
-  <td align="right" width="5%">{if $edit_soa_url}<a href="{$edit_soa_url}">edit</a>{else}edit{/if}</td>
+  <td align="right" width="5%">{if $soa.edit_soa_url}<a href="{$soa.edit_soa_url}">edit</a>{else}edit{/if}</td>
 </table>
 
 
 <table border=0 width="100%">
   <tr bgcolor="#eeeeee">
       <td width="10%">Domain:</td>
-      <td width="40%" nowrap>{$domain}</td>
+      <td width="40%" nowrap>{$domain.domain}</td>
       <td width="10%" nowrap>Refresh:</td>
-      <td width="40%" nowrap>{$refresh}</td>
+      <td width="40%" nowrap>{$soa.refresh}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Contact Address:</td>
-      <td width="40%" nowrap>{$tldemail}</td>
+      <td width="40%" nowrap>{$soa.tldemail}</td>
       <td width="10%" nowrap>Retry:</td>
-      <td width="40%" nowrap>{$retry}</td>
+      <td width="40%" nowrap>{$soa.retry}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Primary Nameserver:&nbsp</td>
-      <td width="40%" nowrap>{$tldhost}</td>
+      <td width="40%" nowrap>{$soa.tldhost}</td>
       <td width="10%" nowrap>Expiration:</td>
-      <td width="40%" nowrap>{$expire}</td>
+      <td width="40%" nowrap>{$soa.expire}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Serial Number:</td>
       <td width="40%" nowrap>Default</td>
       <td width="10%" nowrap>Minimum TTL:&nbsp</td>
-      <td width="40%" nowrap>{$minimum}</td>
+      <td width="40%" nowrap>{$soa.minimum}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Default TTL:</td>
-      <td width="40%" nowrap>{$ttl}</td>
+      <td width="40%" nowrap>{$soa.ttl}</td>
       <td width="10%" nowrap>&nbsp</td>
       <td width="40%" nowrap>&nbsp</td>
   </tr>
@@ -50,29 +50,11 @@
     <td colspan=6 align="center">
             <table width="100%" border=0 cellspacing=0 cellpadding=3 bgcolor="#cccccc">
                 <tr valign="top" bgcolor="#cccccc">
-                <td align="left" colspan="2">
-
-                Listing {$first_item} - {$last_item} of {$totalitems} Records {$searchtexttag}</td>
-                <td align="center" colspan="2">
-                {if $previous_url != ""} <a href={$previous_url}>previous</a>
-                {else}previous{/if}
-                {if $next_url != ""} <a href={$next_url}>next</a>
-                {else}next{/if}
-                {if $first_url != ""} <a href={$first_url}>first</a>
-                {else}first{/if}
-                {if $last_url != ""} <a href={$last_url}>last</a>
-                {else}last{/if}
-                <a href={$all_url}>all</a>
-                </td>
+                <td align="left" colspan="2">{framework_pager start=$start limit=$limit total=$total pages=6}</td>
                 <td align="right" colspan="2">
-                    <form action="{$php_self}">
-                    <input type="hidden" name="state" value="{$state}">
-                    <input type="hidden" name="mode" value="records">
-                    <input type="hidden" name="{$session_name}" value="{$session_id}">
-                    <input type="hidden" name="domain" value="{$domain}">
+                    <form action="./?module=Records&event=search&domain_id={$domain.domain_id}">
                     <input type="text" name="search" value="{$search}">
                     <input type="submit" value="search"></form>
-
                 </td>
                 </tr>
             </table>
@@ -97,7 +79,7 @@
       <td width="5%">Delete</td>
   </tr>
 
-{foreach from=$out_array item=row}
+{foreach from=$records_array item=row}
     <tr bgcolor="{cycle values="#ffffff,#dcdcdc"}">
         <td nowrap width="20%">{if $row.edit_url}<a href="{$row.edit_url}">{$row.host}</a>{else}{$row.host}{/if}</td>
         <td width="5%" nowrap>{$row.type}</td>
