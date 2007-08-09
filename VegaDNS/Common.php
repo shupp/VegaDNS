@@ -151,5 +151,63 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         $this->setData('currentPage', ceil($this->data['start'] / $this->data['limit']));
         $this->setData('totalPages', ceil($this->data['total'] / $this->data['limit']));
     }
+
+    protected function parseSoa($soa)
+    {
+        $email_soa = explode(":", $soa['host']);
+        $array['tldemail'] = $email_soa[0];
+        $array['tldhost'] = $email_soa[1];
+
+        $ttls_soa = explode(":", $soa['val']);
+        // ttl
+        if(!isset($soa['ttl']) || $soa['ttl']  == "") {
+            $array['ttl'] = 86400;
+        } else {
+            $array['ttl'] = $soa['ttl'];
+        }
+        // refresh
+        if($ttls_soa[0] == "") {
+            $array['refresh'] = 16384;
+        } else {
+            $array['refresh'] = $ttls_soa[0];
+        }
+        // retry
+        if($ttls_soa[1] == "") {
+            $array['retry'] = 2048;
+        } else {
+            $array['retry'] = $ttls_soa[1];
+        }
+        // expiration
+        if($ttls_soa[2] == "") {
+            $array['expire'] = 1048576;
+        } else {
+            $array['expire'] = $ttls_soa[2];
+        }
+        // min
+        if($ttls_soa[3] == "") {
+            $array['minimum'] = 2560;
+        } else {
+            $array['minimum'] = $ttls_soa[3];
+        }
+        return $array;
+    }
+
+    protected function setSortLinks($array, $module)
+    {
+        while(list($key,$val) = each($array)) {
+            $newsortway = $this->getSortway($this->sortfield, $val, $this->sortway);
+            if ($module == 'Records') {
+                $prefix = "./?module=Records&domain_id={$this->domain['domain_id']}";
+            } else {
+                $prefix = "./?module=Domains&group_id={$this->session->group_id}";
+            }
+            $url = $prefix . "&sortway=$newsortway&sortfield=$val";
+            $string = "<a href='$url'>$key</a>";
+            if ($this->sortfield == $val) {
+                $string .= "&nbsp;<img border=0 alt='{$this->sortway}' src=images/{$this->sortway}.png>";
+            }
+            $this->setData($key, $string);
+        }
+    }
 }
 ?>

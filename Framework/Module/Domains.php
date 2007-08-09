@@ -98,37 +98,30 @@ class Framework_Module_Domains extends VegaDNS_Common
         $sort_array['Domain'] = 'domain';
         $sort_array['Status'] = 'status';
         $sort_array['Group'] = 'a.group_id';
+        $this->setSortLinks($sort_array, 'Domains'); 
     
-        $sortbaseurl = "./?&module=Domains&start={$this->start}";
-    
-        while (list($key,$val) = each($sort_array)) {
-            $newsortway = $this->getSortWay($this->sortfield, $val, $this->sortway);
-            $url = "<a href='$sortbaseurl&sortway=$newsortway&sortfield=$val'>" . preg_replace('/_/', ' ', $key)."</a>";
-            if ($this->sortfield == $val) $url .= "&nbsp;<img border=0 alt='{$this->sortway}' src=images/{$this->sortway}.png>";
-            $this->data[$key] = $url;
+        if ($this->total == 0) {
+            return;
         }
-    
-        if ($this->total > 0) {
-            // Actually list domains
-            for ($domain_count = 0; !$result->EOF && ($row = $result->FetchRow()); $domain_count++) {
-                $out_array[$domain_count]['domain'] = $row['domain'];
-                $out_array[$domain_count]['edit_url'] = "./?&module=Records&domain_id=".$row['domain_id'];
-                $out_array[$domain_count]['status'] = $row['status'];
-                $out_array[$domain_count]['group_name'] = $row['name'];
-                if ($this->user->getBit($this->user->getPerms(), 'domain_delete')) {
-                    $out_array[$domain_count]['delete_url'] = "./?&module=Domains&event=delete&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+        // Actually list domains
+        for ($domain_count = 0; !$result->EOF && ($row = $result->FetchRow()); $domain_count++) {
+            $out_array[$domain_count]['domain'] = $row['domain'];
+            $out_array[$domain_count]['edit_url'] = "./?&module=Records&domain_id=".$row['domain_id'];
+            $out_array[$domain_count]['status'] = $row['status'];
+            $out_array[$domain_count]['group_name'] = $row['name'];
+            if ($this->user->getBit($this->user->getPerms(), 'domain_delete')) {
+                $out_array[$domain_count]['delete_url'] = "./?&module=Domains&event=delete&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+            }
+            if ($this->user->getBit($this->user->getPerms(), 'domain_delegate')) {
+                $out_array[$domain_count]['change_owner_url'] = "./?&module=Domains&event=delegate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
+            }
+            if ($row['status'] == 'active') {
+                if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
+                    $out_array[$domain_count]['deactivate_url'] = "./?&module=Domains&event=deactivate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
                 }
-                if ($this->user->getBit($this->user->getPerms(), 'domain_delegate')) {
-                    $out_array[$domain_count]['change_owner_url'] = "./?&module=Domains&event=delegate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
-                }
-                if ($row['status'] == 'active') {
-                    if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
-                        $out_array[$domain_count]['deactivate_url'] = "./?&module=Domains&event=deactivate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
-                    }
-                } else if ($row['status'] == 'inactive') {
-                    if ($this->user->isSeniorAdmin()) {
-                        $out_array[$domain_count]['activate_url'] = "./?&module=Domains&event=activate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
-                    }
+            } else if ($row['status'] == 'inactive') {
+                if ($this->user->isSeniorAdmin()) {
+                    $out_array[$domain_count]['activate_url'] = "./?&module=Domains&event=activate&domain_id=".$row['domain_id']."&domain=".$row['domain'];
                 }
             }
         }
