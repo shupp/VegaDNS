@@ -11,7 +11,7 @@
             <table width="100%" border=0 cellspacing=0 cellpadding=3>
                 <tr valign="top">
                 <td align="left" colspan="2"></td>
-                <td align="center" colspan="2">{framework_pager start=$start limit=$limit total=$total pages=6}</td>
+                <td align="center" colspan="2">{framework_pager start=$start limit=$limit total=$total pages=6 url=$sortbaseurl}</td>
                 <td align="right" colspan="2">
                     <form action="./?module=Domains">
                     search sub domains <input type="checkbox" name="recursive" {$recursive}>

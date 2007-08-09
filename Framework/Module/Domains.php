@@ -84,9 +84,9 @@ class Framework_Module_Domains extends VegaDNS_Common
                 WHERE ($groupquery) $searchstring $sq ";
     
         // sort
-        $sortway = $this->getRequestSortWay();
-        $sortfield = $this->getSortfield('domains');
-        $where_q .= "ORDER BY $sortfield $sortway ".( ($sortfield == "status") ? ", domain" : "" );
+        $this->setData('sortway', $this->getRequestSortWay());
+        $this->setData('sortfield', $this->getSortfield('domains'));
+        $where_q .= "ORDER BY {$this->sortfield} {$this->sortway} ".( ($this->sortfield == "status") ? ", domain" : "" );
         $q .= $where_q . " LIMIT {$this->limit} OFFSET " . ($this->start);
     
         try {
@@ -100,12 +100,12 @@ class Framework_Module_Domains extends VegaDNS_Common
         $sort_array['Status'] = 'status';
         $sort_array['Group'] = 'a.group_id';
     
-        $sortbaseurl = "./?&module=Domains&page=".( ((isset($_REQUEST['page']) && $_REQUEST['page'] == 'all')) ? "all" : $page);
+        $sortbaseurl = "./?&module=Domains&start={$this->start}";
     
         while (list($key,$val) = each($sort_array)) {
-            $newsortway = $this->getSortWay($sortfield, $val, $sortway);
+            $newsortway = $this->getSortWay($this->sortfield, $val, $this->sortway);
             $url = "<a href='$sortbaseurl&sortway=$newsortway&sortfield=$val'>" . preg_replace('/_/', ' ', $key)."</a>";
-            if ($sortfield == $val) $url .= "&nbsp;<img border=0 alt='$sortway' src=images/$sortway.png>";
+            if ($this->sortfield == $val) $url .= "&nbsp;<img border=0 alt='{$this->sortway}' src=images/{$this->sortway}.png>";
             $this->data[$key] = $url;
         }
     
@@ -113,7 +113,7 @@ class Framework_Module_Domains extends VegaDNS_Common
             // Actually list domains
             for ($domain_count = 0; !$result->EOF && ($row = $result->FetchRow()); $domain_count++) {
                 $out_array[$domain_count]['domain'] = $row['domain'];
-                $out_array[$domain_count]['edit_url'] = "./?&mode=records&domain=".$row['domain'];
+                $out_array[$domain_count]['edit_url'] = "./?&module=Records&domain_id=".$row['domain_id'];
                 $out_array[$domain_count]['status'] = $row['status'];
                 $out_array[$domain_count]['group_name'] = $row['name'];
                 if ($this->user->getBit($this->user->getPerms(), 'domain_delete')) {
@@ -134,7 +134,6 @@ class Framework_Module_Domains extends VegaDNS_Common
             }
         }
     
-        $this->setData('all_url', "./?&module=Domains&page=all&sortfield=$sortfield&sortway=$sortway&search=".urlencode($search));
         if (isset($out_array)) {
             $this->setData('out_array', $out_array);
         }
