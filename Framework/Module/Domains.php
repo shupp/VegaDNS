@@ -86,10 +86,10 @@ class Framework_Module_Domains extends VegaDNS_Common
         // sort
         $this->setData('sortway', $this->getRequestSortWay());
         $this->setData('sortfield', $this->getSortfield('domains'));
-        $where_q .= "ORDER BY {$this->sortfield} {$this->sortway} ".( ($this->sortfield == "status") ? ", domain" : "" );
+        $q .= "ORDER BY {$this->sortfield} {$this->sortway} ".( ($this->sortfield == "status") ? ", domain" : "" );
     
         try {
-            $result = $this->db->SelectLimit($where_q, $this->limit, $this->start);
+            $result = $this->db->SelectLimit($q, $this->limit, $this->start);
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
