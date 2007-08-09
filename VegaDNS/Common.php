@@ -53,29 +53,34 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         }
     }
 
-    public function setGroupID()
+    public function setGroupID($id = NULL)
     {
-        if (isset($_REQUEST['group_id'])) {
+        // Which ID are we talking about?
+        if (is_null($id)) {
+            $id = (isset($_REQUEST['group_id'])) ? $_REQUEST['group_id'] : NULL;
+        }
+
+        // Do we have rights?
+        if (!is_null($id)) {
             if ($this->user->isSeniorAdmin()) {
                 if ($this->user->returnGroup($_REQUEST['group_id'], NULL) == NULL) {
                     $this->setData('message', "Error: requested group_id does not exist");
-                    $this->session->__set('group_id', $this->user->myGroupID());
-                }
-            } else {
-                // Check if this is their group
-                if ($this->user->isMyGroup($_REQUEST['group_id']) == NULL) {
-                    $this->setData('message', 'Error: you do not have permission to access resources for the requested group_id');
-                    $this->session->__set('group_id', $this->user->myGroupID());
+                    $id = $this->user->myGroupID();
+                } else {
+                    if ($this->user->isMyGroup($id) == NULL) {
+                        $this->setData('message', "Error: you do not have permission to access resources for the requested group_id");
+                        $id = $this->user->myGroupID();
+                    }
                 }
             }
-            $this->session->__set('group_id', $_REQUEST['group_id']);
-        } else if (is_null($this->session->group_id)) {
-            $this->session->__set('group_id', $this->user->myGroupID());
+        } else {
+            $id = $this->user->myGroupID();
         }
-        $group_id = $this->session->group_id;
-        $group_name_array = $this->user->returnGroup($group_id,NULL);
+    
+        // Set it in session
+        $group_name_array = $this->user->returnGroup($id, NULL);
         $this->setData('group_name', $group_name_array['name']);
-        $this->setData('group_id', $group_id);
+        $this->setData('group_id', $id);
         $this->setData('menurows', $this->getMenuTree($this->user->groups,1));
     }
 
