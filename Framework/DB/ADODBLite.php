@@ -39,6 +39,7 @@ implements Framework_DB_Interface
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
+        $GLOBALS['ADODB_FETCH_MODE'] = ADODB_FETCH_ASSOC;
     }
     /**
      * stop 
