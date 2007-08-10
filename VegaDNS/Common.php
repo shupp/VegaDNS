@@ -94,7 +94,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         }
         if (!is_null($top)) {
             $out .= "<ul>\n";
-            $out .= "<li><img src='images/home.png' border='0'alt='{$g['name']}' /> <a href=\"./?module=Groups&amp;group_id={$g['group_id']}\">" . $this->curMenuOpt($g['group_id'], 'Groups', $g['name']) . "</a></li>\n";
+            $out .= "<li><img src='images/home.png' border='0' alt='{$g['name']}' /> <a href=\"./?module=Groups&amp;group_id={$g['group_id']}\">" . $this->curMenuOpt($g['group_id'], 'Groups', $g['name']) . "</a></li>\n";
         } else {
             $out .= "<ul>\n";
         }
@@ -108,7 +108,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
                 if ($this->user->isMyGroup($this->session->group_id, $val)) {
                     $class = 'class="open"';
                 }
-                $out .= "<li {$class}><img src='images/group.gif' border='0'alt='{$val['name']}' /> <a href=\"./?module=Groups&amp;group_id={$val['group_id']}\">" . $this->curMenuOpt($g['group_id'], 'Groups', $val['name']) . "</a>\n";
+                $out .= "<li {$class}><img src='images/group.gif' border='0' alt='{$val['name']}' /> <a href=\"./?module=Groups&amp;group_id={$val['group_id']}\">" . $this->curMenuOpt($g['group_id'], 'Groups', $val['name']) . "</a>\n";
                 $out .= $this->getMenuTree($val);
                 $out .= "</li>\n";
             }
@@ -198,14 +198,14 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         while(list($key,$val) = each($array)) {
             $newsortway = $this->getSortway($this->sortfield, $val, $this->sortway);
             if ($module == 'Records') {
-                $prefix = "./?module=Records&domain_id={$this->domain['domain_id']}";
+                $prefix = "./?module=Records&amp;domain_id={$this->domain['domain_id']}";
             } else {
-                $prefix = "./?module=Domains&group_id={$this->session->group_id}";
+                $prefix = "./?module=Domains&amp;group_id={$this->session->group_id}";
             }
-            $url = $prefix . "&sortway=$newsortway&sortfield=$val";
+            $url = $prefix . "&amp;sortway=$newsortway&amp;sortfield=$val";
             $string = "<a href='$url'>$key</a>";
             if ($this->sortfield == $val) {
-                $string .= "&nbsp;<img border=0 alt='{$this->sortway}' src=images/{$this->sortway}.png>";
+                $string .= "&nbsp;<img border='0' alt='{$this->sortway}' src='images/{$this->sortway}.png' />";
             }
             $this->setData($key, $string);
         }
