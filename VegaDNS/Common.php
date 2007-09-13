@@ -3,9 +3,22 @@
 abstract class VegaDNS_Common extends Framework_Auth_User
 {
 
+
+    /**
+     * vdns 
+     * 
+     * Instance of the VegaDNS Object.  This object actually modifies the DNS records
+     * in the database.
+     * 
+     * @var mixed
+     * @access protected
+     */
+    protected $vdns = null;
+
     public function __construct()
     {
         parent::__construct();
+        $this->vdns = new VegaDNS;
         $this->setData('module', $this->name);
         $this->setGroupID();
         $this->setData('email', $this->user->myEmail());

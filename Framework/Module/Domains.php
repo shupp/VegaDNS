@@ -24,76 +24,35 @@ class Framework_Module_Domains extends VegaDNS_Common
     public function listDomains()
     {
         // Get search string if it exists
-        if (isset($_REQUEST['search']) && $_REQUEST['search'] != "") {
-            $tempstring = preg_replace("/[*]/", "%", $_REQUEST['search']);
-            $tempstring = preg_replace("/[ ]/", "%", $tempstring);
-            $searchstring = "and domain like ".$this->db->Quote('%'.$tempstring.'%')."";
-    
+        if (!empty($_REQUEST['search'])) {
             $this->setData('search', $_REQUEST['search']);
-            $this->setData('searchtexttag', " matching \"".$_REQUEST['search']."\""
-    );
-            $search = $_REQUEST['search'];
-        } else {
-            $searchstring = "";
-            $search = "";
+            $this->setData('searchtexttag', " matching \""  . $_REQUEST['search'] . "\"");
         }
     
         // Get scope of domain list, if it exists
         if (isset($_REQUEST['recursive'])) {
-            $groupquery = $this->user->returnSubgroupsQuery($this->user->returnGroup($this->group_id, NULL), NULL);
             $this->setData('recursive', ' checked');
-        } else {
-            $groupquery = " a.group_id='{$this->group_id}'";
         }
     
         // Get scope of domain list, if it exists
-        if (isset($_REQUEST['scope']) && $_REQUEST['scope'] != "") {
-            $searchstring = "";
-            $search = "";
-            $scope = $_REQUEST['scope'];
+        if (!empty($_REQUEST['scope'])) {
             $this->setData('scope', $_REQUEST['scope']);
-    
-            if ($scope != "num") {
-                    $sq = " and domain regexp \"^[$scope" . strtoupper($scope) . "]\"";
-            } else {
-                    $sq = "and domain regexp \"^[0-9]\"";
-            }
-        } else {
-            $sq = "";
         }
-    
-        // Show domain list
 
-        // First, count the total for pagination
-        $count_q = "SELECT COUNT(*)
-                FROM domains a 
-                LEFT JOIN groups b ON a.group_id = b.group_id 
-                WHERE ($groupquery) $searchstring $sq";
-        try {
-            $result = $this->db->Execute($count_q);
-        } catch (Exception $e) {
-            throw new Framework_Exception($e->getMessage());
-        }
-        $count_row = $result->FetchRow();
-        $this->paginate($count_row['COUNT(*)']);
+        // Count domains
+        $countResult = $this->vdns->countDomains($this->user->group_id);
+        $countRow = $countResult->FetchRow();
+        $this->paginate($countRow['COUNT(*)']);
 
-        // Now, do the actual select
-        $q = "SELECT a.*, b.group_id, b.name 
-                FROM domains a 
-                LEFT JOIN groups b ON a.group_id = b.group_id 
-                WHERE ($groupquery) $searchstring $sq ";
-    
-        // sort
         $this->setData('sortway', $this->getRequestSortWay());
         $this->setData('sortfield', $this->getSortfield('domains'));
-        $q .= "ORDER BY {$this->sortfield} {$this->sortway} ".( ($this->sortfield == "status") ? ", domain" : "" );
-    
-        try {
-            $result = $this->db->SelectLimit($q, $this->limit, $this->start);
-        } catch (Exception $e) {
-            throw new Framework_Exception($e->getMessage());
-        }
-    
+        $result = $this->vdns->getDomains(
+                        $this->start,
+                        $this->limit,
+                        $this->user->group_id,
+                        $this->user->returnGroup($this->group_id, NULL), NULL,
+                        $this->sortfield, $this->sortfield);
+
         // sort
         $sort_array['Domain'] = 'domain';
         $sort_array['Status'] = 'status';
@@ -178,13 +137,7 @@ class Framework_Module_Domains extends VegaDNS_Common
         $domain = strtolower($_REQUEST['domain']);
     
         // Make sure the domain does not already exist.
-        $q = "SELECT * FROM domains WHERE domain=" . $this->db->Quote($domain) . " LIMIT 1";
-        try {
-            $result = $this->db->Execute($q);
-        } catch (Exception $e) {
-            throw new Framework_Exception($e->getMessage());
-        }
-        if ($result->RecordCount() > 0) {
+        if ($this->vdns->domainExists($domain)) {
             $this->setData('message', "Error: domain $domain already exists");
             return $this->add();
         }
@@ -282,7 +235,7 @@ class Framework_Module_Domains extends VegaDNS_Common
                 'S',
                 '$val',
                 '".$soa_array['ttl']."')";
-        $this->log->log($q);
+        // $this->log->log($q);
         try {
             $result = $this->db->Execute($q);
         } catch (Exception $e) {

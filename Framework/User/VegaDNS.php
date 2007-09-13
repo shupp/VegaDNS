@@ -259,25 +259,6 @@ class Framework_User_VegaDNS extends Framework_User {
         return $perms;
     }
 
-    function returnSubgroupsQuery($g,$string) {
-
-        if ($string == NULL) {
-            $string = " group_id='".$g['group_id']."'";
-        } else {
-            $string .= " or group_id='".$g['group_id']."'";
-        }
-
-        if (!isset($g['subgroups'])) {
-            return $string;
-        } else {
-            $temp = " ";
-            while (list($key,$val) = each($g['subgroups'])) {
-                $temp .= $this->returnSubgroupsQuery($val, $temp);
-            }
-        }
-        return $string.$temp;
-    }
-
     function canCreateSubGroups() {
         if ($this->account['permissions']['group_create'] == 1) {
             return TRUE;
