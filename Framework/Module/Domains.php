@@ -106,7 +106,7 @@ class Framework_Module_Domains extends VegaDNS_Common
             $out_array[$domain_count]['status'] = $row['status'];
             $out_array[$domain_count]['group_name'] = $row['name'];
             if ($this->user->getBit($this->user->getPerms(), 'domain_delete')) {
-                $out_array[$domain_count]['delete_url'] = "./?&amp;module=Domains&amp;event=delete&amp;domain_id=".$row['domain_id']."&amp;domain=".$row['domain'];
+                $out_array[$domain_count]['delete_url'] = "./?&amp;module=Domains&amp;class=delete&amp;domain_id={$row['domain_id']}";
             }
             if ($this->user->getBit($this->user->getPerms(), 'domain_delegate')) {
                 $out_array[$domain_count]['change_owner_url'] = "./?&amp;module=Domains&amp;event=delegate&amp;domain_id=".$row['domain_id']."&amp;domain=".$row['domain'];
@@ -125,6 +125,7 @@ class Framework_Module_Domains extends VegaDNS_Common
         if (isset($out_array)) {
             $this->setData('out_array', $out_array);
         }
+        $this->tplFile = 'Domains.tpl';
     }
 }
 ?>

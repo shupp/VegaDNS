@@ -59,6 +59,29 @@ class VegaDNS extends Framework_Object_Web
     }
 
     /**
+     * getDomainInfo 
+     * 
+     * Return domain info
+     * 
+     * @param mixed $id 
+     * @access public
+     * @return ADODB results if exists, NULL if not
+     */
+    public function getDomainInfo($id)
+    {
+        $q = "SELECT * FROM domains WHERE domain_id=" . $this->db->Quote($id) . " LIMIT 1";
+        try {
+            $result = $this->db->Execute($q);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
+        if ($result->RecordCount() == 0) {
+            return NULL;
+        }
+        return $result->FetchRow();
+    }
+
+    /**
      * getDomains 
      * 
      * Return an ADODBLite result object of domains.  Optionally return only the 
@@ -335,6 +358,30 @@ class VegaDNS extends Framework_Object_Web
         }
         $row = $result->FetchRow();
         return $row['domain_id'];
+    }
+
+    /**
+     * deleteDomain 
+     * 
+     * Delete a domain
+     * 
+     * @param mixed $id 
+     * @access public
+     * @return void
+     */
+    public function deleteDomain($id) {
+        $q = "DELETE FROM domains WHERE domain_id=" . $this->db->Quote($id);
+        try {
+            $result = $this->db->Execute($q);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
+        $q = "DELETE FROM records WHERE domain_id=" . $this->db->Quote($id);
+        try {
+            $result = $this->db->Execute($q);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
     }
 
 }
