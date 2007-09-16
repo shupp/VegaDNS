@@ -25,6 +25,16 @@ class VegaDNS extends Framework_Object_Web
 {
 
     /**
+     * _groupIDs 
+     * 
+     * Temporary storage for walking the groups array
+     * 
+     * @var mixed
+     * @access private
+     */
+    private $_groupIDs = null;
+
+    /**
      * domainExists 
      * 
      * Check if a domain exists in the databse.
@@ -51,12 +61,13 @@ class VegaDNS extends Framework_Object_Web
     /**
      * getDomains 
      * 
-     * Return an ADODBLite result object of domains.
+     * Return an ADODBLite result object of domains.  Optionally return only the 
+     * count of domains matching the query.
      * 
+     * @ see function countDomains
      * @param mixed $start - offset
      * @param mixed $limit - limit
-     * @param mixed $groupID groupID to start from
-     * @param mixed $groupArray only used if query is recursive
+     * @param mixed $groups array of subgroups, or single groupID
      * @param mixed $countOnly return a count of matching domains
      * @param mixed $sortField what field to sort by
      * @param mixed $order asc or desc
@@ -64,10 +75,11 @@ class VegaDNS extends Framework_Object_Web
      * @return ADODBLite result object
      * @throws Framework_Exception on failure
      */
-    public function getDomains($start, $limit, $groupID, $groupArray = NULL, $countOnly = NULL, $sortField = NULL, $order = NULL) {
-        $groupquery = $this->_returnSubgroupsQuery($groupID, $groupArray);
+    public function getDomains($start, $limit, $groups, $countOnly = NULL, $sortField = NULL, $order = NULL) {
+        $groupquery = $this->_returnSubgroupsQuery($groups);
         $scope = $this->_getScopeQuery();
         $searchstring = is_null($scope) ? $this->_getSearchQuery('domain') : "";
+        // print_r($groupquery);exit;
 
         if (!is_null($countOnly)) {
             $q = "SELECT COUNT(*)
@@ -101,13 +113,12 @@ class VegaDNS extends Framework_Object_Web
      * 
      * Shortcut for getDomains $countOnly = 1
      * 
-     * @param mixed $groupID 
-     * @param mixed $groupArray 
+     * @param mixed $groups
      * @access public
      * @return getDomain()
      */
-    public function countDomains($groupID, $groupArray = NULL) {
-        return $this->getDomains(NULL, NULL, $groupID, $groupArray, 1);
+    public function countDomains($groups) {
+        return $this->getDomains(NULL, NULL, $groups, 1);
     }
 
     /**
@@ -121,23 +132,26 @@ class VegaDNS extends Framework_Object_Web
      * @access private
      * @return string
      */
-    private function _returnSubgroupsQuery($g,$string)
+    private function _returnSubgroupsQuery($groups)
     {
-        if ($string == NULL) {
-            $string = " a.group_id='".$g['group_id']."'";
-        } else {
-            $string .= " or a.group_id='".$g['group_id']."'";
-        }
+        $this->_groupIDs = array();
+        array_walk_recursive($groups, array($this, '_getGroupIDs'));
+        sort($this->_groupIDs);
 
-        if (!isset($g['subgroups'])) {
-            return $string;
-        } else {
-            $temp = " ";
-            while (list($key,$val) = each($g['subgroups'])) {
-                $temp .= $this->_returnSubgroupsQuery($val, $temp);
+        for ($count = 0; count($this->_groupIDs) > $count; $count++) {
+            if ($count == 0) {
+                $string = " a.group_id='{$this->_groupIDs[$count]}' ";
+            } else {
+                $string .= " or a.group_id='{$this->_groupIDs[$count]}'";
             }
         }
-        return $string.$temp;
+        return $string;
+    }
+
+    private function _getGroupIDs($item, $key) {
+        if ($key == 'group_id') {
+            $this->_groupIDs[$item] = $item;
+        }
     }
 
     /**

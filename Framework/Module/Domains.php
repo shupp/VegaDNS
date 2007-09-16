@@ -75,8 +75,9 @@ class Framework_Module_Domains extends VegaDNS_Common
             $this->setData('scope', $_REQUEST['scope']);
         }
 
+        $groups = $this->user->returnGroup($this->group_id, NULL);
         // Count domains
-        $countResult = $this->vdns->countDomains($this->user->group_id);
+        $countResult = $this->vdns->countDomains($groups);
         $countRow = $countResult->FetchRow();
         $this->paginate($countRow['COUNT(*)']);
 
@@ -85,8 +86,8 @@ class Framework_Module_Domains extends VegaDNS_Common
         $result = $this->vdns->getDomains(
                         $this->start,
                         $this->limit,
-                        $this->user->group_id,
-                        $this->user->returnGroup($this->group_id, NULL), NULL,
+                        $groups,
+                        NULL,
                         $this->sortfield, $this->sortfield);
 
         // sort
