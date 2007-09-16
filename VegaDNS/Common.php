@@ -141,17 +141,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         return "<span class='curMenuOpt'>$s</span>";
     }
 
-    protected function getDomainID($domain)
-    {
-        $q = "SELECT domain_id FROM domains WHERE domain=" . $this->db->Quote($domain);
-        $result = $this->db->Execute($q);
-        if($result->RecordCount() < 0) {
-            return NULL;
-        }
-        $row = $result->FetchRow();
-        return $row['domain_id'];
-    }
-
     public function paginate($total) {
         $this->setData('total', $total);
         $this->setData('limit', (integer)Framework::$site->config->maxPerPage);

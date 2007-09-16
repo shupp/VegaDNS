@@ -1,28 +1,64 @@
 <?php
 
 
+/**
+ * Framework_Module_Domains 
+ * 
+ * @uses        VegaDNS_Common
+ * @package     VegaDNS
+ * @subpackage  Module
+ * @copyright   2007 Bill Shupp
+ * @author      Bill Shupp <hostmaster@shupp.org> 
+ * @license     GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ */
+
+/**
+ * Framework_Module_Domains 
+ * 
+ * List domains
+ * 
+ * @uses        VegaDNS_Common
+ * @package     VegaDNS
+ * @subpackage  Module
+ * @copyright   2007 Bill Shupp
+ * @author      Bill Shupp <hostmaster@shupp.org> 
+ * @license     GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ */
 class Framework_Module_Domains extends VegaDNS_Common
 {
 
-    public function __construct()
-    {
-        parent::__construct();
-        if ($this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData('new_domain_url', './?module=Domains&amp;event=add');
-        }
-
-        if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
-            $this->setData('edit_domain_url_base', "./?module=Domains&amp;event=edit");
-        }
-    }
-
+    /**
+     * __default 
+     * 
+     * Call listDomains()
+     * 
+     * @access public
+     * @return void
+     */
     public function __default()
     {
         return $this->listDomains();
     }
 
+    /**
+     * listDomains 
+     * 
+     * List domains for a given group
+     * 
+     * @access public
+     * @return void
+     */
     public function listDomains()
     {
+        // Setup some urls based on permissions
+        if ($this->user->getBit($this->user->getPerms(), 'domain_create')) {
+            $this->setData('new_domain_url', './?module=Domains&amp;class=add');
+        }
+
+        if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
+            $this->setData('edit_domain_url_base', "./?module=Domains&amp;event=edit");
+        }
+
         // Get search string if it exists
         if (!empty($_REQUEST['search'])) {
             $this->setData('search', $_REQUEST['search']);
@@ -89,182 +125,5 @@ class Framework_Module_Domains extends VegaDNS_Common
             $this->setData('out_array', $out_array);
         }
     }
-
-    public function add()
-    {
-        if (!$this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData("Error: you do not have enough privileges to create domains.");
-            return $this->listDomains();
-        }
-        $form = $this->addForm();
-        $this->setData('form', $form->toHtml());
-        // $this->pageTemplateFile = 'thickbox.tpl';
-        $this->tplFile = 'add.tpl';
-    }
-
-    protected function addForm()
-    {
-        // $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow&modal=true', '', 'class="thickbox"');
-        $form = new HTML_QuickForm('formLogin', 'post', './?module=Domains&event=addNow');
-
-        $form->addElement('header', 'MyHeader', _('Add Domain'));
-        $form->addElement('text', 'domain', _('Domain Name'));
-        $form->addElement('submit', 'submit', _('Add'));
-
-        $form->registerRule('secondLevel', 'regex', '/.*\..*/');
-        $form->registerRule('validChars', 'regex', '/^[\.a-z0-9-]+$/i');
-        $form->addRule('domain', _('Please enter a domain name'), 'required', null, 'client');
-        $form->addRule('domain', _('Domain must be at least a second level domain'), 'secondLevel', null, 'client');
-        $form->addRule('domain', _('Invalid characters in domain name'), 'validChars', null, 'client');
-
-        $form->applyFilter('domain', 'strtolower');
-
-        return $form;
-    }
-
-    public function addNow()
-    {
-        if (!$this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData("Error: you do not have enough privileges to create domains.");
-            return $this->listDomains();
-        }
-
-        $form = $this->addForm();
-        if (!$form->validate()) {
-            return $this->add();
-        }
-    
-        $domain = strtolower($_REQUEST['domain']);
-    
-        // Make sure the domain does not already exist.
-        if ($this->vdns->domainExists($domain)) {
-            $this->setData('message', "Error: domain $domain already exists");
-            return $this->add();
-        }
-
-        $domain_status = 'inactive';
-        if ($this->user->isSeniorAdmin()) {
-            $domain_status = 'active';
-        }
-
-        $domain_id = $this->addDomainRecord($domain, $domain_status);
-        $this->addDefaultRecords($domain, $domain_id);
-    
-        // email the support address if an inactive domain is added
-        $body = "$domain_status domain \"$domain\" added by {$this->session->email}\n\n";
-        $body .= "\n\nThanks,\n\n";
-        $body .= "VegaDNS";
-    
-        $supportemail = (string)Framework::$site->config->supportEmail;
-        $supportname = (string)Framework::$site->config->supportName;
-        mail($supportemail,
-            "New $domain_status Domain Created",
-            $body,
-            "Return-path: $supportemail\r\nFrom: \"$supportname\" <$supportemail>");
-    
-        $this->setData('message', "Domain $domain added successfully!");
-        // $this->setData('continueUrl', "./?module=Records&domain=".urlencode($domain));
-        // $this->pageTemplateFile = 'thickbox.tpl';
-        $this->tplFile = 'addSuccess.tpl';
-        header("Location: ./?module=Records&domain=".urlencode($domain));
-        return;
-    }
-
-    private function addDomainRecord($domain, $domain_status)
-    {
-        $q = "INSERT INTO domains (domain,group_id,status)
-            values(".$this->db->Quote($domain).",
-            '{$this->session->group_id}',
-            '$domain_status')";
-        try {
-            $result = $this->db->Execute($q);
-        } catch (Exception $e) {
-            throw new Framework_Exception($e->getMessage());
-        }
-    
-        // Get new domain id, or die
-        $id = $this->getDomainID($domain);
-        if ($id == NULL) {
-            throw new Framework_Exception("Error getting domain id");
-        }
-        $this->user->dnsLog($id,"added domain $domain with status $domain_status");
-        return $id;
-    }
-
-    private function addDefaultRecords($domain, $id)
-    {
-        // Try for group's records
-        $q = "SELECT * FROM default_records WHERE default_type='group' and group_id='{$this->session->group_id}'";
-        try {
-            $result = $this->db->Execute($q);
-        } catch (Exception $e) {
-            throw new Framework_Exception($e->getMessage());
-        }
-        if ($result->RecordCount() == 0) {
-            // If there aren't any, get system default records 
-            $q = "SELECT * FROM default_records WHERE default_type='system'";
-            try {
-                $result = $this->db->Execute($q);
-            } catch (Exception $e) {
-                throw new Framework_Exception($e->getMessage());
-            }
-        }
-    
-        if ($result->RecordCount() == 0) {
-            // If these don't exist, bail!
-            throw new Framework_Exception("Error: you have not yet setup default records");
-        }
-    
-        // Build arrays
-        $counter = 0;
-        while (!$result->EOF && $row = $result->FetchRow()) {
-            if ($row['type'] == 'S' && !isset($soa_array)) {
-                $soa_array = $row;
-            } else {
-                $records_array[$counter] = $row;
-                $counter++;
-            }
-        }
-    
-        // Add SOA record
-        $host = preg_replace("/DOMAIN/", $domain, $soa_array['host']);
-        $val = preg_replace("/DOMAIN/", $domain, $soa_array['val']);
-        $q = "INSERT INTO records (domain_id,host,type,val,ttl)
-                VALUES('$id',
-                ".$this->db->Quote($host).",
-                'S',
-                '$val',
-                '".$soa_array['ttl']."')";
-        // $this->log->log($q);
-        try {
-            $result = $this->db->Execute($q);
-        } catch (Exception $e) {
-            throw new Framework_Exception($e->getMessage());
-        }
-        $this->user->dnsLog($id, "added soa");
-                
-        // Add default records
-        if (isset($records_array) && is_array($records_array)) {
-            while (list($key,$row) = each($records_array)) {
-                $host = ereg_replace("DOMAIN", $domain, $row['host']);
-                $val = ereg_replace("DOMAIN", $domain, $row['val']);
-                $q = "INSERT INTO records (domain_id,host,type,val,distance,ttl)
-                    VALUES ('$id',
-                    " . $this->db->Quote($host) . ",
-                    '".$row['type']."',
-                    '$val',
-                    '".$row['distance']."',
-                    '".$row['ttl']."')";
-                $this->log->log($q);
-                try {
-                    $result = $this->db->Execute($q);
-                } catch (Exception $e) {
-                    throw new Framework_Exception($e->getMessage());
-                }
-                $this->user->dnsLog($id, "added ".$row['type']." $host with value $val");
-            }
-        }
-    }
-
 }
 ?>
