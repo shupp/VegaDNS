@@ -31,6 +31,7 @@ class VegaDNS extends Framework_Object_Web
      * 
      * @param string $domain 
      * @access public
+     * @throws Framework_Exception
      * @return TRUE on success, FALSE on failure
      */
     public function domainExists($domain)
@@ -47,8 +48,24 @@ class VegaDNS extends Framework_Object_Web
         return FALSE;
     }
 
+    /**
+     * getDomains 
+     * 
+     * Return an ADODBLite result object of domains.
+     * 
+     * @param mixed $start - offset
+     * @param mixed $limit - limit
+     * @param mixed $groupID groupID to start from
+     * @param mixed $groupArray only used if query is recursive
+     * @param mixed $countOnly return a count of matching domains
+     * @param mixed $sortField what field to sort by
+     * @param mixed $order asc or desc
+     * @access public
+     * @return ADODBLite result object
+     * @throws Framework_Exception on failure
+     */
     public function getDomains($start, $limit, $groupID, $groupArray = NULL, $countOnly = NULL, $sortField = NULL, $order = NULL) {
-        $groupquery = $this->_getGroupQuery($groupID, $groupArray);
+        $groupquery = $this->_returnSubgroupsQuery($groupID, $groupArray);
         $scope = $this->_getScopeQuery();
         $searchstring = is_null($scope) ? $this->_getSearchQuery('domain') : "";
 
@@ -79,10 +96,31 @@ class VegaDNS extends Framework_Object_Web
         return $result;
     }
 
+    /**
+     * countDomains 
+     * 
+     * Shortcut for getDomains $countOnly = 1
+     * 
+     * @param mixed $groupID 
+     * @param mixed $groupArray 
+     * @access public
+     * @return getDomain()
+     */
     public function countDomains($groupID, $groupArray = NULL) {
         return $this->getDomains(NULL, NULL, $groupID, $groupArray, 1);
     }
 
+    /**
+     * _returnSubgroupsQuery 
+     * 
+     * get the subgroup part of the "where"  query
+     * 
+     * @see function getDomains
+     * @param mixed $g 
+     * @param mixed $string 
+     * @access private
+     * @return string
+     */
     private function _returnSubgroupsQuery($g,$string)
     {
         if ($string == NULL) {
@@ -102,6 +140,15 @@ class VegaDNS extends Framework_Object_Web
         return $string.$temp;
     }
 
+    /**
+     * _getSearchQuery 
+     * 
+     * figure ou the search part o the getDomains query based on $_REQUEST
+     * 
+     * @param mixed $type 
+     * @access private
+     * @return string
+     */
     private function _getSearchQuery($type)
     {
         if (empty($_REQUEST['search'])) {
@@ -113,21 +160,19 @@ class VegaDNS extends Framework_Object_Web
         return "and $type like ".$this->db->Quote('%'.$tempstring.'%');
     }
    
-    private function _getGroupQuery($groupID, $groupArray = NULL)
-    {
-        // Get scope of domain list, if it exists
-        if (!is_null($groupArray)) {
-            return $this->_returnSubgroupsQuery($groupArray, NULL);
-        } else {
-            return " a.group_id='$groupID'";
-        }
-    }
-
+    /**
+     * _getScopeQuery 
+     * 
+     * get scpe part of getDomains query
+     * 
+     * @access private
+     * @return string
+     */
     private function _getScopeQuery() {
    
         // Get scope of domain list, if it exists
         if (empty($_REQUEST['scope'])) {
-            return NULL;
+            return "";
         }
         $scope = $_REQUEST['scope'];
         if ($scope != "num") {
@@ -135,9 +180,19 @@ class VegaDNS extends Framework_Object_Web
         } else {
             return "and domain regexp \"^[0-9]\"";
         }
-        return NULL;
+        return "";
     }
 
+    /**
+     * addDomainRecord 
+     * 
+     * Add initial domain record
+     * 
+     * @param mixed $domain 
+     * @param mixed $domain_status 
+     * @access public
+     * @return void
+     */
     public function addDomainRecord($domain, $domain_status)
     {
         $q = "INSERT INTO domains (domain,group_id,status)
@@ -159,6 +214,17 @@ class VegaDNS extends Framework_Object_Web
         return $id;
     }
 
+    /**
+     * addDefaultRecords 
+     * 
+     * Add default domain records
+     * 
+     * @param mixed $domain 
+     * @param mixed $id 
+     * @access public
+     * @return void
+     * @throws Framework_Exception
+     */
     public function addDefaultRecords($domain, $id)
     {
         // Try for group's records
@@ -234,6 +300,14 @@ class VegaDNS extends Framework_Object_Web
         }
     }
 
+    /**
+     * getDomainID 
+     * 
+     * @param mixed $domain 
+     * @access protected
+     * @throws Framework_Exception
+     * @return void
+     */
     protected function getDomainID($domain)
     {
         $q = "SELECT domain_id FROM domains WHERE domain=" . $this->db->Quote($domain);
