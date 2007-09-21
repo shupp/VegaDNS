@@ -35,6 +35,40 @@ class VegaDNS extends Framework_Object_Web
     private $_groupIDs = null;
 
     /**
+     * defaultSOA 
+     * 
+     * @var array
+     * @access public
+     */
+    public $defaultSOA = array(
+                'serial'    => 'default',
+                'refresh'   => 16384,
+                'retry'     => 2048,
+                'expire'    => 1048576,
+                'minimum'   => 2560,
+                'ttl'       => 86400);
+
+    /**
+     * types 
+     * 
+     * 
+     * 
+     * @var array
+     * @access public
+     */
+    public $types = array(
+                'S' => 'SOA',
+                'S' => 'NS',
+                'A' => 'A',
+                '3' => 'AAAA',
+                '6' => 'AAAA+PTR',
+                'M' => 'MX',
+                'P' => 'PTR',
+                'T' => 'TXT',
+                'C' => 'CNAME',
+                'V' => 'SRV');
+
+    /**
      * domainExists 
      * 
      * Check if a domain exists in the databse.
@@ -98,7 +132,8 @@ class VegaDNS extends Framework_Object_Web
      * @return ADODBLite result object
      * @throws Framework_Exception on failure
      */
-    public function getDomains($start, $limit, $groups, $countOnly = NULL, $sortField = NULL, $order = NULL) {
+    public function getDomains($start, $limit, $groups, $countOnly = NULL, $sortField = NULL, $order = NULL)
+    {
         $groupquery = $this->_returnSubgroupsQuery($groups);
         $scope = $this->_getScopeQuery();
         $searchstring = is_null($scope) ? $this->_getSearchQuery('domain') : "";
@@ -127,7 +162,6 @@ class VegaDNS extends Framework_Object_Web
                 throw new Framework_Exception($e->getMessage());
             }
         }
-
         return $result;
     }
 
@@ -140,7 +174,8 @@ class VegaDNS extends Framework_Object_Web
      * @access public
      * @return getDomain()
      */
-    public function countDomains($groups) {
+    public function countDomains($groups)
+    {
         return $this->getDomains(NULL, NULL, $groups, 1);
     }
 
@@ -171,7 +206,8 @@ class VegaDNS extends Framework_Object_Web
         return $string;
     }
 
-    private function _getGroupIDs($item, $key) {
+    private function _getGroupIDs($item, $key)
+    {
         if ($key == 'group_id') {
             $this->_groupIDs[$item] = $item;
         }
@@ -180,21 +216,26 @@ class VegaDNS extends Framework_Object_Web
     /**
      * _getSearchQuery 
      * 
-     * figure ou the search part o the getDomains query based on $_REQUEST
+     * figure out the search part o the getDomains/getRecords query based on $_REQUEST
      * 
-     * @param mixed $type 
+     * @param mixed $type 'domain' or 'host'
      * @access private
      * @return string
      */
     private function _getSearchQuery($type)
     {
         if (empty($_REQUEST['search'])) {
-            return NULL;
+            return;
         }
 
         $tempstring = preg_replace("/[*]/", "%", $_REQUEST['search']);
         $tempstring = preg_replace("/[ ]/", "%", $tempstring);
-        return "and $type like ".$this->db->Quote('%'.$tempstring.'%');
+        
+        if ($type = 'domain') {
+            return " and domain like ".$this->db->Quote('%'.$tempstring.'%');
+        } else if ($type == 'host') {
+            return " and host like " . $this->db->Quote('%'.$tempstring.'%')." and type != 'S' ";
+        }
     }
    
     /**
@@ -205,9 +246,8 @@ class VegaDNS extends Framework_Object_Web
      * @access private
      * @return string
      */
-    private function _getScopeQuery() {
-   
-        // Get scope of domain list, if it exists
+    private function _getScopeQuery()
+    {
         if (empty($_REQUEST['scope'])) {
             return "";
         }
@@ -215,7 +255,7 @@ class VegaDNS extends Framework_Object_Web
         if ($scope != "num") {
             return " and domain regexp \"^[$scope" . strtoupper($scope) . "]\"";
         } else {
-            return "and domain regexp \"^[0-9]\"";
+            return " and domain regexp \"^[0-9]\"";
         }
         return "";
     }
@@ -353,7 +393,7 @@ class VegaDNS extends Framework_Object_Web
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
-        if($result->RecordCount() < 0) {
+        if ($result->RecordCount() < 0) {
             return NULL;
         }
         $row = $result->FetchRow();
@@ -384,6 +424,161 @@ class VegaDNS extends Framework_Object_Web
         }
     }
 
-}
 
+    /**
+     * getRecords 
+     * 
+     * Get records for a domain
+     * 
+     * @param mixed $start 
+     * @param mixed $limit 
+     * @param mixed $domain_id 
+     * @param mixed $countOnly 
+     * @param mixed $sortField 
+     * @param mixed $order 
+     * @access public
+     * @return ADODB result set
+     * @throws Framework_Exception
+     */
+    public function getRecords($start, $limit, $domain_id, $countOnly = NULL, $sortField = NULL, $order = NULL) {
+
+        $searchstring = is_null($scope) ? $this->_getSearchQuery('host') : "";
+
+        if (!is_null($countOnly)) {
+            $q = "SELECT COUNT(*) FROM records
+                WHERE domain_id = " . $this->db->Quote($domain_id) . $searchstring;
+            try {
+                $result = $this->db->Execute($q);
+            } catch (Exception $e) {
+                throw new Framework_Exception($e->getMessage());
+            }
+        } else {
+            $q = "SELECT * FROM records 
+                WHERE domain_id = " . $this->db->Quote($domain_id) . $searchstring;
+            $q .= "ORDER BY $sortField $sortWay ".( ($sortField == "type") ? ", host" : "" );
+            try {
+                $result = $this->db->SelectLimit($q, $limit, $start);
+            } catch (Exception $e) {
+                throw new Framework_Exception($e->getMessage());
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * countRecords 
+     * 
+     * Shortcut for getRecords $countOnly = 1
+     * 
+     * @param mixed $id
+     * @access public
+     * @return getDomain()
+     */
+    public function countRecords($id)
+    {
+        return $this->getRecords(NULL, NULL, $id, 1);
+    }
+
+    /**
+     * addRecord 
+     * 
+     * Adds record to DB.
+     * 
+     * @param mixed $domainID 
+     * @param mixed $values 
+     * @access public
+     * @throws Framework_Exception on DB error
+     * @return TRUE on success, error return of $this->validateRecord() on failure
+     */
+    public function addRecord($domainID, $values)
+    {
+        // convert type to single character format
+        if (array_key_exists($values['type'], $this->types) === FALSE) {
+            return "Error: Invalid record type";
+        }
+
+        if (($result = $this->validateRecord($values) !== TRUE )) {
+            return $result;
+        }
+        return TRUE;
+    }
+
+    public function validateHostName($name)
+    {
+        // Hack to allow for DOMAIN substitutions in default records
+        $name = preg_replace('/DOMAIN/', 'test.com', $name);
+
+        if (ereg('\.\.', $name)) {
+            return FALSE;
+        } else {
+            $result = preg_match("/^[\*\.a-z0-9-]+\.[a-z0-9-]+$/i", strtolower($name));
+            return $result;
+        }
+    }
+
+    // function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
+    public function validateRecord($values)
+    {
+        // verify IP format for A and NS records
+        if ($values['type'] == 'A' || $values['type'] == 'NS') {
+            if (!Net_IPv4::validateIP($values['address'])) {
+                return "Error: Invalid IPv4 address format";
+            }
+        }
+
+        // Validate hostname format
+        if (!$this->validateHostName($values['hostname'])) {
+            return "Error: Invalid hostname";
+        }
+
+        if ($values['type'] == 'AAAA' || $values['type'] == 'AAAA+PTR') {
+            if (!Net_IPv6::checkIPv6($values['address'])) {
+                return "Error: Invalid AAAA record format";
+            }
+        }
+
+        // verify NS record
+        if ($values['type'] == 'N' || $values['type'] == 'M' || $values['type'] == 'C') {
+            if (Net_IPv4::validateIP($values['address'])) {
+                return "Error: this record type can not be an IP address";
+            }
+        }
+
+        // verify MX record
+        if ($values['type'] == 'M') {
+            if (!eregi("^([0-9])+$", $distance)) {
+                return "Error: Invalid or missing MX distance";
+            }
+        }
+
+        // verify PTR
+        if ($values['type'] == 'P') {
+            if (!eregi("^.*\.in-addr\.arpa\.*$", $name)) {
+                return "Error: PTR must end in .in-addr.arpa.";
+            }
+        }
+
+        // verify SRV record
+        if ($values['type'] == 'V')  {
+	        if (!preg_match("/^_.*\._.*$/i", $name)) {
+		        return "Error: SRV \"{$values['address']}\" should be in the format _service._protocol";	
+            }
+	        if (($values['distance'] > 65535) || !preg_match('/^([0-9])+$/i', $values['distance'])) {
+                return 'Error: SRV distance must be a numeric value between 0 and 65535';
+            }
+	        if (($values['weight'] > 65535) || !preg_match('/^([0-9])+$/i', $values['weight'])) {
+                return 'Error: SRV weight must be a numeric value between 0 and 65535';
+            }
+	        if (($values['port'] > 65535) || !preg_match('/^([0-9])+$/i', $values['port'])) {
+                return 'Error: SRV port must be a numeric value between 0 and 65535';
+            }
+        }
+
+        // make sure a TTL was given
+        if (empty($values['ttl'])) {
+            return "Error: no TTL given";
+        }
+        return TRUE;
+    }
+}
 ?>
