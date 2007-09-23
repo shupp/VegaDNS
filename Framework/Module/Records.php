@@ -139,7 +139,7 @@ class Framework_Module_Records extends Vegadns_Common
     
         $records_array = array();
         for ($counter = 0; list($key,$array) = each($records); $counter++) {
-            $type = get_type($array['type']);
+            $type = $this->vdns->types[$array['type']];
             if ($type != 'SOA') {
                 $records_array[$counter]['host'] = $array['host'];
                 $records_array[$counter]['type'] = $type;
@@ -171,6 +171,8 @@ class Framework_Module_Records extends Vegadns_Common
             }
         }
         $this->setData('records_array', $records_array);
+        $this->tplFile = 'Records.tpl';
+        return;
     }
 }
 ?>

@@ -49,6 +49,16 @@ class VegaDNS extends Framework_Object_Web
                 'ttl'       => 86400);
 
     /**
+     * defaultTTL 
+     * 
+     * default TTL for new recrds
+     * 
+     * @var float
+     * @access public
+     */
+    public $defaultTTL = 3600;
+
+    /**
      * types 
      * 
      * 
@@ -58,7 +68,7 @@ class VegaDNS extends Framework_Object_Web
      */
     public $types = array(
                 'S' => 'SOA',
-                'S' => 'NS',
+                'N' => 'NS',
                 'A' => 'A',
                 '3' => 'AAAA',
                 '6' => 'AAAA+PTR',
@@ -99,6 +109,7 @@ class VegaDNS extends Framework_Object_Web
      * 
      * @param mixed $id 
      * @access public
+     * @throws Framework_Exception
      * @return ADODB results if exists, NULL if not
      */
     public function getDomainInfo($id)
@@ -268,6 +279,7 @@ class VegaDNS extends Framework_Object_Web
      * @param mixed $domain 
      * @param mixed $domain_status 
      * @access public
+     * @throws Framework_Exception
      * @return void
      */
     public function addDomainRecord($domain, $domain_status)
@@ -490,15 +502,43 @@ class VegaDNS extends Framework_Object_Web
      * @throws Framework_Exception on DB error
      * @return TRUE on success, error return of $this->validateRecord() on failure
      */
-    public function addRecord($domainID, $values)
+    public function addRecord($domInfo, $values)
     {
         // convert type to single character format
         if (array_key_exists($values['type'], $this->types) === FALSE) {
             return "Error: Invalid record type";
         }
 
-        if (($result = $this->validateRecord($values) !== TRUE )) {
+        // Fix up hostname if it needs a traling domain name
+        if($values['type'] != 'P') {
+            if (!preg_match("/^(.*\.)*({$domInfo['domain']})\.*$/i", $values['hostname'])) {
+                $values['hostname'] = $values['hostname'] . '.' . $domInfo['domain'];
+            }
+        }
+
+        // Uncompress IPv6 addrss if necessary
+        if ($values['type'] == 3 || $values['type'] == 6) {
+            $values['address'] = Net_IPv6::uncompress($values['address']);
+        }
+
+        // Validate Records
+        $result = $this->validateRecord($values);
+        if ($this->validateRecord($values) !== TRUE ) {
             return $result;
+        }
+
+        // Prepare statement
+        $q = 'INSERT INTO records
+                (domain_id,host,type,val,ttl)
+                VALUES (' . $this->db->Quote($domInfo['domain_id']) . ',
+                    ' . $this->db->Quote($values['hostname']) . ',
+                    ' . $this->db->Quote($values['type']) . ',
+                    ' . $this->db->Quote($values['address']) . ',
+                    ' . $this->db->Quote($values['ttl']) . ')';
+        try {
+            $result = $this->db->Execute($q);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
         }
         return TRUE;
     }
@@ -531,9 +571,9 @@ class VegaDNS extends Framework_Object_Web
             return "Error: Invalid hostname";
         }
 
-        if ($values['type'] == 'AAAA' || $values['type'] == 'AAAA+PTR') {
+        if ($values['type'] == 3 || $values['type'] == 6) {
             if (!Net_IPv6::checkIPv6($values['address'])) {
-                return "Error: Invalid AAAA record format";
+                return "Error: Invalid {$this->types[$values['type']]} record format";
             }
         }
 
@@ -546,7 +586,7 @@ class VegaDNS extends Framework_Object_Web
 
         // verify MX record
         if ($values['type'] == 'M') {
-            if (!eregi("^([0-9])+$", $distance)) {
+            if (!preg_match('/^([0-9])+$/i', $values['distance'])) {
                 return "Error: Invalid or missing MX distance";
             }
         }

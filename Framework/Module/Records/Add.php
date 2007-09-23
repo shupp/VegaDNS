@@ -42,7 +42,7 @@ class Framework_Module_Records_Add extends Framework_Module_Records
         parent::__construct();
         if (!$this->user->getBit($this->user->getPerms(), 'record_create')) {
             $this->setData('message', "Error: you do not have enough privileges to create records.");
-            return;
+            return $this->listRecords();
         }
         $this->form = $this->addForm();
     }
@@ -58,7 +58,6 @@ class Framework_Module_Records_Add extends Framework_Module_Records
     public function __default()
     {
         return $this->add();
-        $tplFile = 'add.tpl';
     }
 
     /**
@@ -93,10 +92,17 @@ class Framework_Module_Records_Add extends Framework_Module_Records
         }
 
         if (!$this->form->validate()) {
-            return $this->add();
+            $this->setData('form', $this->form->toHtml());
+            $this->tplFile = 'add.tpl';
+            return;
         }
-        var_dump($this->vdns->addRecord($this->domInfo['domain_id'], $this->form->exportValues()));
-        exit;
+        $result = $this->vdns->addRecord($this->domInfo, $this->form->exportValues());
+        if ($result !== TRUE) {
+            $this->setData('message', $result);
+            $this->setData('form', $this->form->toHtml());
+            $this->tplFile = 'add.tpl';
+            return;
+        }
 
         $this->setData('message', "Record added successfully!");
         return $this->listRecords();
@@ -120,13 +126,13 @@ class Framework_Module_Records_Add extends Framework_Module_Records
             }
             $types[$key] = $val;
         }
+        $defaults = array('ttl' => $this->vdns->defaultTTL);
 
         $form = new HTML_QuickForm('formLogin', 'post', './?module=Records&class=add&event=addNow&domain_id=' . $this->domInfo['domain_id']);
 
+        $form->setDefaults($defaults);
         $form->setConstants(array('domain_id' => $this->domInfo['domain_id']));
-
         $form->addElement('header', 'MyHeader', _('Add Resource Record'), array('align' => "middle"));
-
         $form->addElement('text', 'hostname', _('Record Name'));
         $form->addElement('select', 'type', _('Record Type'), $types);
         $form->addElement('text', 'address', _('Record Value'));
@@ -136,10 +142,6 @@ class Framework_Module_Records_Add extends Framework_Module_Records
         $form->addElement('text', 'ttl', _('TTL'));
         $form->addElement('submit', 'submit', _('Add'));
 
-
-        $form->registerRule('testRule', 'callback', 'testRule', $this);
-        $form->addRule(array('type', 'hostname', 'address'), _('Problems'), 'testRule');
-
         $form->registerRule('secondLevel', 'regex', '/.*\..*/');
         $form->registerRule('validChars', 'regex', '/^[\.a-z0-9-]+$/i');
         $form->addRule('hostname', _('Please enter a record name'), 'required', null, 'client');
@@ -148,13 +150,5 @@ class Framework_Module_Records_Add extends Framework_Module_Records
 
         return $form;
     }
-
-    static public function testRule()
-    {
-        // print_r(func_get_args());
-        // exit;
-        return true;
-    }
-
 }
 ?>
