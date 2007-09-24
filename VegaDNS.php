@@ -148,7 +148,6 @@ class VegaDNS extends Framework_Object_Web
         $groupquery = $this->_returnSubgroupsQuery($groups);
         $scope = $this->_getScopeQuery();
         $searchstring = is_null($scope) ? $this->_getSearchQuery('domain') : "";
-        // print_r($groupquery);exit;
 
         if (!is_null($countOnly)) {
             $q = "SELECT COUNT(*)
@@ -436,6 +435,22 @@ class VegaDNS extends Framework_Object_Web
         }
     }
 
+    /**
+     * deleteRecord 
+     * 
+     * @param int $domainID 
+     * @param int $recordID 
+     * @access public
+     * @return void
+     */
+    public function deleteRecord($domainID, $recordID) {
+        $q = "DELETE FROM records WHERE domain_id=" . $this->db->Quote($domainID) . " AND record_id=" . $this->db->Quote($recordID);
+        try {
+            $result = $this->db->Execute($q);
+        } catch (Exception $e) {
+            throw new Framework_Exception($e->getMessage());
+        }
+    }
 
     /**
      * getRecords 

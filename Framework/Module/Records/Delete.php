@@ -63,7 +63,7 @@ class Framework_Module_Records_Delete extends Framework_Module_Records
         if (!is_null($this->message)) {
             return $this->listRecords();
         }
-        $this->setData('delete_url', "./?module=Records&amp;class=delete&amp;event=deleteNow&amp;record_id={$this->domInfo['record_id']}");
+        $this->setData('delete_url', "./?module=Records&amp;class=delete&amp;event=deleteNow&amp;domain_id={$this->domInfo['domain_id']}&amp;record_id={$_REQUEST['record_id']}");
         $this->setData('cancel_url', "./?module=Records&amp;class=delete&amp;event=cancel&amp;domain_id={$this->domInfo['domain_id']}");
         $this->tplFile = 'delete.tpl';
     }
@@ -94,7 +94,7 @@ class Framework_Module_Records_Delete extends Framework_Module_Records
         if (!is_null($this->message)) {
             return $this->listRecords();
         }
-        $this->vdns->deleteRecord($this->domInfo['record_id']);
+        $this->vdns->deleteRecord($this->domInfo['domain_id'], $_REQUEST['record_id']);
         $this->setData('message', "Record deleted successfully");
         return $this->listRecords();
     }

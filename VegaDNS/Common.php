@@ -200,7 +200,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         while(list($key,$val) = each($array)) {
             $newsortway = $this->getSortway($this->sortfield, $val, $this->sortway);
             if ($module == 'Records') {
-                $prefix = "./?module=Records&amp;domain_id={$this->domain['domain_id']}";
+                $prefix = "./?module=Records&amp;domain_id={$this->domInfo['domain_id']}";
             } else {
                 $prefix = "./?module=Domains&amp;group_id={$this->session->group_id}";
             }
