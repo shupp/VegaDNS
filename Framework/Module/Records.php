@@ -162,10 +162,10 @@ class Framework_Module_Records extends Vegadns_Common
     
                 $records_array[$counter]['ttl'] = $array['ttl'];
                 if ($can_delete) {
-                    $records_array[$counter]['delete_url'] = urlencode("./?module=Records&class=delete&record_id={$array['record_id']}&domain_id={$this->domInfo['domain_id']}");
+                    $records_array[$counter]['delete_url'] = "./?module=Records&class=delete&record_id={$array['record_id']}&domain_id={$this->domInfo['domain_id']}";
                 }
                 if ($can_edit) {
-                    $records_array[$counter]['edit_url'] = urlencode("./?module=Records&class=edit&record_id={$array['record_id']}&domain_id=$this->domInfo['domain']}");
+                    $records_array[$counter]['edit_url'] = "./?module=Records&class=edit&record_id={$array['record_id']}&domain_id=$this->domInfo['domain']}";
                 }
                 $counter++;
             }
