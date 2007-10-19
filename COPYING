@@ -1,11 +1,5 @@
-Original VegaDNS code is licensed under the GNU GPL (see GPL).  However,
-VegaDNS uses two libraries and one class that each are licensed differently.
-
-The Smarty Template Engine is licensed under the LGPL.  See smarty/COPYING.lib
-
-The ADODB Datbase Abstraction layer is dual licensed under the LGPL and the BSD
-license.  See adodb/license.txt for more information.
-
-The ipv6 class (src/ipv6.php) is licensed under the PHP 2.0 license.  See
-http://www.php.net/license/2_02.txt for more information.  This file is not 
-used unless you turn on IPv6 support in src/config.php.
+Original VegaDNS code is licensed under the GNU GPL (see 
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt).  However,
+the 3rd party PEAR packages  each have their own license.  The ADODB Datbase 
+Abstraction layer is dual licensed under the LGPL and the BSD license.  See 
+adodb/license.txt for more information.
