@@ -86,7 +86,7 @@ class VegaDNS extends Framework_Object_Web
      * @param string $domain 
      * @access public
      * @throws Framework_Exception
-     * @return TRUE on success, FALSE on failure
+     * @return bool true on success, false on failure
      */
     public function domainExists($domain)
     {
@@ -97,9 +97,9 @@ class VegaDNS extends Framework_Object_Web
             throw new Framework_Exception($e->getMessage());
         }
         if ($result->RecordCount() > 0) {
-            return TRUE;
+            return true;
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -515,12 +515,12 @@ class VegaDNS extends Framework_Object_Web
      * @param mixed $values 
      * @access public
      * @throws Framework_Exception on DB error
-     * @return TRUE on success, error return of $this->validateRecord() on failure
+     * @return bool true on success, error return of $this->validateRecord() on failure
      */
     public function addRecord($domInfo, $values)
     {
         // convert type to single character format
-        if (array_key_exists($values['type'], $this->types) === FALSE) {
+        if (array_key_exists($values['type'], $this->types) === false) {
             return "Error: Invalid record type";
         }
 
@@ -538,7 +538,7 @@ class VegaDNS extends Framework_Object_Web
 
         // Validate Records
         $result = $this->validateRecord($values);
-        if ($this->validateRecord($values) !== TRUE ) {
+        if ($this->validateRecord($values) !== true ) {
             return $result;
         }
 
@@ -550,12 +550,13 @@ class VegaDNS extends Framework_Object_Web
                     ' . $this->db->Quote($values['type']) . ',
                     ' . $this->db->Quote($values['address']) . ',
                     ' . $this->db->Quote($values['ttl']) . ')';
+
         try {
             $result = $this->db->Execute($q);
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
-        return TRUE;
+        return true;
     }
 
     public function validateHostName($name)
@@ -564,7 +565,7 @@ class VegaDNS extends Framework_Object_Web
         $name = preg_replace('/DOMAIN/', 'test.com', $name);
 
         if (ereg('\.\.', $name)) {
-            return FALSE;
+            return false;
         } else {
             $result = preg_match("/^[\*\.a-z0-9-]+\.[a-z0-9-]+$/i", strtolower($name));
             return $result;
@@ -633,7 +634,7 @@ class VegaDNS extends Framework_Object_Web
         if (empty($values['ttl'])) {
             return "Error: no TTL given";
         }
-        return TRUE;
+        return true;
     }
 }
 ?>

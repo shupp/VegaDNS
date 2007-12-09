@@ -138,7 +138,8 @@ class Framework_Module_Records extends Vegadns_Common
         $this->setData('view_log_url', "./?module=Log&amp;domain_id=".$this->domInfo['domain_id']);
     
         $records_array = array();
-        for ($counter = 0; list($key,$array) = each($records); $counter++) {
+        $counter = 0;
+        foreach ($records as $key => $array) {
             $type = $this->vdns->types[$array['type']];
             if ($type != 'SOA') {
                 $records_array[$counter]['host'] = $array['host'];
@@ -167,8 +168,8 @@ class Framework_Module_Records extends Vegadns_Common
                 if ($can_edit) {
                     $records_array[$counter]['edit_url'] = "./?module=Records&class=edit&record_id={$array['record_id']}&domain_id=$this->domInfo['domain']}";
                 }
-                $counter++;
             }
+            $counter++;
         }
         $this->setData('records_array', $records_array);
         $this->tplFile = 'Records.tpl';
