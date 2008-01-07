@@ -79,9 +79,10 @@ class Framework_User_VegaDNS extends Framework_User {
             return false;
         }
         $this->data = $result->FetchRow();
-        $session = & Framework_Session::singleton();
-        $session->__set((string)Framework::$site->config->user->userField, 
-                $this->data[(string)Framework::$site->config->user->userField]);
+        $session = Framework_Session::singleton();
+        $field = (string)Framework::$site->config->user->userField;
+        $value = $this->data[$field];
+        $session->{$field} = $value;
         return true;
     }
 
