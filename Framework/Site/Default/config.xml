@@ -3,8 +3,13 @@
     <!-- set to 1 to send debug info to logFile -->
     <debug>0</debug>
     <!-- Use ADODBLite w/ the PEAR module -->
-    <dsn>mysql://root:@localhost/test#pear</dsn>
-    <dbClass>ADODBLite</dbClass>
+    <db>
+        <dsn>mysql://root:@localhost/test#pear</dsn>
+        <type>ADODB</type>
+        <options>
+            <adodbDir>adodb_lite</adodbDir>
+        </options>
+    </db>
     <!-- inactivity timeout - in seconds -->
     <inactiveTimeout>600</inactiveTimeout>
     <maxPerPage>50</maxPerPage>
