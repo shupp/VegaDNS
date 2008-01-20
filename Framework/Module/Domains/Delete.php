@@ -1,15 +1,18 @@
 <?php
 
-
 /**
  * Framework_Module_Domains_Delete 
  * 
- * @uses        Framework_Module_Domains
- * @package     VegaDNS
- * @subpackage  Module
- * @copyright   2007 Bill Shupp
- * @author      Bill Shupp <hostmaster@shupp.org> 
- * @license     GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * PHP Version 5
+ * 
+ * @category   DNS
+ * @package    VegaDNS
+ * @subpackage Module
+ * @uses       Framework_Module_Domains
+ * @author     "Bill Shupp" <hostmaster@shupp.org> 
+ * @copyright  2007 Bill Shupp
+ * @license    GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * @link       http://www.vegadns.org
  */
 
 /**
@@ -17,31 +20,34 @@
  * 
  * Delete Domains
  * 
- * @uses        Framework_Module_Domains
- * @package     VegaDNS
- * @subpackage  Module
- * @copyright   2007 Bill Shupp
- * @author      Bill Shupp <hostmaster@shupp.org> 
- * @license     GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * @category   DNS
+ * @package    VegaDNS
+ * @subpackage Module
+ * @uses       Framework_Module_Domains
+ * @author     "Bill Shupp" <hostmaster@shupp.org> 
+ * @copyright  2007 Bill Shupp
+ * @license    GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * @link       http://www.vegadns.org
  */
 class Framework_Module_Domains_Delete extends Framework_Module_Domains
 {
 
-    public function __construct()
+    /**
+     * init 
+     * 
+     * Centralize some security and setup tasks
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function init()
     {
-        parent::__construct();
-        if (!$this->user->getBit($this->user->getPerms(), 'domain_delete')) {
-            $this->setData('message', 'Error: you do not have enough privileges to delete domains.');
-            return $this->listDomains();
-        }
         $domInfo = $this->vdns->getDomainInfo($_REQUEST['domain_id']);
         if (is_null($domInfo)) {
             $this->setData('message', 'Error: domain does not exist');
-            return $this->listDomains();
         }
         if (is_null($this->user->isMyGroup($domInfo['group_id']))) {
             $this->setData('message', "Error: domain does not belong to you");
-            return $this->listDomains();
         }
         $this->setData('domInfo', $domInfo);
     }
@@ -49,33 +55,24 @@ class Framework_Module_Domains_Delete extends Framework_Module_Domains
     /**
      * __default 
      * 
-     * run delete()
+     * Display delete form
      * 
      * @access public
      * @return void
      */
     public function __default()
     {
-        return $this->delete();
-    }
-
-    /**
-     * delete 
-     * 
-     * Display delete form
-     * 
-     * @access public
-     * @return void
-     */
-    public function delete()
-    {
+        $this->init();
         // If 'message' is set, then we have a problem
         if (!is_null($this->message)) {
             return $this->listDomains();
         }
         $this->setData('domain', $this->domInfo['domain']);
-        $this->setData('delete_url', "./?module=Domains&amp;class=delete&amp;event=deleteNow&amp;domain_id={$this->domInfo['domain_id']}");
-        $this->setData('cancel_url', "./?module=Domains&amp;class=delete&amp;event=cancel");
+        $dUrl = 'module=Domains&amp;class=delete&amp;event=deleteNow&amp;'
+            . 'domain_id=' . $this->domInfo['domain_id'];
+        $cUrl = 'module=Domains&class=delete&event=cancel';
+        $this->setData('delete_url', './?' . $dUrl);
+        $this->setData('cancel_url', './?' . $cUrl);
         $this->tplFile = 'delete.tpl';
     }
 
@@ -101,6 +98,7 @@ class Framework_Module_Domains_Delete extends Framework_Module_Domains
      */
     public function deleteNow()
     {
+        $this->init();
         // If 'message' is set, then we have a problem
         if (!is_null($this->message)) {
             return $this->listDomains();

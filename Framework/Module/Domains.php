@@ -4,7 +4,7 @@
 /**
  * Framework_Module_Domains 
  * 
- * @uses        VegaDNS_Common
+ * @uses        VegaDNS_Auth_ACL
  * @package     VegaDNS
  * @subpackage  Module
  * @copyright   2007 Bill Shupp
@@ -17,14 +17,14 @@
  * 
  * List domains
  * 
- * @uses        VegaDNS_Common
+ * @uses        VegaDNS_Auth_ACL
  * @package     VegaDNS
  * @subpackage  Module
  * @copyright   2007 Bill Shupp
  * @author      Bill Shupp <hostmaster@shupp.org> 
  * @license     GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
  */
-class Framework_Module_Domains extends VegaDNS_Common
+class Framework_Module_Domains extends VegaDNS_Auth_ACL
 {
 
     /**
