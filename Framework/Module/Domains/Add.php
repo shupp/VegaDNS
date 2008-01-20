@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Framework_Module_Domains_Add 
  * 
@@ -24,36 +23,18 @@
  * @author      Bill Shupp <hostmaster@shupp.org> 
  * @license     GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
  */
-class Framework_Module_Domains_Add extends Framework_Module_Domains
+class Framework_Module_Domains_Add extends VegaDNS_Auth_ACL
 {
-
     /**
-     * __default 
-     * 
-     * run add()
-     * 
-     * @access public
-     * @return void
-     */
-    public function __default()
-    {
-        return $this->add();
-    }
-
-    /**
-     * add 
+     * __default()
      * 
      * Display add form
      * 
      * @access public
      * @return void
      */
-    public function add()
+    public function __default()
     {
-        if (!$this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData('message', 'Error: you do not have enough privileges to create domains.');
-            return $this->listDomains();
-        }
         $form = $this->addForm();
         $this->setData('form', $form->toHtml());
         // $this->pageTemplateFile = 'thickbox.tpl';
@@ -70,14 +51,9 @@ class Framework_Module_Domains_Add extends Framework_Module_Domains
      */
     public function addNow()
     {
-        if (!$this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData('message', 'Error: you do not have enough privileges to create domains.');
-            return $this->listDomains();
-        }
-
         $form = $this->addForm();
         if (!$form->validate()) {
-            return $this->add();
+            return $this->__default();
         }
     
         $domain = strtolower($_REQUEST['domain']);
@@ -85,7 +61,7 @@ class Framework_Module_Domains_Add extends Framework_Module_Domains
         // Make sure the domain does not already exist.
         if ($this->vdns->domainExists($domain)) {
             $this->setData('message', "Error: domain $domain already exists");
-            return $this->add();
+            return $this->__default();
         }
 
         $domain_status = $this->user->isSeniorAdmin() ? 'active' : 'inactive';
