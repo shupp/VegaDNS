@@ -49,9 +49,7 @@ abstract class VegaDNS_Auth_ACL extends VegaDNS_Common
      */
     public function authenticate()
     {
-        if (!parent::authenticate()) {
-            return false;
-        }
+        parent::authenticate();
         if (!isset(Framework::$site->config->acl)) {
             return true;
         }
@@ -70,5 +68,4 @@ abstract class VegaDNS_Auth_ACL extends VegaDNS_Common
         return true;
     }
 }
-
 ?>
