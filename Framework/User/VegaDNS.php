@@ -217,6 +217,22 @@ class Framework_User_VegaDNS extends Framework_User
     }
 
     /**
+     * hasAccess 
+     * 
+     * Get current permissions and check
+     * to see if $bit is granted
+     * 
+     * @param mixed $bit bit flag of requested permission
+     * 
+     * @access public
+     * @return bool result of getBit()
+     */
+    public function hasAccess($bit)
+    {
+        return $this->getBit($this->getPerms(), (string)$bit);
+    }
+
+    /**
      * returnGroup 
      * 
      * Return group
