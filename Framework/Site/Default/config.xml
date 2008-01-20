@@ -23,4 +23,23 @@
         <defaultUser>1</defaultUser>
         <userLocaleDir>Framework/Site/Default/locale</userLocaleDir>
     </user>
+    <!-- See VegaDNS_Auth_ACL -->
+    <acl>
+        <!-- Domains -->
+        <class name="Framework_Module_Domains_Add"
+               event="__default"
+               accessLevel="domain_create" />
+        <class name="Framework_Module_Domains_Add"
+               event="addNow"
+               accessLevel="domain_create" />
+        <class name="Framework_Module_Domains_Add"
+               event="addNow"
+               accessLevel="domain_create" />
+        <class name="Framework_Module_Domains_Delete"
+               event="__default"
+               accessLevel="domain_delete" />
+        <class name="Framework_Module_Domains_Delete"
+               event="deleteNow"
+               accessLevel="domain_delete" />
+    </acl>
 </framework>
