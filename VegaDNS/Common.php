@@ -141,20 +141,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         return "<span class='curMenuOpt'>$s</span>";
     }
 
-    public function paginate($total) {
-        $this->setData('total', $total);
-        $this->setData('limit', (integer)Framework::$site->config->maxPerPage);
-        if (isset($_REQUEST['start']) && !ereg('[^0-9]', $_REQUEST['start'])) {
-            $start = $_REQUEST['start'];
-        }
-        if (!isset($start)) {
-            $start = 0;
-        }
-        $this->setData('start', $start);
-        $this->setData('currentPage', ceil($this->data['start'] / $this->data['limit']));
-        $this->setData('totalPages', ceil($this->data['total'] / $this->data['limit']));
-    }
-
     protected function parseSoa($soa)
     {
         $email_soa = explode(":", $soa['host']);

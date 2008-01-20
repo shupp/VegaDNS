@@ -79,7 +79,7 @@ class Framework_Module_Domains extends VegaDNS_Common
         // Count domains
         $countResult = $this->vdns->countDomains($groups);
         $countRow = $countResult->FetchRow();
-        $this->paginate($countRow['COUNT(*)']);
+        VegaDNS_Pager::paginate($this, $countRow['COUNT(*)']);
 
         $this->setData('sortway', $this->getRequestSortWay());
         $this->setData('sortfield', $this->getSortfield('domains'));

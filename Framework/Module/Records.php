@@ -82,7 +82,7 @@ class Framework_Module_Records extends Vegadns_Common
     
         $countResult = $this->vdns->countRecords($this->domInfo['domain_id']);
         $countRow = $countResult->FetchRow();
-        $this->paginate($countRow['COUNT(*)']);
+        VegaDNS_Pager::paginate($this, $countRow['COUNT(*)']);
 
         $result = $this->vdns->getRecords($this->start, $this->limit, $this->domInfo['domain_id'], NULL, $this->sortfield, $this->sortway);
 
