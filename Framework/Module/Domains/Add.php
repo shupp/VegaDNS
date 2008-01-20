@@ -51,7 +51,7 @@ class Framework_Module_Domains_Add extends Framework_Module_Domains
     public function add()
     {
         if (!$this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData("Error: you do not have enough privileges to create domains.");
+            $this->setData('message', 'Error: you do not have enough privileges to create domains.');
             return $this->listDomains();
         }
         $form = $this->addForm();
@@ -71,7 +71,7 @@ class Framework_Module_Domains_Add extends Framework_Module_Domains
     public function addNow()
     {
         if (!$this->user->getBit($this->user->getPerms(), 'domain_create')) {
-            $this->setData("Error: you do not have enough privileges to create domains.");
+            $this->setData('message', 'Error: you do not have enough privileges to create domains.');
             return $this->listDomains();
         }
 
