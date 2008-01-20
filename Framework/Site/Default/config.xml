@@ -7,7 +7,7 @@
         <dsn>mysql://root:@localhost/test#pear</dsn>
         <type>ADODB</type>
         <options>
-            <adodbDir>adodb_lite</adodbDir>
+            <adodbDir>adodb5</adodbDir>
         </options>
     </db>
     <!-- inactivity timeout - in seconds -->
