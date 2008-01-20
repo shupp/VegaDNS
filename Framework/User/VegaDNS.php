@@ -1,16 +1,33 @@
 <?php
-
+/**
+ * Framework_User_VegaDNS 
+ * 
+ * PHP Version 5
+ * 
+ * @category  DNS
+ * @package   VegaDNS
+ * @uses      Framework_User
+ * @author    Bill Shupp <hostmaster@shupp.org> 
+ * @copyright 2008 Bill Shupp
+ * @license   GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * @link      http://www.vegadns.org
+ */
 
 /**
  * Framework_User_VegaDNS 
  * 
- * @package VegaDNS
- * @copyright 2007 Bill Shupp
- * @author Bill Shupp <hostmaster@shupp.org> 
- * @license GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * VegaDNS User class
+ * 
+ * @category  DNS
+ * @package   VegaDNS
+ * @uses      Framework_User
+ * @author    Bill Shupp <hostmaster@shupp.org> 
+ * @copyright 2008 Bill Shupp
+ * @license   GPL 2.0  {@link http://www.gnu.org/licenses/gpl.txt}
+ * @link      http://www.vegadns.org
  */
-class Framework_User_VegaDNS extends Framework_User {
-
+class Framework_User_VegaDNS extends Framework_User
+{
     /**
      * groups 
      * 
@@ -20,6 +37,14 @@ class Framework_User_VegaDNS extends Framework_User {
      * @access public
      */
     public $groups = null;
+    /**
+     * permFlagValues 
+     * 
+     * Permission bit flag values
+     * 
+     * @var array
+     * @access public
+     */
     public $permFlagValues = array(
             'inherit_group_perms'   => 0x01,
             'account_edit'          => 0x02,
@@ -58,18 +83,32 @@ class Framework_User_VegaDNS extends Framework_User {
      * @var float
      * @access private
      */
-    private $seniorPerms = 134217726; // All but inherit_group_permissions
+    private $seniorPerms = 134217726;
     /**
      * defaultPerms 
+     * All but account/group create/delete/edit
      * 
      * @var float
      * @access private
      */
-    private $defaultPerms = 134217615; // All but account/group create/delete/edit
+    private $defaultPerms = 134217615;
 
+    /**
+     * authenticate 
+     * 
+     * Authenticate using email/password
+     * 
+     * @param mixed $email    email address
+     * @param mixed $password passwod
+     * 
+     * @access public
+     * @return void
+     */
     public function authenticate($email, $password)
     {
-        $sql = "SELECT user_id FROM `accounts` WHERE email=" . $this->db->Quote($email) . " AND password = MD5(" . $this->db->Quote($password) . ")";
+        $sql = "SELECT user_id FROM `accounts` 
+                WHERE email=" . $this->db->Quote($email) . " 
+                AND password = MD5(" . $this->db->Quote($password) . ")";
         try {
             $result = $this->db->Execute($sql);
         } catch (Exception $e) {
@@ -79,13 +118,22 @@ class Framework_User_VegaDNS extends Framework_User {
             return false;
         }
         $this->data = $result->FetchRow();
-        $session = Framework_Session::singleton();
-        $field = (string)Framework::$site->config->user->userField;
-        $value = $this->data[$field];
+        $session    = Framework_Session::singleton();
+        $field      = (string)Framework::$site->config->user->userField;
+        $value      = $this->data[$field];
+
         $session->{$field} = $value;
         return true;
     }
 
+    /**
+     * isSeniorAdmin 
+     * 
+     * @param mixed $data user data
+     * 
+     * @access public
+     * @return bool true on success, false on failure
+     */
     public function isSeniorAdmin($data = null)
     {
         if (is_null($data)) {
@@ -97,19 +145,29 @@ class Framework_User_VegaDNS extends Framework_User {
         return false;
     }
 
+    /**
+     * myGroupID 
+     * 
+     * @access public
+     * @return int logged in user's group id
+     */
     public function myGroupID()
     {
         return $this->data['group_id'];
     }
 
-    public function myEmail()
+    /**
+     * getAccountInfo 
+     * 
+     * Get current account settings
+     * 
+     * @param mixed $userID user id to get account info for
+     * 
+     * @access public
+     * @return mixed account info array  on success, null on failure
+     */
+    public function getAccountInfo($userID)
     {
-        return $this->data['email'];
-    }
-
-    // Get current account settings
-    function getAccountInfo($userID) {
-
         $sql = "SELECT a.*, b.perm_value AS user_perms, c.perm_value AS group_perms
                 FROM " . (string)Framework::$site->config->user->userTable . " a 
                 LEFT JOIN user_permissions b ON a.user_id = b.user_id
@@ -124,16 +182,30 @@ class Framework_User_VegaDNS extends Framework_User {
         }
         
         if ($result->RecordCount() == 0) {
-            return NULL;
+            return null;
         }
         return $result->FetchRow();
     }
 
-    function getSubGroups($id) {
-        $q = "SELECT group_id from GROUPS WHERE group_id != ".$this->db->Quote($id)." AND parent_group_id = ".$this->db->Quote($id);
+    /**
+     * getSubGroups 
+     * 
+     * Get sub groups of a given group
+     * 
+     * @param int $id id of parent group
+     * 
+     * @access public
+     * @return mixed sub group array on success, null on failure
+     */
+    public function getSubGroups($id)
+    {
+        $q = "SELECT group_id from GROUPS 
+                WHERE group_id != ".$this->db->Quote($id)." 
+                AND parent_group_id = ".$this->db->Quote($id);
+
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if ($result->RecordCount() == 0) {
-            return NULL;
+            return null;
         } else {
             $count = 0;
             while (!$result->EOF) {
@@ -144,15 +216,27 @@ class Framework_User_VegaDNS extends Framework_User {
         }
     }
 
-    function returnGroup($id, $g = NULL) {
-        if ($g == NULL) {
+    /**
+     * returnGroup 
+     * 
+     * Return group
+     * 
+     * @param mixed $id group id
+     * @param mixed $g  parent, defauls to null
+     * 
+     * @access public
+     * @return void
+     */
+    public function returnGroup($id, $g = null)
+    {
+        if ($g == null) {
             $g = $this->groups;
         }
         if ($g['group_id'] == $id) {
             return $g;
         }
         if (!isset($g['subgroups'])) {
-            $array = NULL;
+            $array = null;
         } else {
             while (list($key,$val) = each($g['subgroups'])) {
                 $temp = $this->returnGroup($id, $val);
@@ -160,25 +244,37 @@ class Framework_User_VegaDNS extends Framework_User {
                     $array = $temp;
                     break;
                 } else {
-                    $array = NULL;
+                    $array = null;
                 }
             }
         }
         return $array;
     }
 
-    function getAllSubgroups($id) {
+    /**
+     * getAllSubgroups 
+     * 
+     * Get all subgroups of $id
+     * 
+     * @param mixed $id id of parent group
+     * 
+     * @access public
+     * @return mixed array of subgroups on success, null on failure
+     */
+    public function getAllSubgroups($id)
+    {
         // Get Top
         $q = "SELECT * FROM groups WHERE group_id=".$this->db->Quote($id)." LIMIT 1";
+
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if ($result->RecordCount() == 0) {
-            return NULL;
+            return null;
         } else {
             $top = $result->FetchRow();
         }
         // Get subgroups
         $subs = $this->getSubGroups($top['group_id']);
-        if ($subs == NULL) {
+        if ($subs == null) {
             return $top;
         } else {
             $count = 0;
@@ -191,27 +287,40 @@ class Framework_User_VegaDNS extends Framework_User {
         
     }
 
-    function isMyGroup($g, $array = NULL) {
-        if (($temp = $this->returnGroup($g, $array)) == NULL) {
-            return NULL;
+    /**
+     * isMyGroup 
+     * 
+     * @param mixed $g     group id
+     * @param mixed $array array of groups to check against.
+     * Defaults to null
+     * 
+     * @access public
+     * @return void
+     */
+    public function isMyGroup($g, $array = null)
+    {
+        if (($temp = $this->returnGroup($g, $array)) == null) {
+            return null;
         } else {
             return $temp;
         }
     }
 
-    function isMyAccount($id) {
+    public function isMyAccount($id)
+    {
 
         // Fetch group_id
-        if (($g = $this->userID_to_GroupID($id)) == NULL) {
-            return FALSE;
-        } else if (($temp = $this->returnGroup($g)) == NULL) {
-            return FALSE;
+        if (($g = $this->userID_to_GroupID($id)) == null) {
+            return false;
+        } else if (($temp = $this->returnGroup($g)) == null) {
+            return false;
         } else {
-            return TRUE;
+            return true;
         }
     }
 
-    function returnUserPermissions($id) {
+    public function returnUserPermissions($id)
+    {
         $q = "select * from user_permissions where user_id=".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if ($result->RecordCount() == 0) {
@@ -226,207 +335,227 @@ class Framework_User_VegaDNS extends Framework_User {
         
     }
 
-    function returnGroupParentID($id) {
+    public function returnGroupParentID($id)
+    {
         $q = "select parent_group_id from groups where group_id=".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if ($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return null;
         $row = $result->FetchRow();
         return $row['parend_group_id'];
     }
 
-    function returnGroupPermissions($id) {
+    public function returnGroupPermissions($id)
+    {
         $q = "select * from group_permissions where group_id=".$this->db->Quote($id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if ($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return null;
         $perms = $result->FetchRow();
         if ($perms['inherit_group_perms'] == 1) {
             // Find the parent permissions
-            $inherit = TRUE;
-            while ($inherit != FALSE) {
+            $inherit = true;
+            while ($inherit != false) {
                 // Get parent ID
                 $parent = $this->returnParentGroupID($id);
                 $q = "select * from group_permissions where group_id=".$this->db->Quote($parent);
                 $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-                if ($result->RecordCount() == 0) return NULL;
+                if ($result->RecordCount() == 0) return null;
                 $perms = $result->FetchRow();
                 if ($perms['inherit_group_perms'] == 1) {
                     $id = $parent;
                     continue;
                 } else {
-                    $inherit = FALSE;
+                    $inherit = false;
                 }
             }
         }
         return $perms;
     }
 
-    function canCreateSubGroups() {
+    public function canCreateSubGroups()
+    {
         if ($this->account['permissions']['group_create'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canCreateDomains() {
+    public function canCreateDomains()
+    {
         if ($this->account['permissions']['domain_create'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canEditDomains() {
+    public function canEditDomains()
+    {
         if ($this->account['permissions']['domain_edit'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDeleteDomains() {
+    public function canDeleteDomains()
+    {
         if ($this->account['permissions']['domain_delete'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canCreateRecord() {
+    public function canCreateRecord()
+    {
         if ($this->account['permissions']['record_create'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDeleteRecord() {
+    public function canDeleteRecord()
+    {
         if ($this->account['permissions']['record_delete'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canEditRecord() {
+    public function canEditRecord()
+    {
         if ($this->account['permissions']['record_edit'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDelegateRecord() {
+    public function canDelegateRecord()
+    {
         if ($this->account['permissions']['record_delegate'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canCreateDefaultRecords() {
+    public function canCreateDefaultRecords()
+    {
         if ($this->account['permissions']['default_record_create'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canEditDefaultRecords() {
+    public function canEditDefaultRecords()
+    {
         if ($this->account['permissions']['default_record_edit'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDeleteDefaultRecords() {
+    public function canDeleteDefaultRecords()
+    {
         if ($this->account['permissions']['default_record_delete'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canEditUser($id) {
+    public function canEditUser($id)
+    {
         if ($this->account['permissions']['account_edit'] == 1) {
             if ($this->isMyAccount($id)) {
-                return TRUE;
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canEditSelf() {
+    public function canEditSelf()
+    {
         if ($this->account['permissions']['self_edit'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function userID_to_GroupID($user_id) {
+    public function userID_to_GroupID($user_id)
+    {
         $q = "select group_id from accounts where user_id=".$this->db->Quote($user_id);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
         if ($result->RecordCount() == 0) {
-            return NULL;
+            return null;
         }
 
         $row = $result->FetchRow();
         return $row['group_id'];
     }
 
-    function canEditSubGroups() {
+    public function canEditSubGroups()
+    {
         if ($this->account['permissions']['group_edit'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDeleteGroup($g) {
+    public function canDeleteGroup($g)
+    {
         if ($this->account['permissions']['group_delete'] == 1) {
-            if ($g == NULL) {
-                return TRUE;
+            if ($g == null) {
+                return true;
             } else if ($this->isMyGroup($g)) {
-                return TRUE;
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canEditGroup($g) {
+    public function canEditGroup($g)
+    {
         if ($this->account['permissions']['group_edit'] == 1) {
-            if ($g == NULL) {
-                return TRUE;
+            if ($g == null) {
+                return true;
             } else if ($this->isMyGroup($g)) {
-                return TRUE;
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
         } else {
-            return FALSE;
+            return false;
         }
     }
 
 
-    function canCreateUsers($id,$g) {
+    public function canCreateUsers($id,$g)
+    {
 
         // Senior Admins can do anything
-        if ($this->account['account_type'] == 'senior_admin') return TRUE;
+        if ($this->account['account_type'] == 'senior_admin') return true;
 
         // See if it's the logged in user
-        if ($id == NULL) {
+        if ($id == null) {
             if ($this->account['permissions']['account_create'] == 1) {
-                return TRUE;
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
         }
 
@@ -436,26 +565,27 @@ class Framework_User_VegaDNS extends Framework_User {
         if ($perms == "INHERIT") {
             // GET GROUP PERMS
             $perms = $this->returnGroupPermissions($g);
-        } else if ($perms == NULL) {
-            return FALSE;
+        } else if ($perms == null) {
+            return false;
         } else if ($perms['group_create'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDeleteUsers($id,$g) {
+    public function canDeleteUsers($id,$g)
+    {
 
         // Senior Admins can do anything
-        if ($this->account['account_type'] == 'senior_admin') return TRUE;
+        if ($this->account['account_type'] == 'senior_admin') return true;
 
         // See if it's the logged in user
-        if ($id == NULL) {
+        if ($id == null) {
             if ($this->account['permissions']['account_delete'] == 1) {
-                return TRUE;
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
         }
 
@@ -465,50 +595,54 @@ class Framework_User_VegaDNS extends Framework_User {
         if ($perms == "INHERIT") {
             // GET GROUP PERMS
             $perms = $this->returnGroupPermissions($g);
-        } else if ($perms == NULL) {
-            return FALSE;
+        } else if ($perms == null) {
+            return false;
         } else if ($perms['group_create'] == 1) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
-    function canDeleteUser($id) {
+    public function canDeleteUser($id)
+    {
 
-        if ($this->canDeleteUsers(NULL,NULL) == FALSE) {
-            return FALSE;
+        if ($this->canDeleteUsers(null,null) == false) {
+            return false;
         } else {
             $q = "select group_id from accounts where user_id='$id'";
             $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-            if ($result->RecordCount() == 0) return NULL;
+            if ($result->RecordCount() == 0) return null;
             $row = $result->FetchRow();
-            if ($this->isMyGroup($row['group_id']) != NULL) {
-                return TRUE;
+            if ($this->isMyGroup($row['group_id']) != null) {
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
         }
     }
 
-    function returnGroupID($name) {
+    public function returnGroupID($name)
+    {
         $q = "select group_id from groups where name=".$this->db->Quote($name);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if ($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return null;
         $row = $result->FetchRow();
         return $row['group_id'];
     }
 
-    function returnUserID($email) {
+    public function returnUserID($email)
+    {
         $q = "select user_id from accounts where email=".$this->db->Quote($email);
         $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if ($result->RecordCount() == 0) return NULL;
+        if ($result->RecordCount() == 0) return null;
         $row = $result->FetchRow();
         return $row['user_id'];
     }
 
 
-    function returnCreateGroupPermQuery($name) {
+    public function returnCreateGroupPermQuery($name)
+    {
         // Get permissions key list from senior_perms array
         // Then compare user perms against $_REQUEST elements 
 
@@ -526,7 +660,7 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         // Now that the perm_array is built, let's build the query string
-        if (($id = $this->returnGroupID($name)) == NULL) return NULL;
+        if (($id = $this->returnGroupID($name)) == null) return null;
 
 
         // Build colmns, values
@@ -543,7 +677,8 @@ class Framework_User_VegaDNS extends Framework_User {
         return $q;
     }
 
-    function returnEditGroupPermQuery($id) {
+    public function returnEditGroupPermQuery($id)
+    {
 
         // Get permissions key list from senior_perms array
         // Then compare user perms against $_REQUEST elements 
@@ -574,9 +709,10 @@ class Framework_User_VegaDNS extends Framework_User {
         return $q;
     }
 
-    function returnEditAccountPermQuery($id,$inherit) {
+    public function returnEditAccountPermQuery($id,$inherit)
+    {
         // If we are inheriting, just set that
-        if ($inherit != NULL) {
+        if ($inherit != null) {
             $q = "update user_permissions set inherit_group_perms = 1  where user_id='$id'";
             return $q;
         }
@@ -607,7 +743,8 @@ class Framework_User_VegaDNS extends Framework_User {
         return $q;
     }
 
-    function returnCreateUserPermQuery($email) {
+    public function returnCreateUserPermQuery($email)
+    {
         // Get permissions key list from senior_perms array
         // Then compare user perms against $_REQUEST elements 
 
@@ -625,7 +762,7 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         // Now that the perm_array is built, let's build the query string
-        if (($id = $this->returnUserID($email)) == NULL) return NULL;
+        if (($id = $this->returnUserID($email)) == null) return null;
 
 
         // Build colmns, values
@@ -655,7 +792,7 @@ class Framework_User_VegaDNS extends Framework_User {
         }
 
         $result = $this->getAccountInfo($userID);
-        if ($result == NULL) {
+        if ($result == null) {
             throw new Framework_Exception("Could not look up " . (string)Framework::$site->config->user->userField);
         }
         $this->data = $result;
@@ -716,9 +853,9 @@ class Framework_User_VegaDNS extends Framework_User {
         if ($this->data['account_type'] == 'senior_admin') {
             return $this->seniorPerms;
         }
-        if ($account['user_perms'] == NULL || 
+        if ($account['user_perms'] == null || 
             $this->getBit($this->data['user_perms'], 'inherit_group_permissions')) {
-            if($account['group_perms'] == NULL) {
+            if($account['group_perms'] == null) {
                 return $this->defaultPerms;
             }
             return $account['group_perms'];
@@ -747,6 +884,5 @@ class Framework_User_VegaDNS extends Framework_User {
         }
     
     }
-
 };
 ?>

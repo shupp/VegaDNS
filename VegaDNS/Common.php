@@ -21,7 +21,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         $this->vdns = new VegaDNS;
         $this->setData('module', $this->name);
         $this->setGroupID();
-        $this->setData('email', $this->user->myEmail());
+        $this->setData('email', $this->user->email);
     }
 
     public function getRequestSortWay()
@@ -36,7 +36,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         return $sortway;
     }
         
-    function getSortField($mode)
+    public function getSortField($mode)
     {
         if ($mode == 'records') {
             $default_field = 'type';
