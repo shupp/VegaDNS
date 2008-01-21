@@ -74,7 +74,7 @@ class Framework_Module_Domains_Add extends VegaDNS_Auth_ACL
     
         // email the support address if an inactive domain is added
         $body  = "$domain_status domain \"$domain\" added by "
-                . {$this->session->email} . "\n\n";
+                . $this->session->email . "\n\n";
         $body .= "\n\nThanks,\n\n";
         $body .= "VegaDNS";
     
