@@ -300,7 +300,7 @@ class Framework_User_VegaDNS extends Framework_User
      * Defaults to null
      * 
      * @access public
-     * @return void
+     * @return mixed null on failure, returnGroup() result on success
      */
     public function isMyGroup($g, $array = null)
     {
@@ -311,6 +311,16 @@ class Framework_User_VegaDNS extends Framework_User
         }
     }
 
+    /**
+     * isMyAccount 
+     * 
+     * Check if $id is owned by the logged in user
+     * 
+     * @param mixed $id 
+     * 
+     * @access public
+     * @return bool true on success, false on failure
+     */
     public function isMyAccount($id)
     {
 
@@ -340,6 +350,16 @@ class Framework_User_VegaDNS extends Framework_User
         
     }
 
+    /**
+     * returnGroupParentID 
+     * 
+     * Get parent ID of group
+     * 
+     * @param int $id 
+     * 
+     * @access public
+     * @return mixed null on failure, int parent group id on success
+     */
     public function returnGroupParentID($id)
     {
         $q = "select parent_group_id from groups where group_id=".$this->db->Quote($id);
@@ -376,127 +396,6 @@ class Framework_User_VegaDNS extends Framework_User
         return $perms;
     }
 
-    public function canCreateSubGroups()
-    {
-        if ($this->account['permissions']['group_create'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canCreateDomains()
-    {
-        if ($this->account['permissions']['domain_create'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canEditDomains()
-    {
-        if ($this->account['permissions']['domain_edit'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDeleteDomains()
-    {
-        if ($this->account['permissions']['domain_delete'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canCreateRecord()
-    {
-        if ($this->account['permissions']['record_create'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDeleteRecord()
-    {
-        if ($this->account['permissions']['record_delete'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canEditRecord()
-    {
-        if ($this->account['permissions']['record_edit'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDelegateRecord()
-    {
-        if ($this->account['permissions']['record_delegate'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canCreateDefaultRecords()
-    {
-        if ($this->account['permissions']['default_record_create'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canEditDefaultRecords()
-    {
-        if ($this->account['permissions']['default_record_edit'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDeleteDefaultRecords()
-    {
-        if ($this->account['permissions']['default_record_delete'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canEditUser($id)
-    {
-        if ($this->account['permissions']['account_edit'] == 1) {
-            if ($this->isMyAccount($id)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public function canEditSelf()
-    {
-        if ($this->account['permissions']['self_edit'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public function userID_to_GroupID($user_id)
     {
         $q = "select group_id from accounts where user_id=".$this->db->Quote($user_id);
@@ -507,124 +406,6 @@ class Framework_User_VegaDNS extends Framework_User
 
         $row = $result->FetchRow();
         return $row['group_id'];
-    }
-
-    public function canEditSubGroups()
-    {
-        if ($this->account['permissions']['group_edit'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDeleteGroup($g)
-    {
-        if ($this->account['permissions']['group_delete'] == 1) {
-            if ($g == null) {
-                return true;
-            } else if ($this->isMyGroup($g)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public function canEditGroup($g)
-    {
-        if ($this->account['permissions']['group_edit'] == 1) {
-            if ($g == null) {
-                return true;
-            } else if ($this->isMyGroup($g)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-
-    public function canCreateUsers($id,$g)
-    {
-
-        // Senior Admins can do anything
-        if ($this->account['account_type'] == 'senior_admin') return true;
-
-        // See if it's the logged in user
-        if ($id == null) {
-            if ($this->account['permissions']['account_create'] == 1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        // Else look up the permissions
-
-        $perms = $this->returnUserPermissions($id);
-        if ($perms == "INHERIT") {
-            // GET GROUP PERMS
-            $perms = $this->returnGroupPermissions($g);
-        } else if ($perms == null) {
-            return false;
-        } else if ($perms['group_create'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDeleteUsers($id,$g)
-    {
-
-        // Senior Admins can do anything
-        if ($this->account['account_type'] == 'senior_admin') return true;
-
-        // See if it's the logged in user
-        if ($id == null) {
-            if ($this->account['permissions']['account_delete'] == 1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        // Else look up the permissions
-
-        $perms = $this->returnUserPermissions($id);
-        if ($perms == "INHERIT") {
-            // GET GROUP PERMS
-            $perms = $this->returnGroupPermissions($g);
-        } else if ($perms == null) {
-            return false;
-        } else if ($perms['group_create'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function canDeleteUser($id)
-    {
-
-        if ($this->canDeleteUsers(null,null) == false) {
-            return false;
-        } else {
-            $q = "select group_id from accounts where user_id='$id'";
-            $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-            if ($result->RecordCount() == 0) return null;
-            $row = $result->FetchRow();
-            if ($this->isMyGroup($row['group_id']) != null) {
-                return true;
-            } else {
-                return false;
-            }
-        }
     }
 
     public function returnGroupID($name)
