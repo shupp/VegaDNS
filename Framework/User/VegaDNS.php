@@ -146,17 +146,6 @@ class Framework_User_VegaDNS extends Framework_User
     }
 
     /**
-     * myGroupID 
-     * 
-     * @access public
-     * @return int logged in user's group id
-     */
-    public function myGroupID()
-    {
-        return $this->data['group_id'];
-    }
-
-    /**
      * getAccountInfo 
      * 
      * Get current account settings

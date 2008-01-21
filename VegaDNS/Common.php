@@ -78,16 +78,16 @@ abstract class VegaDNS_Common extends Framework_Auth_User
             if ($this->user->isSeniorAdmin()) {
                 if ($this->user->returnGroup($_REQUEST['group_id'], NULL) == NULL) {
                     $this->setData('message', "Error: requested group_id does not exist");
-                    $id = $this->user->myGroupID();
+                    $id = $this->user->group_id;
                 } else {
                     if ($this->user->isMyGroup($id) == NULL) {
                         $this->setData('message', "Error: you do not have permission to access resources for the requested group_id");
-                        $id = $this->user->myGroupID();
+                        $id = $this->user->group_id;
                     }
                 }
             }
         } else {
-            $id = $this->user->myGroupID();
+            $id = $this->user->group_id;
         }
         $this->session->__set('group_id', $id);
     
