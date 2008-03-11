@@ -90,9 +90,10 @@ class VegaDNS extends Framework_Object_Web
      */
     public function domainExists($domain)
     {
-        $q = "SELECT * FROM domains WHERE domain=" . $this->db->Quote($domain) . " LIMIT 1";
+        $q = "SELECT * FROM `domains` WHERE domain=? LIMIT 1";
         try {
-            $result = $this->db->Execute($q);
+            $stmt   = $this->db->Prepare($q);
+            $result = $this->db->Execute($q, array($domain));
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
@@ -114,9 +115,10 @@ class VegaDNS extends Framework_Object_Web
      */
     public function getDomainInfo($id)
     {
-        $q = "SELECT * FROM domains WHERE domain_id=" . $this->db->Quote($id) . " LIMIT 1";
+        $q = "SELECT * FROM `domains` WHERE domain_id=? LIMIT 1";
         try {
-            $result = $this->db->Execute($q);
+            $stmt   = $this->db->Prepare($q);
+            $result = $this->db->Execute($q, array($id));
         } catch (Exception $e) {
             throw new Framework_Exception($e->getMessage());
         }
