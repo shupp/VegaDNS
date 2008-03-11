@@ -75,12 +75,13 @@ class Framework_Module_Login extends Framework_Auth_No
         if ($form->validate()) {
             $result = $this->user->authenticate($_POST['email'], $_POST['password']);
             if ($result !== true) {
+                $this->tplFile = 'Login.tpl';
                 $this->setData('loginError', _("Login failed"));
                 $this->setData('QF_Form', $form->toHtml());
-                $this->session->__set('userID', null);
+                $this->session->userID = null;
                 return;
             }
-            $this->session->__set('lastActionTime', time());
+            $this->session->lastActionTime = time();
             header('Location: ./index.php?module=Domains');
             return;
         } else {
