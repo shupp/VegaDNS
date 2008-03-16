@@ -64,78 +64,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
     }
 
     /**
-     * getRequestSortWay 
-     * 
-     * Determine requested sort way
-     * 
-     * @access public
-     * @return void
-     */
-    public function getRequestSortWay()
-    {
-        if (!isset($_REQUEST['sortway'])) {
-            $sortway = "asc";
-        } else if ( $_REQUEST['sortway'] == 'desc') {
-            $sortway = 'desc';
-        } else {
-            $sortway = 'asc';
-        }
-        return $sortway;
-    }
-        
-    /**
-     * getSortField 
-     * 
-     * Determine sort field
-     * 
-     * @param mixed $mode records or domains
-     * 
-     * @access public
-     * @return void
-     */
-    public function getSortField($mode)
-    {
-        if ($mode == 'records') {
-            $default_field = 'type';
-        } else if ($mode == 'domains') {
-            $default_field = 'status';
-        }
-
-        if (!isset($_REQUEST['sortfield'])) {
-            $sortfield = $default_field;
-        } else {
-            $sortfield = $_REQUEST['sortfield'];
-        }
-
-        return $sortfield;
-    }
-
-    /**
-     * getSortWay 
-     * 
-     * Get sort way
-     * 
-     * @param mixed $sortfield sort field
-     * @param mixed $val       value
-     * @param mixed $sortway   sort way
-     * 
-     * @access public
-     * @return void
-     */
-    public function getSortWay($sortfield, $val, $sortway)
-    {
-        if ($sortfield == $val) {
-            if ($sortway == 'asc') {
-                return 'desc';
-            } else {
-                return 'asc';
-            }
-        } else {
-            return 'asc';
-        }
-    }
-
-    /**
      * setGroupID 
      * 
      * @param mixed $id id default null
@@ -299,7 +227,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
     protected function setSortLinks($array, $module)
     {
         while (list($key,$val) = each($array)) {
-            $newsortway = $this->getSortway($this->sortfield, $val, $this->sortway);
+            $newsortway = VegaDNS_Sort::getSortway($this->sortfield, $val, $this->sortway);
             if ($module == 'Records') {
                 $prefix = "./?module=Records&amp;domain_id={$this->domInfo['domain_id']}";
             } else {

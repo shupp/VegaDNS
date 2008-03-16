@@ -81,8 +81,8 @@ class Framework_Module_Domains extends VegaDNS_Auth_ACL
         $countRow = $countResult->FetchRow();
         VegaDNS_Pager::paginate($this, $countRow['COUNT(*)']);
 
-        $this->setData('sortway', $this->getRequestSortWay());
-        $this->setData('sortfield', $this->getSortfield('domains'));
+        $this->setData('sortway', VegaDNS_Sort::getRequestSortWay());
+        $this->setData('sortfield', VegaDNS_Sort::getSortfield('domains'));
         $result = $this->vdns->getDomains(
                         $this->start,
                         $this->limit,
