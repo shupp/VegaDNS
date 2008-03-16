@@ -77,8 +77,8 @@ class Framework_Module_Records extends Vegadns_Common
         $can_delete = $this->user->getBit($this->user->getPerms(), 'record_delete');
 
         // sort
-        $this->setData('sortway', $this->getRequestSortway());
-        $this->setData('sortfield',  $this->getSortfield('records'));
+        $this->setData('sortway', VegaDNS_Sort::getRequestSortway());
+        $this->setData('sortfield',  VegaDNS_Sort::getSortfield('records'));
     
         $countResult = $this->vdns->countRecords($this->domInfo['domain_id']);
         $countRow = $countResult->FetchRow();
