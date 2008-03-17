@@ -92,14 +92,15 @@ class VegaDNS_Permissions extends Framework_Object_DB
      * Get current permissions and check
      * to see if $bit is granted
      * 
-     * @param mixed $bit bit flag of requested permission
+     * @param mixed $bit     bit flag of requested permission
+     * @param mixed $account account data
      * 
      * @access public
      * @return bool result of getBit()
      */
-    public function hasAccess($bit)
+    public function hasAccess($bit, $account)
     {
-        return $this->getBit($this->getPerms(), (string)$bit);
+        return $this->getBit($this->getPerms($account), (string)$bit);
     }
 
     /**
