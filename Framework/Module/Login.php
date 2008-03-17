@@ -56,6 +56,7 @@ class Framework_Module_Login extends Framework_Auth_No
      */
     public function __default()
     {
+        $test = VegaDNS_Permissions::singleton();
         $form = $this->_createLoginForm();
         $this->setData('QF_Form', $form->toHtml());
         $this->tplFile = 'Login.tpl';

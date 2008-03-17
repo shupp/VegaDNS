@@ -37,61 +37,6 @@ class Framework_User_VegaDNS extends Framework_User
      * @access public
      */
     public $groups = null;
-    /**
-     * permFlagValues 
-     * 
-     * Permission bit flag values
-     * 
-     * @var array
-     * @access public
-     */
-    public $permFlagValues = array(
-            'inherit_group_perms'   => 0x01,
-            'account_edit'          => 0x02,
-            'account_create'        => 0x04,
-            'account_delete'        => 0x08,
-            'group_edit'            => 0x010,
-            'group_create'          => 0x020,
-            'group_delete'          => 0x040,
-            'domain_edit'           => 0x080,
-            'domain_create'         => 0x0100,
-            'domain_delegate'       => 0x0200,
-            'domain_delete'         => 0x0400,
-            'record_edit'           => 0x0800,
-            'record_create'         => 0x01000,
-            'record_delete'         => 0x02000,
-            'record_delegate'       => 0x04000,
-            'default_record_edit'   => 0x08000,
-            'default_record_create' => 0x010000,
-            'default_record_delete' => 0x020000,
-            'rrtype_allow_n'        => 0x040000,
-            'rrtype_allow_a'        => 0x080000,
-            'rrtype_allow_3'        => 0x0100000,
-            'rrtype_allow_6'        => 0x0200000,
-            'rrtype_allow_m'        => 0x0400000,
-            'rrtype_allow_p'        => 0x0800000,
-            'rrtype_allow_t'        => 0x01000000,
-            'rrtype_allow_v'        => 0x02000000,
-            'rrtype_allow_all'      => 0x04000000
-            );
-
-    /**
-     * seniorPerms 
-     * 
-     * All permissions but inherit
-     * 
-     * @var float
-     * @access private
-     */
-    private $seniorPerms = 134217726;
-    /**
-     * defaultPerms 
-     * All but account/group create/delete/edit
-     * 
-     * @var float
-     * @access private
-     */
-    private $defaultPerms = 134217615;
 
     /**
      * authenticate 
@@ -124,25 +69,6 @@ class Framework_User_VegaDNS extends Framework_User
 
         $session->{$field} = $value;
         return true;
-    }
-
-    /**
-     * isSeniorAdmin 
-     * 
-     * @param mixed $data user data
-     * 
-     * @access public
-     * @return bool true on success, false on failure
-     */
-    public function isSeniorAdmin($data = null)
-    {
-        if (is_null($data)) {
-            $data = $this->data;
-        }
-        if ($data['account_type'] == 'senior_admin') {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -203,22 +129,6 @@ class Framework_User_VegaDNS extends Framework_User
             }
             return $row;
         }
-    }
-
-    /**
-     * hasAccess 
-     * 
-     * Get current permissions and check
-     * to see if $bit is granted
-     * 
-     * @param mixed $bit bit flag of requested permission
-     * 
-     * @access public
-     * @return bool result of getBit()
-     */
-    public function hasAccess($bit)
-    {
-        return $this->getBit($this->getPerms(), (string)$bit);
     }
 
     /**
@@ -367,33 +277,6 @@ class Framework_User_VegaDNS extends Framework_User
         if ($result->RecordCount() == 0) return null;
         $row = $result->FetchRow();
         return $row['parend_group_id'];
-    }
-
-    public function returnGroupPermissions($id)
-    {
-        $q = "select * from group_permissions where group_id=".$this->db->Quote($id);
-        $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-        if ($result->RecordCount() == 0) return null;
-        $perms = $result->FetchRow();
-        if ($perms['inherit_group_perms'] == 1) {
-            // Find the parent permissions
-            $inherit = true;
-            while ($inherit != false) {
-                // Get parent ID
-                $parent = $this->returnParentGroupID($id);
-                $q = "select * from group_permissions where group_id=".$this->db->Quote($parent);
-                $result = $this->db->Execute($q) or die($this->db->ErrorMsg());
-                if ($result->RecordCount() == 0) return null;
-                $perms = $result->FetchRow();
-                if ($perms['inherit_group_perms'] == 1) {
-                    $id = $parent;
-                    continue;
-                } else {
-                    $inherit = false;
-                }
-            }
-        }
-        return $perms;
     }
 
     public function userID_to_GroupID($user_id)
@@ -582,71 +465,9 @@ class Framework_User_VegaDNS extends Framework_User
             throw new Framework_Exception("Could not look up " . (string)Framework::$site->config->user->userField);
         }
         $this->data = $result;
-        $this->data['permissions'] = $this->getPerms();
+        $perms = VegaDNS_Permissions::singleton();
+        // $this->data['permissions'] = $perms->getPerms();
         $this->groups = $this->getAllSubGroups($this->data['group_id']);
-    }
-
-    /**
-     * getBit 
-     * 
-     * Get bit value
-     * 
-     * @param mixed $bitmap 
-     * @param mixed $bit 
-     * @access public
-     * @return bool $bit
-     */
-    public function getBit($bitmap, $bit)
-    {
-        if (!isset($this->permFlagValues[$bit])) {
-            throw new Framework_Exception("Error - unknown bit value specified: $bit");
-        }
-        $bitValue = $this->permFlagValues[$bit];
-        return ($bitmap&$bitValue) ? true : false;
-    }
-
-    /**
-     * setBit 
-     * 
-     * Set bit flag.
-     * 
-     * @param mixed $bitmap 
-     * @param mixed $bit 
-     * @param bool $value 
-     * @access public
-     * @return void
-     * @throws Framework_Exception if $bit is unknown
-     * @see getBit()
-     */
-    public function setBit(&$bitmap, $bit, $value)
-    {
-        if (!isset($this->permFlagValues[$bit])) {
-            throw new Framework_Exception("Unknown GID Bit value specified. $bit");
-        }
-        if (!is_bool($value)) {
-            throw new Framework_Exception('Non-boolean value specified: ' . var_dump($value));
-        }
-        $bitValue = $this->permFlagValues[$bit];
-        $value = ($value == true) ? $bitValue : 0;
-        $bitmap = (int)$value|(~(int)$bitValue&(int)$bitmap);
-    }
-
-    public function getPerms($account = null)
-    {
-        if (is_null($account)) {
-            $account = $this->data;
-        }
-        if ($this->data['account_type'] == 'senior_admin') {
-            return $this->seniorPerms;
-        }
-        if ($account['user_perms'] == null || 
-            $this->getBit($this->data['user_perms'], 'inherit_group_permissions')) {
-            if($account['group_perms'] == null) {
-                return $this->defaultPerms;
-            }
-            return $account['group_perms'];
-        }
-        return $account['user_perms'];
     }
 
     public function dnsLog($domain_id, $entry)

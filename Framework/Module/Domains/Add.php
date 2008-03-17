@@ -68,7 +68,8 @@ class Framework_Module_Domains_Add extends VegaDNS_Auth_ACL
             return $this->__default();
         }
 
-        $domain_status = $this->user->isSeniorAdmin() ? 'active' : 'inactive';
+        $perms         = VegaDNS_Permissions::singleton();
+        $domain_status = $perms->isSeniorAdmin() ? 'active' : 'inactive';
         $domain_id     = $this->vdns->addDomainRecord($domain, $domain_status);
         $this->vdns->addDefaultRecords($domain, $domain_id);
     

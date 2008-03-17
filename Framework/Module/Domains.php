@@ -51,11 +51,11 @@ class Framework_Module_Domains extends VegaDNS_Auth_ACL
     public function listDomains()
     {
         // Setup some urls based on permissions
-        if ($this->user->getBit($this->user->getPerms(), 'domain_create')) {
+        if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_create')) {
             $this->setData('new_domain_url', './?module=Domains&amp;class=add');
         }
 
-        if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
+        if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_edit')) {
             $this->setData('edit_domain_url_base', "./?module=Domains&amp;event=edit");
         }
 
@@ -105,18 +105,18 @@ class Framework_Module_Domains extends VegaDNS_Auth_ACL
             $out_array[$domain_count]['edit_url'] = "./?&amp;module=Records&amp;domain_id=".$row['domain_id'];
             $out_array[$domain_count]['status'] = $row['status'];
             $out_array[$domain_count]['group_name'] = $row['name'];
-            if ($this->user->getBit($this->user->getPerms(), 'domain_delete')) {
+            if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_delete')) {
                 $out_array[$domain_count]['delete_url'] = "./?&amp;module=Domains&amp;class=delete&amp;domain_id={$row['domain_id']}";
             }
-            if ($this->user->getBit($this->user->getPerms(), 'domain_delegate')) {
+            if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_delegate')) {
                 $out_array[$domain_count]['change_owner_url'] = "./?&amp;module=Domains&amp;event=delegate&amp;domain_id=".$row['domain_id']."&amp;domain=".$row['domain'];
             }
             if ($row['status'] == 'active') {
-                if ($this->user->getBit($this->user->getPerms(), 'domain_edit')) {
+                if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_edit')) {
                     $out_array[$domain_count]['deactivate_url'] = "./?&amp;module=Domains&amp;event=deactivate&amp;domain_id=".$row['domain_id']."&amp;domain=".$row['domain'];
                 }
             } else if ($row['status'] == 'inactive') {
-                if ($this->user->isSeniorAdmin()) {
+                if ($this->permissions->isSeniorAdmin($this->user->data)) {
                     $out_array[$domain_count]['activate_url'] = "./?&amp;module=Domains&amp;event=activate&amp;domain_id=".$row['domain_id']."&amp;domain=".$row['domain'];
                 }
             }

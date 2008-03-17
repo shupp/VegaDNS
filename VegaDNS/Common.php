@@ -57,7 +57,8 @@ abstract class VegaDNS_Common extends Framework_Auth_User
     public function __construct()
     {
         parent::__construct();
-        $this->vdns = new VegaDNS;
+        $this->vdns        = new VegaDNS;
+        $this->permissions = VegaDNS_Permissions::singleton();
         $this->setData('module', $this->name);
         $this->setGroupID();
         $this->setData('email', $this->user->email);
@@ -80,7 +81,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
 
         // Do we have rights?
         if (!is_null($id)) {
-            if ($this->user->isSeniorAdmin()) {
+            if ($this->permissions->isSeniorAdmin($this->user->data)) {
                 if ($this->user->returnGroup($_REQUEST['group_id'], null) == null) {
                     $this->setData('message',
                         "Error: requested group_id does not exist");

@@ -72,9 +72,9 @@ class Framework_Module_Records extends Vegadns_Common
     public function listRecords()
     {
         // Let's store some permission lookups
-        $can_create = $this->user->getBit($this->user->getPerms(), 'record_create');
-        $can_edit   = $this->user->getBit($this->user->getPerms(), 'record_edit');
-        $can_delete = $this->user->getBit($this->user->getPerms(), 'record_delete');
+        $can_create = $this->permissions->getBit($this->permissions->getPerms($this->user->data), 'record_create');
+        $can_edit   = $this->permissions->getBit($this->permissions->getPerms($this->user->data), 'record_edit');
+        $can_delete = $this->permissions->getBit($this->permissions->getPerms($this->user->data), 'record_delete');
 
         // sort
         $this->setData('sortway', VegaDNS_Sort::getRequestSortway());
