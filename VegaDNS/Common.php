@@ -116,7 +116,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
             $groupstring = "&amp;group_id={$g->id}";
         }
         if ($top != null) {
-            $out .= "<ul>\n";
+            $out .= "<ul id=\"menu\">\n";
             $out .= "<li><img src='images/home.png' border='0' alt='{$g->name}' /> <a href=\"./?module=Groups&amp;group_id={$g->id}\">" . $this->_curMenuOpt($g->id, 'Groups', $g->name) . "</a></li>\n";
         } else {
             $out .= "<ul>\n";

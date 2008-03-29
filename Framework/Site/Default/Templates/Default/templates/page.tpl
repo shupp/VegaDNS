@@ -4,20 +4,21 @@
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <title>VegaDNS Administration</title>
         <link rel="STYLESHEET" type="text/css" href="vegadns-style.css" />
-        <link rel="STYLESHEET" type="text/css" href="tree.css" />
+        <link rel="STYLESHEET" type="text/css" href="jquery.treeview.css" />
         <link rel="stylesheet" href="thickbox.css" type="text/css" media="screen" />
         <!--[if gte IE 5.5000]>
         <script type="text/javascript" src="templates/pngfix.js"></script>
         <![endif]-->
         {literal}
-        <script src="jquery.pack.js" type="text/javascript"></script>
-        <script src="jquery.treeview.pack.js" type="text/javascript"></script>
-        <script src="thickbox-compressed.js" type="text/javascript"></script>
+        <script src="js/jquery.pack.js" type="text/javascript"></script>
+        <script src="js/jquery.cookie.js" type="text/javascript"></script>
+        <script src="js/jquery.treeview.pack.js" type="text/javascript"></script>
         <script type="text/javascript">
         $(document).ready(function(){
-            $("ul").Treeview({
-                speed: "normal",
-                persist: true,
+            $("ul").treeview({
+                animated: "fast",
+                container: "#menu",
+                persist: "cookie",
                 unique: true,
                 collapsed: true
             });
