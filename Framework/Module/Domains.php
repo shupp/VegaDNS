@@ -50,6 +50,8 @@ class Framework_Module_Domains extends VegaDNS_Auth_ACL
      */
     public function listDomains()
     {
+        $group = VegaDNS_Group::factory($this->user->groups->id);
+        // var_dump($this->user);exit;
         // Setup some urls based on permissions
         if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_create')) {
             $this->setData('new_domain_url', './?module=Domains&amp;class=add');
@@ -75,7 +77,7 @@ class Framework_Module_Domains extends VegaDNS_Auth_ACL
             $this->setData('scope', $_REQUEST['scope']);
         }
 
-        $groups = $this->user->returnGroup($this->group_id, NULL);
+        $groups = $this->user->groups->fetchGroup($this->group_id, NULL);
         // Count domains
         $countResult = $this->vdns->countDomains($groups);
         $countRow = $countResult->FetchRow();

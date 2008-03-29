@@ -466,8 +466,7 @@ class Framework_User_VegaDNS extends Framework_User
         }
         $this->data = $result;
         $perms = VegaDNS_Permissions::singleton();
-        // $this->data['permissions'] = $perms->getPerms();
-        $this->groups = $this->getAllSubGroups($this->data['group_id']);
+        $this->groups = VegaDNS_Group::factory($this->data['group_id']);
     }
 
     public function dnsLog($domain_id, $entry)

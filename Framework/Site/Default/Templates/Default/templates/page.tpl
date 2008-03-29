@@ -16,8 +16,8 @@
         <script type="text/javascript">
         $(document).ready(function(){
             $("ul").Treeview({
-                speed: "fast",
-                store: true,
+                speed: "normal",
+                persist: true,
                 unique: true,
                 collapsed: true
             });

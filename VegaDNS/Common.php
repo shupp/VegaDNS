@@ -74,35 +74,28 @@ abstract class VegaDNS_Common extends Framework_Auth_User
      */
     public function setGroupID($id = null)
     {
+
         // Which ID are we talking about?
-        if (is_null($id)) {
+        if ($id === null) {
             $id = (isset($_REQUEST['group_id'])) ? $_REQUEST['group_id'] : null;
         }
 
         // Do we have rights?
-        if (!is_null($id)) {
-            if ($this->permissions->isSeniorAdmin($this->user->data)) {
-                if ($this->user->returnGroup($_REQUEST['group_id'], null) == null) {
-                    $this->setData('message',
-                        "Error: requested group_id does not exist");
-                    $id = $this->user->group_id;
-                } else {
-                    if ($this->user->isMyGroup($id) == null) {
-                        $message = "Error: you do not have permission to access resources for the requested group_id";
-                        $this->setData('message', $message);
-                        $id = $this->user->group_id;
-                    }
-                }
+        if ($id !== null) {
+            $group = $this->user->groups->fetchGroup($id);
+            if ($group == null) {
+                $this->setData('message',
+                    "Error: requested group_id does not exist or is not yours");
+                $group = $this->user->groups;
             }
         } else {
-            $id = $this->user->group_id;
+            $group = $this->user->groups;
         }
-        $this->session->__set('group_id', $id);
+        $this->session->group_id = $group->id;
     
         // Set it in session
-        $group_name_array = $this->user->returnGroup($id, null);
-        $this->setData('group_name', $group_name_array['name']);
-        $this->setData('group_id', $id);
+        $this->setData('group_name', $group->name);
+        $this->setData('group_id', $group->id);
         $this->setData('menurows', $this->getMenuTree($this->user->groups, 1));
     }
 
@@ -119,26 +112,26 @@ abstract class VegaDNS_Common extends Framework_Auth_User
     {
         $groupstring = '';
         $out         = '';
-        if (!is_null($g)) {
-            $groupstring = "&amp;group_id={$g['group_id']}";
+        if ($g != null) {
+            $groupstring = "&amp;group_id={$g->id}";
         }
-        if (!is_null($top)) {
+        if ($top != null) {
             $out .= "<ul>\n";
-            $out .= "<li><img src='images/home.png' border='0' alt='{$g['name']}' /> <a href=\"./?module=Groups&amp;group_id={$g['group_id']}\">" . $this->_curMenuOpt($g['group_id'], 'Groups', $g['name']) . "</a></li>\n";
+            $out .= "<li><img src='images/home.png' border='0' alt='{$g->name}' /> <a href=\"./?module=Groups&amp;group_id={$g->id}\">" . $this->_curMenuOpt($g->id, 'Groups', $g->name) . "</a></li>\n";
         } else {
             $out .= "<ul>\n";
         }
 
-        $out .= "<li><img src='images/newfolder.png' border='0' alt='Domains' /> <a href=\"./?module=Domains$groupstring\">" . $this->_curMenuOpt($g['group_id'], 'Domains') . "</a></li>\n";
-        $out .= "<li><img src='images/user_folder.png' border='0' alt='Users' /> <a href=\"./?module=Users$groupstring\">" . $this->_curMenuOpt($g['group_id'], 'Users') . "</a></li>\n";
-        $out .= "<li><img src='images/newfolder.png' border='0' alt='Log' /> <a href=\"./?module=Log$groupstring\">" . $this->_curMenuOpt($g['group_id'], 'Log') . "</a></li>\n";
-        if (isset($g['subgroups'])) {
-            while (list($key, $val) = each($g['subgroups'])) {
+        $out .= "<li><img src='images/newfolder.png' border='0' alt='Domains' /> <a href=\"./?module=Domains$groupstring\">" . $this->_curMenuOpt($g->id, 'Domains') . "</a></li>\n";
+        $out .= "<li><img src='images/user_folder.png' border='0' alt='Users' /> <a href=\"./?module=Users$groupstring\">" . $this->_curMenuOpt($g->id, 'Users') . "</a></li>\n";
+        $out .= "<li><img src='images/newfolder.png' border='0' alt='Log' /> <a href=\"./?module=Log$groupstring\">" . $this->_curMenuOpt($g->id, 'Log') . "</a></li>\n";
+        if (count($g->subGroups)) {
+            foreach ($g->subGroups as $val) {
                 $class = '';
-                if ($this->user->isMyGroup($this->session->group_id, $val)) {
-                    $class = 'class="open"';
+                if ($this->session->group_id ==  $val->id) {
+                    $class = ' class="open"';
                 }
-                $out .= "<li {$class}><img src='images/group.gif' border='0' alt='{$val['name']}' /> <a href=\"./?module=Groups&amp;group_id={$val['group_id']}\">" . $this->_curMenuOpt($g['group_id'], 'Groups', $val['name']) . "</a>\n";
+                $out .= "<li{$class}><img src='images/group.gif' border='0' alt='{$val->name}' /> <a href=\"./?module=Groups&amp;group_id={$val->id}\">" . $this->_curMenuOpt($g->id, 'Groups', $val->name) . "</a>\n";
                 $out .= $this->getMenuTree($val);
                 $out .= "</li>\n";
             }
@@ -157,12 +150,12 @@ abstract class VegaDNS_Common extends Framework_Auth_User
      * @access private
      * @return void
      */
-    private function _curMenuOpt($g, $t, $s = null)
+    private function _curMenuOpt($groupID, $type, $s = null)
     {
-        if (is_null($s)) {
-            $s = $t;
+        if ($s == null) {
+            $s = $type;
         }
-        if ($g != $this->session->group_id || $t != $this->name) {
+        if ($groupID != $this->session->group_id || $type != $this->name) {
             return $s;
         }
         return "<span class='curMenuOpt'>$s</span>";

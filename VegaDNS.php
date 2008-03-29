@@ -205,7 +205,7 @@ class VegaDNS extends Framework_Object_Web
     private function _returnSubgroupsQuery($groups)
     {
         $this->_groupIDs = array();
-        array_walk_recursive($groups, array($this, '_getGroupIDs'));
+        $this->_getGroupIDs($groups);
         sort($this->_groupIDs);
 
         for ($count = 0; count($this->_groupIDs) > $count; $count++) {
@@ -218,10 +218,13 @@ class VegaDNS extends Framework_Object_Web
         return $string;
     }
 
-    private function _getGroupIDs($item, $key)
+    private function _getGroupIDs($groups)
     {
-        if ($key == 'group_id') {
-            $this->_groupIDs[$item] = $item;
+        $this->_groupIDs['group_id'] = $groups->id;
+        if (is_array($groups->subGroups)) {
+            foreach ($groups->subGroups as $group) {
+                $this->_getGroupIDs($group);
+            }
         }
     }
 

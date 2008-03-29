@@ -161,5 +161,34 @@ class VegaDNS_Group extends Framework_Object_DB
         }
         return $array;
     }
+
+    /**
+     * fetchGroup 
+     * 
+     * Fetch a group from $this->subGroups
+     * 
+     * @param int $id id of group
+     * 
+     * @access public
+     * @return Group object on success, null on failure
+     */
+    public function fetchGroup($id)
+    {
+        if ($id == $this->id) {
+            return $this;
+        }
+        if (count($this->subGroups)) {
+            foreach ($this->subGroups as $val) {
+                if ($id == $val->id) {
+                    return $val;
+                }
+                $result = $val->fetchGroup($id);
+                if ($result != null) {
+                    return $result;
+                }
+            }
+        }
+        return null;
+    }
 }
 ?>
