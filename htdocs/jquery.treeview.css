@@ -29,7 +29,7 @@
 }
 
 .treeview a.selected {
-	background-color: #eee;
+	/* background-color: #eee;*/
 }
 
 #treecontrol { margin: 1em 0; display: none; }
