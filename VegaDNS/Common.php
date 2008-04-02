@@ -131,7 +131,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
                 if ($this->session->group_id ==  $val->id) {
                     $class = ' class="open"';
                 }
-                $out .= "<li{$class}><img src='images/group.gif' border='0' alt='{$val->name}' /> <a href=\"./?module=Groups&amp;group_id={$val->id}\">" . $this->_curMenuOpt($g->id, 'Groups', $val->name) . "</a>\n";
+                $out .= "<li{$class}><img src='images/group.gif' border='0' alt='{$val->name}' /> <a href=\"./?module=Groups&amp;group_id={$val->id}\">" . $this->_curMenuOpt($val->id, 'Groups', $val->name) . "</a>\n";
                 $out .= $this->getMenuTree($val);
                 $out .= "</li>\n";
             }
@@ -155,10 +155,10 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         if ($s == null) {
             $s = $type;
         }
-        if ($groupID != $this->session->group_id || $type != $this->name) {
-            return $s;
+        if ($groupID == $this->session->group_id && $type == $this->name) {
+            return "<span class='curMenuOpt'>$s</span>";
         }
-        return "<span class='curMenuOpt'>$s</span>";
+        return $s;
     }
 
     /**
