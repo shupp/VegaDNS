@@ -54,13 +54,21 @@ abstract class VegaDNS_Auth_ACL extends VegaDNS_Common
             return true;
         }
         foreach (Framework::$site->config->acl->class as $class) {
-            if ($class['name'] == get_class($this)) {
-                if ($class['event'] == Framework::$request->event) {
-                    if (!(bool)$this->permissions->hasAccess($class['accessLevel'], $this->user->data)) {
-                        throw new Framework_Exception(
-                            'The user does not have permissions to run this request',
-                            FRAMEWORK_ERROR_AUTH_PERMISSIONS
-                        );
+            if ($class['name'] != get_class($this)) {
+                continue;
+            }
+            $events = explode(',', (string)$class['event']);
+            foreach ($events as $event) {
+                if ($event == Framework::$request->event) {
+                    $levels = explode(',', (string)$class['accessLevel']);
+                    foreach ($levels as $level) {
+                        $check = $this->permissions->hasAccess($level, $this->user->data);
+                        if (!(bool)$check) {
+                            throw new Framework_Exception(
+                                'The user does not have permissions to run this request',
+                                FRAMEWORK_ERROR_AUTH_PERMISSIONS
+                            );
+                        }
                     }
                 }
             }
