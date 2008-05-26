@@ -59,9 +59,34 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         parent::__construct();
         $this->vdns        = new VegaDNS;
         $this->permissions = VegaDNS_Permissions::singleton();
-        $this->setData('module', $this->name);
+        $this->setModuleType();
         $this->setGroupID();
         $this->setData('email', $this->user->email);
+    }
+
+    /**
+     * setModuleType 
+     * 
+     * Determine module 'type' so that we can highlight the
+     * appropriate menu item.
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function setModuleType()
+    {
+        $module = null;
+        $string = preg_replace('/^Framework_Module_/', '', $this->me->name);
+        if (preg_match('/^Groups/', $string)) {
+            $module = 'Groups';
+        } elseif (preg_match('/^Domains/', $string)) {
+            $module = 'Domains';
+        } elseif (preg_match('/^Users/', $string)) {
+            $module = 'Users';
+        } elseif (preg_match('/^Logs/', $string)) {
+            $module = 'Logs';
+        }
+        $this->moduleType = $module;
     }
 
     /**
@@ -74,7 +99,6 @@ abstract class VegaDNS_Common extends Framework_Auth_User
      */
     public function setGroupID($id = null)
     {
-
         // Which ID are we talking about?
         if ($id === null) {
             $id = (isset($_REQUEST['group_id'])) ? $_REQUEST['group_id'] : null;
@@ -91,9 +115,9 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         } else {
             $group = $this->user->groups;
         }
+        // Set it in session
         $this->session->group_id = $group->id;
     
-        // Set it in session
         $this->setData('group_name', $group->name);
         $this->setData('group_id', $group->id);
         $this->setData('menurows', $this->getMenuTree($this->user->groups, 1));
@@ -108,7 +132,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
      * @access public
      * @return void
      */
-    public function getMenuTree($g,$top = null)
+    public function getMenuTree($g, $top = null)
     {
         $groupstring = '';
         $out         = '';
@@ -155,7 +179,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
         if ($s == null) {
             $s = $type;
         }
-        if ($groupID == $this->session->group_id && $type == $this->name) {
+        if ($groupID == $this->session->group_id && $type == $this->moduleType) {
             return "<span class='curMenuOpt'>$s</span>";
         }
         return $s;
