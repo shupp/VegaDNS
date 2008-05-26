@@ -44,9 +44,6 @@ class Framework_Module_Records extends Vegadns_Common
         if (is_null($domInfo)) {
             throw new Framework_Exception("Error: domain does not exist");
         }
-        if (is_null($this->user->isMyGroup($domInfo['group_id']))) {
-            throw new Framework_Exception("Error: domain does not belong to you");
-        }
         $this->setData('domInfo', $domInfo);
     }
     

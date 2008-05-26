@@ -54,7 +54,7 @@ class Framework_Module_Domains extends VegaDNS_Auth_ACL
         // var_dump($this->user);exit;
         // Setup some urls based on permissions
         if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_create')) {
-            $this->setData('new_domain_url', './?module=Domains&amp;class=add');
+            $this->setData('new_domain_url', './?module=Domains&amp;class=add&amp;group_id=' . $this->session->group_id);
         }
 
         if ($this->permissions->getBit($this->permissions->getPerms($this->user->data), 'domain_edit')) {

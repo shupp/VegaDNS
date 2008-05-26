@@ -69,7 +69,7 @@ class Framework_Module_Domains_Add extends VegaDNS_Auth_ACL
         }
 
         $perms         = VegaDNS_Permissions::singleton();
-        $domain_status = $perms->isSeniorAdmin() ? 'active' : 'inactive';
+        $domain_status = $perms->isSeniorAdmin($this->user->data) ? 'active' : 'inactive';
         $domain_id     = $this->vdns->addDomainRecord($domain, $domain_status);
         $this->vdns->addDefaultRecords($domain, $domain_id);
     
@@ -110,7 +110,7 @@ class Framework_Module_Domains_Add extends VegaDNS_Auth_ACL
         /* $form = new HTML_QuickForm('formLogin', 'post',
             './?module=Domains&event=addNow&modal=true', '', 'class="thickbox"'); */
         $form = new HTML_QuickForm('formLogin', 'post',
-            './?module=Domains&class=add&event=addNow');
+            './?module=Domains&class=add&event=addNow&group_id=' . $this->session->group_id);
 
         $form->addElement('header', 'MyHeader', _('Add Domain'));
         $form->addElement('text', 'domain', _('Domain Name'));

@@ -29,10 +29,10 @@ class VegaDNS extends Framework_Object_Web
      * 
      * Temporary storage for walking the groups array
      * 
-     * @var mixed
+     * @var array
      * @access private
      */
-    private $_groupIDs = null;
+    private $_groupIDs = array();
 
     /**
      * defaultSOA 
@@ -196,31 +196,41 @@ class VegaDNS extends Framework_Object_Web
      * 
      * get the subgroup part of the "where"  query
      * 
-     * @see function getDomains
      * @param mixed $g 
      * @param mixed $string 
+     * 
+     * @see function getDomains
      * @access private
      * @return string
      */
-    private function _returnSubgroupsQuery($groups)
+    private function _returnSubgroupsQuery($groups, $recursive = false)
     {
-        $this->_groupIDs = array();
-        $this->_getGroupIDs($groups);
+        if ($recursive) {
+            $this->_getGroupIDs($groups);
+        } else {
+            $this->_groupIDs[] = $groups->id;
+        }
         sort($this->_groupIDs);
 
-        for ($count = 0; count($this->_groupIDs) > $count; $count++) {
-            if ($count == 0) {
-                $string = " a.group_id='{$this->_groupIDs[$count]}' ";
-            } else {
-                $string .= " or a.group_id='{$this->_groupIDs[$count]}'";
-            }
+        foreach ($this->_groupIDs as $key => $id) {
+            $this->groupIDs[$key] = " a.group_id='$id' ";
         }
-        return $string;
+        return implode('OR', $this->groupIDs);
     }
 
+    /**
+     * _getGroupIDs 
+     * 
+     * Get group IDs recursively
+     * 
+     * @param object $groups VegaDNS_Groups object
+     * 
+     * @access private
+     * @return void
+     */
     private function _getGroupIDs($groups)
     {
-        $this->_groupIDs['group_id'] = $groups->id;
+        $this->_groupIDs[] = $groups->id;
         if (is_array($groups->subGroups)) {
             foreach ($groups->subGroups as $group) {
                 $this->_getGroupIDs($group);

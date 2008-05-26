@@ -81,6 +81,8 @@ abstract class VegaDNS_Common extends Framework_Auth_User
             $module = 'Groups';
         } elseif (preg_match('/^Domains/', $string)) {
             $module = 'Domains';
+        } elseif (preg_match('/^Records/', $string)) {
+            $module = 'Domains';
         } elseif (preg_match('/^Users/', $string)) {
             $module = 'Users';
         } elseif (preg_match('/^Logs/', $string)) {
@@ -101,7 +103,7 @@ abstract class VegaDNS_Common extends Framework_Auth_User
     {
         // Which ID are we talking about?
         if ($id === null) {
-            $id = (isset($_REQUEST['group_id'])) ? $_REQUEST['group_id'] : null;
+            $id = (isset($_REQUEST['group_id'])) ? $_REQUEST['group_id'] : $this->session->group_id;
         }
 
         // Do we have rights?
