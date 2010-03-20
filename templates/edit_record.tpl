@@ -30,9 +30,18 @@
         <td><input type="text" name="address" value="{$address}"></td>
     </tr>
     <tr bgcolor="#eeeeee">
-        <td>Distance (MX only)</td>
+        <td>Distance (MX and SRV only)</td>
         <td><input type="text" name="distance" value="{$distance}" size=5 maxlength=10></td>
     </tr>
+    <tr bgcolor="#eeeeee">
+        <td>Weight (SRV only)</td>
+        <td><input type="text" name="weight" value="{$weight}" size=5 maxlength=10></td>
+    </tr>
+    <tr bgcolor="#eeeeee">
+        <td>Port (SRV only)</td>
+        <td><input type="text" name="port" value="{$port}" size=5 maxlength=10></td>
+    </tr>
+
     <tr bgcolor="#eeeeee">
         <td>TTL</td>
         <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl}">

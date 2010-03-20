@@ -60,6 +60,8 @@ if(!isset($_REQUEST['record_mode'])) {
         $records[$counter]['type'] = $row['type'];
         $records[$counter]['val'] = $row['val'];
         $records[$counter]['distance'] = $row['distance'];
+	$records[$counter]['weight'] = $row['weight'];
+	$records[$counter]['port'] = $row['port'];
         $records[$counter]['ttl'] = $row['ttl'];
         $counter++;
     }
@@ -92,11 +94,19 @@ if(!isset($_REQUEST['record_mode'])) {
             $out_array[$counter]['host'] = $array['host'];
             $out_array[$counter]['type'] = $type;
             $out_array[$counter]['val'] = $array['val'];
-            if($type == 'MX') {
+            if($type == 'MX' || $type == 'SRV') {
                 $out_array[$counter]['distance'] = $array['distance'];
             } else {
                 $out_array[$counter]['distance'] = 'n/a';
             }
+	    if($type == 'SRV') {
+                $out_array[$counter]['weight'] = $array['weight'];
+		$out_array[$counter]['port'] = $array['port'];
+            } else {
+                $out_array[$counter]['weight'] = 'n/a';
+		$out_array[$counter]['port'] = 'n/a';
+            }
+
             $out_array[$counter]['ttl'] = $array['ttl'];
             $out_array[$counter]['delete_url'] = "$base_url&mode=default_records&record_mode=delete&record_id=".$array['record_id'];
             $counter++;
@@ -124,7 +134,7 @@ if(!isset($_REQUEST['record_mode'])) {
 } else if($_REQUEST['record_mode'] == 'add_record_now') {
 
     // verify record to be added
-    $result = verify_record($_REQUEST['name'],$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['ttl']);
+    $result = verify_record($_REQUEST['name'],$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'],$_REQUEST['ttl']);
     if($result != 'OK') {
         set_msg_err($result);
         $smarty->display('header.tpl');
@@ -204,6 +214,24 @@ if(!isset($_REQUEST['record_mode'])) {
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."',
             '$default_type')";
+	} else if ($_REQUEST['type'] == 'SRV') {
+	    if(!ereg("\..+$", $_REQUEST['address'])) {
+                $srvaddress = $_REQUEST['address'].".DOMAIN";
+            } else {
+                $srvaddress = $_REQUEST['address'];
+            }
+
+	    $q = "insert into default_records
+	    (group_owner_id,host,type,val,distance,weight,port,ttl,default_type) values (
+	    '".$user_info['cid']."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            '".mysql_escape_string($srvaddress)."',
+            '".mysql_escape_string($_REQUEST['distance'])."',
+	    '".mysql_escape_string($_REQUEST['weight'])."',
+	    '".mysql_escape_string($_REQUEST['port'])."',
+            '".$_REQUEST['ttl']."',
+            '$default_type')";
         }
         mysql_query($q) or die(mysql_error());
         set_msg("Record added successfully!");
@@ -252,8 +280,8 @@ if(!isset($_REQUEST['record_mode'])) {
     // Get Current SOA information
 
     // Get records list
-    $sa_q = "select * from default_records where default_type='system'";
-    $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."'";
+    $sa_q = "select * from default_records where default_type='system' and type='S'";
+    $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."' and type='S'";
     if($user_info['Account_Type'] == 'senior_admin') {        
         $result = mysql_query($sa_q) or die(mysql_error());
     } else {        
@@ -319,7 +347,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '$host',
             'S',
             '$val',
-            0,
+            0,,,
             '".$_REQUEST['ttl']."',
             'group')";
     } else {

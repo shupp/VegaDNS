@@ -322,7 +322,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             
     // Add default records
 
-    if(isset($records_array) && is_array($records_array)) {
+    if(is_array($records_array)) {
         while(list($key,$row) = each($records_array)) {
             $host = ereg_replace("DOMAIN", $domain, $row['host']);
             $val = ereg_replace("DOMAIN", $domain, $row['val']);

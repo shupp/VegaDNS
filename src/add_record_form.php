@@ -31,9 +31,9 @@ if(isset($_REQUEST['name'])) {
 }
 
 if($_REQUEST['mode'] == 'records') {
-    $smarty->assign('typearray', array('A','NS','MX','PTR','TXT','CNAME'));
+    $smarty->assign('typearray', array('A','NS','MX','PTR','TXT','CNAME','SRV'));
 } else if ($_REQUEST['mode'] == 'default_records') {
-    $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME'));
+    $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME','SRV'));
 }
 if(isset($_REQUEST['type']))
     $smarty->assign('type_selected', $_REQUEST['type']);
@@ -45,6 +45,20 @@ if(isset($_REQUEST['distance'])) {
 } else {
     $smarty->assign('distance', 0);
 }
+
+if(isset($_REQUEST['weight'])) {
+    $smarty->assign('weight', $_REQUEST['weight']);
+} else {
+    $smarty->assign('weight', '');
+}
+
+if(isset($_REQUEST['port'])) {
+    $smarty->assign('port', $_REQUEST['port']);
+} else {
+    $smarty->assign('port', '');
+}
+
+
 
 if(isset($_REQUEST['ttl'])) {
     $smarty->assign('ttl', $_REQUEST['ttl']);

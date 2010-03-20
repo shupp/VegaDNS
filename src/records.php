@@ -197,6 +197,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $records[$counter]['type'] = $row['type'];
             $records[$counter]['val'] = $row['val'];
             $records[$counter]['distance'] = $row['distance'];
+	    $records[$counter]['weight'] = $row['weight'];
+	    $records[$counter]['port'] = $row['port'];	    
             $records[$counter]['ttl'] = $row['ttl'];
         }
     }
@@ -250,11 +252,22 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $out_array[$counter]['host'] = $array['host'];
             $out_array[$counter]['type'] = $type;
             $out_array[$counter]['val'] = $array['val'];
-            if($type == 'MX') {
+            if($type == 'MX' || $type == 'SRV') {
                 $out_array[$counter]['distance'] = $array['distance'];
             } else {
                 $out_array[$counter]['distance'] = 'n/a';
             }
+	    if($type == 'SRV') {
+                $out_array[$counter]['weight'] = $array['weight'];
+            } else {
+                $out_array[$counter]['weight'] = 'n/a';
+            }
+	    if($type == 'SRV') {
+                $out_array[$counter]['port'] = $array['port'];
+            } else {
+                $out_array[$counter]['port'] = 'n/a';
+            }
+
             $out_array[$counter]['ttl'] = $array['ttl'];
             $out_array[$counter]['delete_url'] = "$base_url&mode=records&record_mode=delete&record_id=".$array['record_id']."&domain=".urlencode($domain);
             $out_array[$counter]['edit_url'] = "$base_url&mode=records&record_mode=edit_record&record_id=".$array['record_id']."&domain=".urlencode($domain);
@@ -289,7 +302,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     }
 
     // verify record to be added
-    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['ttl']);
+    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl']);
     if($result != 'OK') {
         set_msg_err($result);
         $smarty->display('header.tpl');
@@ -356,6 +369,23 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."')";
+        } if($_REQUEST['type'] == 'SRV') {
+	    if(!ereg("\..+$", $_REQUEST['address'])) {
+                $srvaddress = $_REQUEST['address'].".".$domain;
+            } else {
+                $srvaddress = $_REQUEST['address'];
+            }
+	    $q = "insert into records
+	    (domain_id,host,type,val,distance,weight,port,ttl) values(
+	    '".get_dom_id($domain)."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            '".mysql_escape_string($srvaddress)."',
+            '".mysql_escape_string($_REQUEST['distance'])."',
+	    '".mysql_escape_string($_REQUEST['weight'])."',
+	    '".mysql_escape_string($_REQUEST['port'])."',
+            '".$_REQUEST['ttl']."')";
+ 
         }
         mysql_query($q) or die(mysql_error());
         set_msg("Record added successfully!");
@@ -483,6 +513,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     $smarty->assign('address', $row['val']);
     $smarty->assign('type', get_type($row['type']));
     $smarty->assign('distance', $row['distance']);
+    $smarty->assign('weight', $row['weight']);
+    $smarty->assign('port', $row['port']);
     $smarty->assign('ttl', $row['ttl']);
 
     // Edit Record Menu
@@ -505,7 +537,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     }
 
     // verify record to be added
-    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['ttl']);
+    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'], $_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl']);
     if($result != 'OK') {
 
         // Set values
@@ -518,6 +550,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         $smarty->assign('address', $row['val']);
         $smarty->assign('type', get_type($row['type']));
         $smarty->assign('distance', $row['distance']);
+	$smarty->assign('weight', $row['weight']);
+    	$smarty->assign('port', $row['port']);
         $smarty->assign('ttl', $row['ttl']);
         set_msg_err($result);
         $smarty->display('header.tpl');
@@ -532,6 +566,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             "host='$name',".
             "val='".$_REQUEST['address']."',".
             "distance='".$_REQUEST['distance']."',".
+	    "weight='".$_REQUEST['weight']."',".
+	    "port='".$_REQUEST['port']."',".
             "ttl='".$_REQUEST['ttl']."' ".
             "where record_id='".$_REQUEST['record_id']."' and domain_id='".
                 get_dom_id($domain)."'";

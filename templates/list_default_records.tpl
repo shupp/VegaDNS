@@ -53,6 +53,8 @@
       <td width="5%">Type</td>
       <td>Address</td>
       <td width="10%">Distance</td>
+      <td width="10%">Weight</td>
+      <td width="5%">Port</td>
       <td width="5%">TTL</td></td>
       <td width="5%">Delete</td>
   </tr>
@@ -63,6 +65,8 @@
         <td width="5%" nowrap>{$row.type}</td>
         <td nowrap>{$row.val}</td>
         <td width="10%" nowrap>{$row.distance}</td>
+	<td width="10%" nowrap>{$row.weight}</td>
+	<td width="5%" nowrap>{$row.port}</td>
         <td width="5%" nowrap>{$row.ttl}</td>
         <td width="5%" align="center" nowrap><a href="{$row.delete_url}"><img border=0 src="images/trash.png" alt="Trash"></a></td>
     </tr>

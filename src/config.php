@@ -16,7 +16,7 @@
  * 
  */ 
 
-$vegadns_debug = 0; // Set to 1 to turn turn on debugging
+
 
 // Location of vegadns private directories (should be in ServerRoot of Apache)
 $private_dirs = '/usr/local/apache/vegadns';

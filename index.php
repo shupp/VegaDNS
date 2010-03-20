@@ -18,12 +18,12 @@
 
 
 // PHP INIT/SECURITY STUFF
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 ini_set('allow_url_fopen', 0);
 ini_set('session.use_cookies',0);
-ini_set('error_reporting', E_ALL & ~E_NOTICE);
+ini_set('error_reporting', E_ALL);
 
 // Check that register_globals is off
 if(ini_get('register_globals')) {
@@ -55,12 +55,6 @@ $smarty->assign('php_self', $_SERVER['PHP_SELF']);
 // Get configuration settings
 require('src/config.php');
 
-if($vegadns_debug == 1) {
-	ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
-	ini_set('error_reporting', E_ALL);
-}
-
 // Set version
 $smarty->assign('version', $version);
 
@@ -85,6 +79,9 @@ if(isset($_REQUEST['state']) && $_REQUEST['state'] == 'get_data') {
     while((list($key,$value) = each($array)) && $trusted == 0) {
         if(trim($value) == $_SERVER['REMOTE_ADDR']) $trusted = 1;
     }
+
+   // DOPRY : remove before distributing
+   $trusted = 1;
 
     if($trusted == 1) {
         // EXPORT DATA

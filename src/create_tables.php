@@ -79,8 +79,10 @@ $q = "CREATE TABLE records (
   record_id int(11) NOT NULL auto_increment,
   host varchar(100) NOT NULL default '',
   type char(1) default NULL,
-  val varchar(200) default NULL,
+  val varchar(100) default NULL,
   distance int(4) default '0',
+  weight int(4) default NULL,
+  port int(4) default NULL,
   ttl int(11) NOT NULL default '86400',
   UNIQUE KEY records_id (record_id),
   KEY records_idx (domain_id,record_id,host)
@@ -92,14 +94,16 @@ $q = "CREATE TABLE default_records (
   group_owner_id int(11) default NULL,
   host varchar(100) NOT NULL default '',
   type char(1) default NULL,
-  val varchar(200) default NULL,
+  val varchar(100) default NULL,
   distance int(4) default '0',
+  weight int(4) default NULL,
+  port int(4) default NULL,
   ttl int(11) NOT NULL default '86400',
   default_type enum('system','group') NOT NULL default 'system',
   UNIQUE KEY records_id (record_id)
 ) TYPE=MyISAM";
 mysql_query($q) or die(mysql_error());
-$q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,86400,'system')";
+$q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,,,86400,'system')";
 mysql_query($q) or die(mysql_error()."<br>".$q);
 
 ?>
