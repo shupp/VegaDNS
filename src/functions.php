@@ -437,6 +437,7 @@ function encode_rdata_qname($hostname) {
         // DOPRY: write length octet, then characters... ( I think djbdbs handles converting them to oct... doesn't seem RFC compliant
         //but produces identical output to Rob Mayoff's SRV generator...);
 
+        $qname = '';
         foreach ($qnameparts as $part)  $qname .= "\\".str_pad(decoct(strlen($part)),3,0,STR_PAD_LEFT)."".$part;
 
         // DOPRY: add term octet for QNAME
