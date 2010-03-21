@@ -7,7 +7,6 @@ FEATURES
 
 * Tiered access with Senior Admin, Group Admin, and User levels
 * Import multiple domains at once via AXFR
-* Uses PHP Sessions, no cookies required
 * Uses Smarty Template engine for clear separation of PHP from HTML
 * Web configurable Default Records to auto-populate new domains with
 * Free (GPL)
@@ -27,13 +26,9 @@ see INSTALL
 LICENSE
 see LICENSE
 
-NON-COMMERICAL SUPPORT
+SUPPORT
 
-* Support Mailing List: users@vegadns.org 
-    (subscribe: users-subscribe@vegadns.org)
-* Announce Mailing List: announce@vegadns.org 
-    (subscribe: announce-subscribe@vegadns.org)
-
-COMMERCIAL SUPPORT
-
-* Please contact bill@merchbox.com for quote
+* Support Mailing List:
+    https://lists.sourceforge.net/mailman/listinfo/vegadns-users
+* Announce Mailing List:
+    https://lists.sourceforge.net/mailman/listinfo/vegadns-announce
