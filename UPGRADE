@@ -1,3 +1,21 @@
+** UPGRADING FROM 0.9.10 OR LOWER PLEASE READ **                  3/20/2010
+
+You MUST run the ALTER statements in srv_support.sql:
+
+    mysql -u <user> -p<pass> <db_name> < srv_support.sql
+
+These provide additional columns for SRV records
+
+
+You SHOULD run the ALTER statements in records_update.sql:
+
+    mysql -u <user> -p<pass> <db_name> < records_update.sql
+
+These provide longer `val` columns for things like SPF/TXT records
+
+
+
+
 ** UPGRADING FROM 0.9.8 OR LOWER PLEASE READ **                  2/4/2005
 
 The smarty core code has been moved.  You will need to remove the old templates
