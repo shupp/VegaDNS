@@ -7,11 +7,11 @@
  * 
  * CREDITS:
  * Written by Bill Shupp
- * <bill@merchbox.com>
+ * <hostmaster@shupp.org>
  * 
  * LICENSE:
  * This software is distributed under the GNU General Public License
- * Copyright 2003-2006, MerchBox.Com
+ * Copyright 2003-2010, Bill Shupp
  * see COPYING for details
  * 
  */ 
