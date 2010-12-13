@@ -543,7 +543,7 @@ function build_data_line($row,$domain) {
         $soa = parse_soa($row);
         $s = "Z".$domain.":".$soa['tldhost'].":".$soa['tldemail'].":".$soa['serial'].":".$soa['refresh'].":".$soa['retry'].":".$soa['expire'].":".$soa['minimum'].":".$soa['ttl']."\n";
     } else if($row['type'] == 'V') {
-        $s = ":".$row['host'].":33:".encode_rdata('cccq',array($row['distance'],$row['weight'],$row['port'],$row['val'])).":".$row['ttl']."\n";
+        $s = ":".$row['host'].":33:".encode_rdata('cccq',array($row['distance'],$row['weight'],$row['port'],ereg_replace('\.$', '', $row['val']))).":".$row['ttl']."\n";
     } else {
         $s = "\n";
     }
