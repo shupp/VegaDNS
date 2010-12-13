@@ -80,9 +80,6 @@ if(isset($_REQUEST['state']) && $_REQUEST['state'] == 'get_data') {
         if(trim($value) == $_SERVER['REMOTE_ADDR']) $trusted = 1;
     }
 
-   // DOPRY : remove before distributing
-   $trusted = 1;
-
     if($trusted == 1) {
         // EXPORT DATA
         header("Content-type: text/plain");
