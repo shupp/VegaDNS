@@ -68,7 +68,7 @@ $dns_tools_dir = '/usr/local/bin';
 // NO NEED TO EDIT BELOW THIS LINE //
 /////////////////////////////////////
 
-$version = '0.9.10';
+$version = '0.10.0';
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF']) 
     && !ereg(".*/axfr_get.php$", $_SERVER['PHP_SELF'])) {
