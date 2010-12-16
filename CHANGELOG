@@ -1,7 +1,7 @@
-* 0.10.0 3/20/2010 (SEE UPGRADE)
+* 0.10.0 12/15/2010 (SEE UPGRADE)
     - Bill Shupp (hostmaster@shupp.org)
         - Integrated Darrel O'Pry's srv patch.
-            (integration sponsored by David Ulevitch and opendns.com)
+            (integration sponsored by OpenDNS)
         - Upgraded smarty from 2.6.14 to 2.6.26
         - Increased records tables val column to support longer records (like TXT)
         - Fixed a couple of notices for incorrect variable references
