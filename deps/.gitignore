@@ -1,0 +1,8 @@
+pear/bin/dbunit
+pear/bin/pear
+pear/bin/peardev
+pear/bin/pecl
+pear/bin/phpcov
+pear/bin/phptok
+pear/bin/phpunit
+pear/php/PHPUnit/Util/PHP.php
