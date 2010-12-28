@@ -6,7 +6,7 @@ class IndexController extends VegaDNS_BaseController
     public function init()
     {
         parent::init();
-        /* Initialize action controller here */
+        $this->requireLoggedInUser();
     }
 
     public function indexAction()

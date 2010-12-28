@@ -4,6 +4,7 @@
         <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
         <TITLE>VegaDNS Administration</TITLE>
         <link rel="STYLESHEET" type="text/css" href="/css/core-style.css">
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 	<!--[if gte IE 5.5000]>
 	<script type="text/javascript" src="/js/pngfix.js"></script>
 	<![endif]-->
@@ -17,11 +18,23 @@
     <tr valign="top">
 <?php if($this->loggedIn()) {
 // Display logged in/logout message
+    $this->headScript()->captureStart();
 ?>
+$(document).ready(function() {
+    $('#logout').click(function(event) {
+        event.preventDefault();
+        $.post('/logout', {}, function(result) {
+            if (result.success == true) {
+                window.location = '/login';
+            }
+        });
+    });
+});
+<?php $this->headScript()->captureEnd(); ?>
     <td width="25%">
     &nbsp;logged in as:<br>
     &nbsp;<b><?php echo $this->user->email ?></b><br>
-    &nbsp<a href="/logout">log out</a><br>
+    &nbsp<a id='logout' href="/logout">log out</a><br>
     </td>
 <?php } ?>
     <td align="center">
@@ -84,5 +97,6 @@
 <?php } ?>
 
 </center>
+<?php echo $this->headScript() ?>
 </body>
 </html>

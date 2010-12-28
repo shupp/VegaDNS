@@ -1,6 +1,6 @@
 <?php
 
-class ErrorController extends Zend_Controller_Action
+class ErrorController extends VegaDNS_BaseController
 {
 
     public function errorAction()
@@ -22,6 +22,14 @@ class ErrorController extends Zend_Controller_Action
                 $this->view->message = 'Page not found';
                 break;
             default:
+                if ($errors->exception instanceof Exception) {
+                    switch($errors->exception->getCode()) {
+                        case 401:
+                            $this->getResponse()->setHttpResponseCode(401);
+                            $this->view->message = 'Login required';
+                            break;
+                    }
+                }
                 // application error
                 $this->getResponse()->setHttpResponseCode(500);
                 $this->view->message = 'Application error';
@@ -40,17 +48,5 @@ class ErrorController extends Zend_Controller_Action
         
         $this->view->request   = $errors->request;
     }
-
-    public function getLog()
-    {
-        $bootstrap = $this->getInvokeArg('bootstrap');
-        if (!$bootstrap->hasResource('Log')) {
-            return false;
-        }
-        $log = $bootstrap->getResource('Log');
-        return $log;
-    }
-
-
 }
 
