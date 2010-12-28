@@ -14,6 +14,7 @@ set_include_path(
         PATH_SEPARATOR,
         array(
             realpath(APPLICATION_PATH . '/../deps/pear/php'),
+            realpath(APPLICATION_PATH . '/models'),
             realpath(APPLICATION_PATH . '/../library'),
             get_include_path(),
         )
@@ -30,5 +31,6 @@ $application = new Zend_Application(
     APPLICATION_ENV,
     APPLICATION_PATH . '/configs/application.ini'
 );
+Deneb::setApplication($application);
 $application->bootstrap()
             ->run();
