@@ -1,29 +1,29 @@
 <?php
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2010, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 
 
 // PHP INIT/SECURITY STUFF
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 ini_set('log_errors', 1);
 ini_set('allow_url_fopen', 0);
 ini_set('session.use_cookies',0);
-ini_set('error_reporting', E_ALL);
+ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
 
 // Check that register_globals is off
 if(ini_get('register_globals')) {
@@ -167,8 +167,8 @@ if(!isset($_REQUEST['state'])) {
             header("Location: ".$_SERVER['PHP_SELF']."?".SID."&state=logged_in");
             exit;
         }
-        
-        
+
+
     }
 
 } else if($_REQUEST['state'] == "logged_in") {
@@ -186,7 +186,7 @@ if(!isset($_REQUEST['state'])) {
         // Set base url for convenience
         $base_url = $_SERVER['PHP_SELF']."?".SID."&state=logged_in";
         // Get current account settings
-        $result = mysql_query("select * from accounts where Email='$email'") 
+        $result = mysql_query("select * from accounts where Email='$email'")
             or die(mysql_error());
         $user_info = mysql_fetch_array($result);
 
