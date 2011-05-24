@@ -31,9 +31,17 @@ if(isset($_REQUEST['name'])) {
 }
 
 if($_REQUEST['mode'] == 'records') {
-    $smarty->assign('typearray', array('A','NS','MX','PTR','TXT','CNAME','SRV'));
+    if ($use_ipv6) {
+        $smarty->assign('typearray', array('A','AAAA','AAAA+PTR','NS','MX','PTR','TXT','CNAME','SRV'));
+    } else {
+        $smarty->assign('typearray', array('A','NS','MX','PTR','TXT','CNAME','SRV'));
+    }
 } else if ($_REQUEST['mode'] == 'default_records') {
-    $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME','SRV'));
+    if ($use_ipv6) {
+        $smarty->assign('typearray', array('A','AAAA','AAAA+PTR','NS','MX','TXT','CNAME','SRV'));
+    } else {
+        $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME','SRV'));
+    }
 }
 if(isset($_REQUEST['type']))
     $smarty->assign('type_selected', $_REQUEST['type']);

@@ -44,6 +44,9 @@ $vegadns_url = 'http://127.0.0.1/vegadns-0.10.0/';
 $supportname = "The VegaDNS Team";
 $supportemail = "support@example.com";
 
+// Enable IPv6 support
+$use_ipv6 = false;
+
 // Hosts allowed to access get_data
 // These are a comma delimited list of IPv4 addresses
 // Such a list could look like:

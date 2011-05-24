@@ -98,3 +98,13 @@ NOTE ON AXFR
     has multiple IP addresses, that you allow AXFR from the same IP that the 
     outbound request is made.  Look in the logs of the remote server if you 
     are having problems connecting.
+
+NOTE on IPv6
+
+    IPv6 support is disabled by default.  To enable it, set $use_ipv6 to true in
+    src/config.php.  This will allow you to create AAAA records using the generic
+    record syntax.  You may also create automatic PTR records for your AAAA records
+    by choosing the AAAA+PTR record.  This will generate the matching PTR record
+    during export from the database.  Note that if you use AAAA+PTR, tinydns will
+    not respond to PTR requests unless you separately add SOA and NS records for the
+    ip6.arpa domain.

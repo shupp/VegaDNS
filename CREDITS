@@ -11,3 +11,5 @@ SOA Serial Number support was sponsored by Dan Delaney, Christian Oswald, Chris
 Lukas, Sean Klechak, Ryan Morales and Mark Andrich.
 
 SRV Support written by Darrel O'Pry, and its integration sponsored by OpenDNS
+
+The IPv6 patch was done by Logan Michels

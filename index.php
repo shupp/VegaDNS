@@ -62,6 +62,9 @@ $smarty->assign('version', $version);
 // Get functions
 require('src/functions.php');
 
+// Get IPv6 Functions
+require_once 'src/Net/IPv6.php';
+
 // Connect to database
 require('src/connect.php');
 

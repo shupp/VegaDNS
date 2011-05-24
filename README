@@ -24,7 +24,9 @@ INSTALL
 see INSTALL
 
 LICENSE
-see LICENSE
+See COPYING for a copy of the GPL v2, which covers all original code in
+VegaDNS.  Note that the src/Net/IPv6.php file is a library from PEAR,
+and is covered under the New BSD license.
 
 SUPPORT
 

@@ -186,6 +186,8 @@ function get_type($type) {
     if($type == 'S') return 'SOA';
     if($type == 'N') return 'NS';
     if($type == 'A') return 'A';
+    if($type == '3') return 'AAAA';
+    if($type == '6') return 'AAAA+PTR';
     if($type == 'M') return 'MX';
     if($type == 'P') return 'PTR';
     if($type == 'T') return 'TXT';
@@ -199,6 +201,8 @@ function set_type($type) {
     if($type == 'SOA') return 'S';
     if($type == 'NS') return 'N';
     if($type == 'A') return 'A';
+    if($type == 'AAAA') return '3';
+    if($type == 'AAAA+PTR') return '6';
     if($type == 'MX') return 'M';
     if($type == 'PTR') return 'P';
     if($type == 'TXT') return 'T';
@@ -229,13 +233,57 @@ function validate_ip($ip) {
     return $return;
 }
 
+function validate_ipv6($ip) {
+    // Singleton
+	static $class = null;
+    if ($class === null) {
+        $class = new Net_IPv6;
+    }
+	return $class->checkIPv6($ip);
+}
+
+function uncompress_ipv6($ip) {
+    // Singleton
+	static $class = null;
+    if ($class === null) {
+        $class = new Net_IPv6;
+    }
+    return $class->uncompress($ip, true);
+}
+
+function ipv6_to_octal($ip) {
+    $ip = uncompress_ipv6($ip);
+    $out = '';
+    foreach (explode(':', $ip) as $part) {
+        $oneAndTwo    = $part[0] . $part[1];
+        $threeAndFour = $part[2] . $part[3];
+        $out .= '\\' . str_pad(base_convert($oneAndTwo, 16, 8), 3, '0', STR_PAD_LEFT);
+        $out .= '\\' . str_pad(base_convert($threeAndFour, 16, 8), 3, '0', STR_PAD_LEFT);
+    }
+    return $out;
+}
+
+function ipv6_to_ptr_record($ip, $domain, $ttl) {
+    $ip    = uncompress_ipv6($ip);
+    $parts = array_reverse(explode(':', $ip));
+
+    $characters = array();
+    foreach ($parts as $part) {
+        for ($i = 3; $i > -1; $i--) {
+            $characters[] = $part[$i];
+        }
+    }
+
+    return '^' . implode('.', $characters) . '.ip6.arpa:' . $domain . ':' . $ttl . "\n";
+}
+
 function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
 
     // convert type to single character format
     $type = set_type($type);
 
     // Make sure name was given for non A and MX records
-    if($type != 'A' && $type != 'M' && $name == "") 
+    if($type != 'A' && $type != 'M' && $name == "")
         return "no Hostname supplied";
 
     // verify A record
@@ -245,6 +293,26 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
         }
         if(check_domain_name_format($name) == FALSE) {
             return "\"$name\" is not a valid A record name";
+        }
+    }
+
+    // verify AAAA record
+    if($type == 'AAAA') {
+        if(validate_ipv6ip($address) == FALSE) {
+            return "\"$address\" is not a valid AAAA record address";
+        }
+        if(check_domain_name_format($name) == FALSE) {
+            return "\"$name\" is not a valid AAAA record name";
+        }
+    }
+
+    // verify AAAA+PTR record
+    if($type == 'AAAA+PTR') {
+        if(validate_ipv6ip($address) == FALSE) {
+            return "\"$address\" is not a valid AAAA+PTR record address";
+        }
+        if(check_domain_name_format($name) == FALSE) {
+            return "\"$name\" is not a valid AAAA+PTR record name";
         }
     }
 
@@ -526,6 +594,7 @@ function decode_rdata($format, $value) {
 
 
 function build_data_line($row,$domain) {
+    global $use_ipv6;
 
     if($row['type'] == 'A') {
         $s = "+".$row['host'].":".$row['val'].":".$row['ttl']."\n";
@@ -544,6 +613,11 @@ function build_data_line($row,$domain) {
         $s = "Z".$domain.":".$soa['tldhost'].":".$soa['tldemail'].":".$soa['serial'].":".$soa['refresh'].":".$soa['retry'].":".$soa['expire'].":".$soa['minimum'].":".$soa['ttl']."\n";
     } else if($row['type'] == 'V') {
         $s = ":".$row['host'].":33:".encode_rdata('cccq',array($row['distance'],$row['weight'],$row['port'],ereg_replace('\.$', '', $row['val']))).":".$row['ttl']."\n";
+    } else if(($row['type'] == '3' || $row['type'] == '6') && $use_ipv6) {
+        $s = ":".$row['host'].":28:".ipv6_to_octal($row['val']).":".$row['ttl']."\n";
+        if($row['type'] == '6') {
+            $s .= ipv6_to_ptr_record($row['val'], $row['host'], $row['ttl']);
+        }
     } else {
         $s = "\n";
     }

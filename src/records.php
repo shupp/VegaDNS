@@ -316,12 +316,30 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         // add record to db
 
         if($_REQUEST['type'] == 'A') {
-            $q = "insert into records 
+            $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($_REQUEST['address'])."',
+            '".$_REQUEST['ttl']."')";
+        } else if($_REQUEST['type'] == 'AAAA') {
+	    $address = uncompress_ipv6($_REQUEST['address']);
+            $q = "insert into records
+            (domain_id,host,type,val,ttl) values(
+            '".get_dom_id($domain)."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            '".mysql_escape_string($address)."',
+            '".$_REQUEST['ttl']."')";
+        } else if($_REQUEST['type'] == 'AAAA+PTR') {
+            $address = uncompress_ipv6($_REQUEST['address']);
+            $q = "insert into records
+            (domain_id,host,type,val,ttl) values(
+            '".get_dom_id($domain)."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            '".mysql_escape_string($address)."',
             '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'MX') {
             if(!ereg("\..+$", $_REQUEST['address'])) {
@@ -329,7 +347,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             } else {
                 $mxaddress = $_REQUEST['address'];
             }
-            $q = "insert into records 
+            $q = "insert into records
             (domain_id,host,type,val,distance,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
@@ -562,9 +580,15 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
         // Update record
 
+	if ($_REQUEST['type']=='AAAA' || $_REQUEST['type']=='AAAA+PTR') {
+		$address = uncompress_ipv6($_REQUEST['address']);
+	} else {
+		$address = $_REQUEST['address'];
+	}
+
         $q = "update records set ".
             "host='$name',".
-            "val='".$_REQUEST['address']."',".
+            "val='".$address."',".
             "distance='".$_REQUEST['distance']."',".
 	    "weight='".$_REQUEST['weight']."',".
 	    "port='".$_REQUEST['port']."',".
