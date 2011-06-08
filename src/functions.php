@@ -297,8 +297,8 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
     }
 
     // verify AAAA record
-    if($type == 'AAAA') {
-        if(validate_ipv6ip($address) == FALSE) {
+    if($type == '3') {
+        if(validate_ipv6($address) == FALSE) {
             return "\"$address\" is not a valid AAAA record address";
         }
         if(check_domain_name_format($name) == FALSE) {
@@ -307,8 +307,8 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
     }
 
     // verify AAAA+PTR record
-    if($type == 'AAAA+PTR') {
-        if(validate_ipv6ip($address) == FALSE) {
+    if($type == '6') {
+        if(validate_ipv6($address) == FALSE) {
             return "\"$address\" is not a valid AAAA+PTR record address";
         }
         if(check_domain_name_format($name) == FALSE) {
