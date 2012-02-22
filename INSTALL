@@ -3,6 +3,8 @@ BEFORE YOU INSTALL
 *   make sure PHP 4 or higher is installed on your web server, and that both
     register_globals and safe_mode are turned OFF, at least for this 
     VirtualHost
+*   make sure php has support for mysql.  On Debian, for example, this would
+    be the php5-mysql package.
 *   make sure wget is installed (http://www.gnu.org/directory/wget.html).
     Many distributions already have this installed.  wget is used for importing 
     via AXFR, and also for dumping the SQL records to the djbdns data file.  
@@ -64,6 +66,8 @@ NOTE:   The Following steps assume your ServerRoot is /usr/local/apache, and
     default login information by pointing your web browser to:
 
     http://myserver/vegadns-x.x/
+
+    The default admin login is email "test@test.com", password "test"
 
     Next, you should edit "default_records" so that new domains have the proper
     SOA record, and that they have name servers, etc.  Once this is done, you 
