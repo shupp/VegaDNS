@@ -1,3 +1,20 @@
+* 0.11.0 2/22/2012 (SEE UPGRADE)
+    - Bill Shupp (hostmaster@shupp.org)
+    	- Integrated Logan Michel's IPv6 patch, with the following changes:
+    	    - Updated PEAR Net_IPv6 library to 1.2.1
+            - Refactored helper code
+            - Made the support optional
+            - Fixed IPv6 validation bug
+        - Set session.use_only_cookies to 0
+	  (it defaults to 1 since 5.3.3, breaking things)
+    	- Updated logging:
+	    - Disabled displaying of errors - that was a stupid idea
+	    - Don't display or log E_DEPRECATED by default
+     	- Trimmed tailing whitespace in index.php
+     	- Fixed some column markup for listing records (GH #11)
+     	- Updates to INSTALL based on feedback from new users
+     	- Updated copyrights
+
 * 0.10.0 12/15/2010 (SEE UPGRADE)
     - Bill Shupp (hostmaster@shupp.org)
         - Integrated Darrel O'Pry's srv patch.
