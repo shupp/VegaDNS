@@ -55,7 +55,7 @@
       <td width="10%">Distance</td>
       <td width="10%">Weight</td>
       <td width="5%">Port</td>
-      <td width="5%">TTL</td></td>
+      <td width="5%">TTL</td>
       <td width="5%">Delete</td>
   </tr>
 

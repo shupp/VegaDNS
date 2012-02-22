@@ -91,9 +91,9 @@
       <td width="5%" nowrap>{$Type}</td>
       <td nowrap>{$Address}</td>
       <td nowrap width="10%">{$Distance}</td>
-      <td nowrap width="10%">Weight</td></td>
-      <td nowrap width="5%">Port</td></td>
-      <td nowrap width="5%">{$TTL}</td></td>
+      <td nowrap width="10%">Weight</td>
+      <td nowrap width="5%">Port</td>
+      <td nowrap width="5%">{$TTL}</td>
       <td width="5%">Delete</td>
   </tr>
 
