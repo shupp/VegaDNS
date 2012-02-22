@@ -10,7 +10,7 @@
  * 
  * LICENSE:
  * This software is distributed under the GNU General Public License
- * Copyright 2003-2010, Bill Shupp
+ * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
  * 
  */ 
