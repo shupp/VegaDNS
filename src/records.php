@@ -304,7 +304,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     // verify record to be added
     $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl']);
     if($result != 'OK') {
-        set_msg_err($result);
+        set_msg_err(htmlentities($result, ENT_QUOTES));
         $smarty->display('header.tpl');
         require('src/add_record_form.php');
         $smarty->display('footer.tpl');
@@ -571,7 +571,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 	$smarty->assign('weight', $row['weight']);
     	$smarty->assign('port', $row['port']);
         $smarty->assign('ttl', $row['ttl']);
-        set_msg_err($result);
+        set_msg_err(htmlentities($result, ENT_QUOTES));
         $smarty->display('header.tpl');
         $smarty->display('edit_record.tpl');
         $smarty->display('footer.tpl');

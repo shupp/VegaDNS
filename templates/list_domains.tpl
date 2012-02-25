@@ -6,7 +6,7 @@
                 <tr valign="top" bgcolor="#cccccc">
                 <td align="left" colspan="2">
 
-                Listing {$first_domain} - {$last_domain} of {$totaldomains} Domains {$searchtexttag}</td>
+                Listing {$first_domain} - {$last_domain} of {$totaldomains} Domains {$searchtexttag|escape:'html'}</td>
                 <td align="center" colspan="2">
                 {if $previous_url != ""} <a href={$previous_url}>previous</a>
                 {else}previous{/if}
@@ -23,7 +23,7 @@
                     <input type="hidden" name="state" value="{$state}">
                     <input type="hidden" name="mode" value="domains">
                     <input type="hidden" name="{$session_name}" value="{$session_id}">
-                    <input type="text" name="search" value="{$search}">
+                    <input type="text" name="search" value="{$search|escape:'html'}">
                     <input type="submit" value="search"></form>
 
                 </td>

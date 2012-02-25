@@ -136,7 +136,7 @@ if(!isset($_REQUEST['record_mode'])) {
     // verify record to be added
     $result = verify_record($_REQUEST['name'],$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'],$_REQUEST['ttl']);
     if($result != 'OK') {
-        set_msg_err($result);
+        set_msg_err(htmlentities($result, ENT_QUOTES));
         $smarty->display('header.tpl');
         require('src/add_record_form.php');
         $smarty->display('footer.tpl');
@@ -344,20 +344,20 @@ if(!isset($_REQUEST['record_mode'])) {
         $q = "insert into default_records values(
             '',
             ".$user_info['cid'].",
-            '$host',
+            '".mysql_escape_string($host)."',
             'S',
-            '$val',
+            '".mysql_escape_string($val)."',
             0,,,
-            '".$_REQUEST['ttl']."',
+            '".mysql_escape_string($_REQUEST['ttl'])."',
             'group')";
     } else {
         $q = "replace into default_records set 
             record_id='$id',
-            host='$host',
+            host='".mysql_escape_string($host)."',
             type='S',
-            val='$val',
-            ttl='".$_REQUEST['ttl']."',
-            default_type='$default_type',
+            val='".mysql_escape_string($val)."',
+            ttl='".mysql_escape_string($_REQUEST['ttl'])."',
+            default_type='".mysql_escape_string($default_type)."',
             group_owner_id='".$user_info['cid']."'";
     }
     mysql_query($q) or die(mysql_error().'<br>'.$q);

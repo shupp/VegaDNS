@@ -213,7 +213,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     $domain = strtolower($_REQUEST['domain']);
     // make sure it's at least a second level domain
     if(!eregi(".*\..*", $domain)) {
-        set_msg_err("Error: domain $domain does not appear to be at least a second level domain");
+        set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " does not appear to be at least a second level domain");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
         $smarty->display('footer.tpl');
@@ -221,7 +221,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     }
     // make sure it's at least a correct domain name
 	if (!eregi("^[\.a-z0-9-]+$",$domain)) {
-        set_msg_err("Error: domain $domain does not appear to be a valid domain name");
+        set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " does not appear to be a valid domain name");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
         $smarty->display('footer.tpl');
@@ -232,7 +232,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     $result = mysql_query($q);
     if(mysql_num_rows($result) > 0) {
     
-        set_msg_err("Error: domain $domain already exists");
+        set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " already exists");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
         $smarty->display('footer.tpl');
@@ -358,7 +358,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Does the domain exist?
     if(mysql_num_rows($result) == 0) {
-        set_msg_err("Error: domain ".$_REQUEST['domain']." does not exist");
+        set_msg_err("Error: domain ".htmlentities($_REQUEST['domain'], ENT_QUOTES)." does not exist");
         $smarty->display('header.tpl');
         $smarty->display('footer.tpl');
         exit;
@@ -389,7 +389,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Does the domain exist?
     if(mysql_num_rows($result) == 0) {
-        set_msg_err("Error: domain ".$_REQUEST['domain']." does not exist");
+        set_msg_err("Error: domain ".htmlentities($_REQUEST['domain'], ENT_QUOTES)." does not exist");
         $smarty->display('header.tpl');
         $smarty->display('footer.tpl');
         exit;
@@ -555,7 +555,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
         // Make sure each domain is NOT in the database already 
         if(get_dom_id($domain) != -1) {
-            set_msg_err("Error: $domain is already in this database");
+            set_msg_err("Error: " . htmlentities($domain, ENT_QUOTES) . " is already in this database");
             $smarty->display('header.tpl');
             require('src/import_form.php');
             $smarty->display('footer.tpl');
@@ -572,7 +572,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             $domains_array[$counter] = $out_array;
             $counter++;
         } else {
-            set_msg_err("Error: could not do axfr-get for $domain:<br>".$out_array[0]);
+            set_msg_err("Error: could not do axfr-get for " . htmlentities($domain, ENT_QUOTES) . ":<br>".htmlentities($out_array[0], ENT_QUOTES));
             $smarty->display('header.tpl');
             require('src/import_form.php');
             $smarty->display('footer.tpl');

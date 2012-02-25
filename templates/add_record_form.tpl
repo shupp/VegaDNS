@@ -29,7 +29,7 @@
     <tr>
     <tr bgcolor="#eeeeee">
         <td>Hostname</td>
-        <td><input type="text" name="name" value="{$name}"></td>
+        <td><input type="text" name="name" value="{$name|escape:'html'}"></td>
     </tr>
     <tr bgcolor=#eeeeee>
         <td>Type</td>
@@ -39,24 +39,24 @@
     </tr>
     <tr bgcolor="#eeeeee">
         <td>Address</td>
-        <td><input type="text" name="address" value="{$address}"></td>
+        <td><input type="text" name="address" value="{$address|escape:'html'}"></td>
     </tr>
     <tr bgcolor="#eeeeee">
         <td>Distance (MX and SRV only)</td>
-        <td><input type="text" name="distance" value="{$distance}" size=5 maxlength=10></td>
+        <td><input type="text" name="distance" value="{$distance|escape:'html'}" size=5 maxlength=10></td>
     </tr>
     <tr bgcolor="#eeeeee">
         <td>Weight (SRV only)</td>
-        <td><input type="text" name="weight" value="{$weight}" size=5 maxlength=10></td>
+        <td><input type="text" name="weight" value="{$weight|escape:'html'}" size=5 maxlength=10></td>
     </tr>
     <tr bgcolor="#eeeeee">
         <td>Port (SRV only)</td>
-        <td><input type="text" name="port" value="{$port}" size=5 maxlength=10></td>
+        <td><input type="text" name="port" value="{$port|escape:'html'}" size=5 maxlength=10></td>
     </tr>
 
     <tr bgcolor="#eeeeee">
         <td>TTL</td>
-        <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl}">
+        <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl|escape:'html'}">
     </tr>
     </table>
 </td></tr>

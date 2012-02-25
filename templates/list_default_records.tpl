@@ -12,25 +12,25 @@
 <table border=0 width="100%">
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Contact Address:</td>
-      <td width="40%" nowrap>{$soa_array.tldemail}</td>
+      <td width="40%" nowrap>{$soa_array.tldemail|escape:'html'}</td>
       <td width="10%" nowrap>Primary Nameserver:&nbsp</td>
-      <td width="40%" nowrap>{$soa_array.tldhost}</td>
+      <td width="40%" nowrap>{$soa_array.tldhost|escape:'html'}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Refresh:</td>
-      <td width="40%" nowrap>{$soa_array.refresh}</td>
+      <td width="40%" nowrap>{$soa_array.refresh|escape:'html'}</td>
       <td width="10%" nowrap>Retry:</td>
-      <td width="40%" nowrap>{$soa_array.retry}</td>
+      <td width="40%" nowrap>{$soa_array.retry|escape:'html'}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Expiration:</td>
-      <td width="40%" nowrap>{$soa_array.expire}</td>
+      <td width="40%" nowrap>{$soa_array.expire|escape:'html'}</td>
       <td width="10%" nowrap>Minimum TTL:&nbsp</td>
-      <td width="40%" nowrap>{$soa_array.minimum}</td>
+      <td width="40%" nowrap>{$soa_array.minimum|escape:'html'}</td>
   </tr>
   <tr bgcolor="#eeeeee">
       <td width="10%" nowrap>Default TTL:</td>
-      <td width="40%" nowrap>{$soa_array.ttl}</td>
+      <td width="40%" nowrap>{$soa_array.ttl|escape:'html'}</td>
       <td width="10%" nowrap>&nbsp</td>
       <td width="40%" nowrap>&nbsp</td>
   </tr>
