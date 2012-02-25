@@ -1,19 +1,23 @@
-* 0.11.0 2/22/2012 (SEE UPGRADE)
+* 0.11.1 2/25/2012
     - Bill Shupp (hostmaster@shupp.org)
-    	- Integrated Logan Michel's IPv6 patch, with the following changes:
-    	    - Updated PEAR Net_IPv6 library to 1.2.1
+        - Fixed a number of XSS issues reported by Sebastiaan Tesink
+        - Whitespace cleanups
+
+* 0.11.0 2/22/2012
+    - Bill Shupp (hostmaster@shupp.org)
+        - Integrated Logan Michel's IPv6 patch, with the following changes:
+            - Updated PEAR Net_IPv6 library to 1.2.1
             - Refactored helper code
             - Made the support optional
             - Fixed IPv6 validation bug
-        - Set session.use_only_cookies to 0
-	  (it defaults to 1 since 5.3.3, breaking things)
-    	- Updated logging:
-	    - Disabled displaying of errors - that was a stupid idea
-	    - Don't display or log E_DEPRECATED by default
-     	- Trimmed tailing whitespace in index.php
-     	- Fixed some column markup for listing records (GH #11)
-     	- Updates to INSTALL based on feedback from new users
-     	- Updated copyrights
+        - Set session.use_only_cookies to 0 (it defaults to 1 since 5.3.3, breaking things)
+        - Updated logging:
+        - Disabled displaying of errors - that was a stupid idea
+        - Don't display or log E_DEPRECATED by default
+        - Trimmed tailing whitespace in index.php
+        - Fixed some column markup for listing records (GH #11)
+        - Updates to INSTALL based on feedback from new users
+        - Updated copyrights
 
 * 0.10.0 12/15/2010 (SEE UPGRADE)
     - Bill Shupp (hostmaster@shupp.org)
@@ -67,7 +71,7 @@
         * SECURITY *
         - Fix path disclosure warning due to illegal "_" in session_name
         * SECURITY *
-        - Moved all messages into _SESSION['message'], accessed via the 
+        - Moved all messages into _SESSION['message'], accessed via the
           set_msg(), set_msg_err(), and display_msg() functions
     - Backported changes from 1.1.4:
         - Moved session_start.php code into index.php
@@ -99,8 +103,8 @@
     - Bill Shupp (hostmaster@shupp.org)
         - Update version this time.. -tnx Roger Tulen
     - Bob Hutchinson (hutchlists@midwales.com)
-	    - Bugfix for records sort code -tnx Roger Tulen
-	    - Fixed pagination math domains.php
+        - Bugfix for records sort code -tnx Roger Tulen
+        - Fixed pagination math domains.php
 
 * 0.9.6 10/11/2004
     - Bill Shupp (hostmaster@shupp.org)
@@ -111,15 +115,15 @@
         - Change background.png to a jpeg for IE display problems
         - Added pngfix.js for more IE png bug workarounds
             (script is from http://homepage.ntlworld.com/bobosola/index.htm)
-        - Rewrote much of the sorting code logic, made it available to 
+        - Rewrote much of the sorting code logic, made it available to
           all pages.
     - Bob Hutchinson (hutchlists@midwales.com)
-	    - New sorting code
+        - New sorting code
 
 * 0.9 9/23/2004
     - Bill Shupp (hostmaster@shupp.org)
         - Allow for default TXT records
-        - Updates to update-data.sh - added error checking/reporting, and is 
+        - Updates to update-data.sh - added error checking/reporting, and is
           safer.  Also runs under sh instead of bash.
         - Removed "> /dev/null" from INSTALL instructions of update-data.sh.
 
@@ -138,7 +142,7 @@
 
       8/22/2004
     - Karl Shea <karl@karlshea.com>
-        - only run "make" if the data file has changed (to eliminate 
+        - only run "make" if the data file has changed (to eliminate
           unnecessary ixfr traffic)
 
       7/28/2004
@@ -205,7 +209,7 @@
         - Fixed multiple missing $ in config.php
         - Added pagination of records
         - Moved timeout to config.php
-        - Added trusted hosts to config.php.  Only allow trusted hosts to 
+        - Added trusted hosts to config.php.  Only allow trusted hosts to
           access get_data (127.0.0.1 by default) - tnx Ryan White
         - Added version to header.tpl
         - Updated TODO, INSTALL
