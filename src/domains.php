@@ -1,19 +1,19 @@
 <?php
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -92,7 +92,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     } else {
         $sortway = 'asc';
     }
-	
+
     if (!isset($_REQUEST['sortfield'])) {
         $sortfield = 'status';
     } else {
@@ -220,7 +220,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         exit;
     }
     // make sure it's at least a correct domain name
-	if (!eregi("^[\.a-z0-9-]+$",$domain)) {
+    if (!eregi("^[\.a-z0-9-]+$",$domain)) {
         set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " does not appear to be a valid domain name");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
@@ -231,14 +231,14 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     $q = "select * from domains where domain='".mysql_escape_string($domain)."'";
     $result = mysql_query($q);
     if(mysql_num_rows($result) > 0) {
-    
+
         set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " already exists");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
         $smarty->display('footer.tpl');
         exit;
     }
-        
+
     // Set domain status, ids based on account type
     if($user_info['Account_Type'] == 'senior_admin') {
         $domain_status = 'active';
@@ -319,7 +319,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             '".$soa_array['ttl']."')";
     mysql_query($q) or die(mysql_error());
     dns_log($id, "added soa");
-            
+
     // Add default records
 
     if(isset($records_array) && is_array($records_array)) {
@@ -349,7 +349,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     set_msg("Domain $domain added successfully!");
     header("Location: $base_url&mode=records&domain=".urlencode($domain));
     exit;
-    
+
 } else if($_REQUEST['domain_mode'] == 'delete') {
 
     // Get domain info
@@ -404,7 +404,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             $smarty->display('header.tpl');
             $smarty->display('footer.tpl');
             exit;
-        } else if($user_info['Account_Type'] == 'user' 
+        } else if($user_info['Account_Type'] == 'user'
                 && $dom_row['owner_id'] != $user_info['cid']) {
             set_msg_err("Error: you do not have permission to delete this domain");
             $smarty->display('header.tpl');
@@ -553,7 +553,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     while(list($key,$domain) = each($array)) {
         if(strlen($domain) == 0) continue;
 
-        // Make sure each domain is NOT in the database already 
+        // Make sure each domain is NOT in the database already
         if(get_dom_id($domain) != -1) {
             set_msg_err("Error: " . htmlentities($domain, ENT_QUOTES) . " is already in this database");
             $smarty->display('header.tpl');
@@ -594,9 +594,9 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             $skip_ns = 'TRUE';
             if(is_array($def_ns)) {
                 foreach ($def_ns as $ns) {
-	                $host = ereg_replace("DOMAIN", $domain, $ns['host']);
-                    $q = "insert into records 
-                        (domain_id,host,type,val,distance,ttl) 
+                    $host = ereg_replace("DOMAIN", $domain, $ns['host']);
+                    $q = "insert into records
+                        (domain_id,host,type,val,distance,ttl)
                         values(
                         $domain_id,
                         '".mysql_escape_string($host)."',
@@ -604,23 +604,23 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
                         '".mysql_escape_string($ns['val'])."',
                         '".$ns['distance']."',
                         '".$ns['ttl']."')";
-                    mysql_query($q) or die(mysql_error().$q);	  
-	                $counter++;
-	            }
-	        }
-	    }
+                    mysql_query($q) or die(mysql_error().$q);
+                    $counter++;
+                }
+            }
+        }
         while(list($line_key,$value) = each($line)) {
             if($line_key != 'domain' && !ereg("^#", $value)) {
                 $result = parse_dataline($value);
                 if(!is_array($result)) continue;
-		        if ((isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
-		            $result['val']=$def_soa['val'];
-		            $result['host']=$def_soa['host'];
-		        }
-		        // if ((isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']!="on") || ($result['type']!='N')) {
-		        if ($result['type'] == 'N' && $skip_ns == 'TRUE') continue;
-                $q = "insert into records 
-                    (domain_id,host,type,val,distance,ttl) 
+                if ((isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
+                    $result['val']=$def_soa['val'];
+                    $result['host']=$def_soa['host'];
+                }
+                // if ((isset($_REQUEST['default_ns']) && $_REQUEST['default_ns']!="on") || ($result['type']!='N')) {
+                if ($result['type'] == 'N' && $skip_ns == 'TRUE') continue;
+                $q = "insert into records
+                    (domain_id,host,type,val,distance,ttl)
                     values(
                         $domain_id,
                         '".mysql_escape_string(ereg_replace("[\]052", "*", $result['host']))."',
@@ -629,9 +629,9 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
                         '".$result['distance']."',
                         '".$result['ttl']."')";
                 mysql_query($q) or die(mysql_error().$q);
-		    }
-	    }
-	}
+            }
+        }
+    }
     $log_entry = "imported via axfr from ".$_REQUEST['hostname'];
     dns_log($domain_id,$log_entry);
     set_msg("Domains added successfully!");
@@ -690,7 +690,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         }
 
         // Make sure a group_admin has rights
-        if($user_info['Account_Type'] == 'group_admin' 
+        if($user_info['Account_Type'] == 'group_admin'
             && $user_info['cid'] != $row['owner_id']) {
 
             if($row['group_owner_id'] != $user_info['cid']) {

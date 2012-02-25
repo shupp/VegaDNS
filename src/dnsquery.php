@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -42,7 +42,7 @@ if(isset($_REQUEST['query_mode'])) {
         $program = $program.'r';
         $smarty->assign('recursive', $_REQUEST['recursive']);
         $host = "";
-    } 
+    }
     if(!isset($_REQUEST['recursive'])) {
         $host = $_REQUEST['host'];
     }

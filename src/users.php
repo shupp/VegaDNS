@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -61,14 +61,14 @@ if($_REQUEST['user_mode'] == 'edit_account') {
     // Make sure this user has the right to edit this account
 
     // If group_admin, make sure this account belongs to the user
-    if($user_info['Account_Type'] != 'senior_admin' 
+    if($user_info['Account_Type'] != 'senior_admin'
             && $user_info['cid'] != $account_info['cid']) {
-        if($user_info['Account_Type'] == 'group_admin' && 
+        if($user_info['Account_Type'] == 'group_admin' &&
             $account_info['gid'] != $user_info['cid']) {
             set_msg_err("Error: you do not have permission to edit this account");
             header("Location: $base_url");
             exit;
-        } else if($user_info['Account_Type'] == 'user' && 
+        } else if($user_info['Account_Type'] == 'user' &&
                     $_REQUEST['cid'] != $user_info['cid']) {
             set_msg_err("Error: you do not have permission to edit this account");
             header("Location: $base_url");
@@ -93,8 +93,8 @@ if($_REQUEST['user_mode'] == 'edit_account') {
     $q .= "
 
         First_Name='".mysql_escape_string($_REQUEST['first_name'])."',
-        Last_Name='".mysql_escape_string($_REQUEST['last_name'])."', 
-        Phone='".mysql_escape_string($_REQUEST['phone'])."', 
+        Last_Name='".mysql_escape_string($_REQUEST['last_name'])."',
+        Phone='".mysql_escape_string($_REQUEST['phone'])."',
         Email='".mysql_escape_string(strtolower($_REQUEST['email_address']))."'";
     if ($_REQUEST['password']!="") {
      $q .=  ", Password='".md5($_REQUEST['password'])."'";
@@ -216,24 +216,24 @@ if($_REQUEST['user_mode'] == 'edit_account') {
             $q = "select * from accounts";
         }
 
-    	// sort
-    	if (!isset($_REQUEST['sortway'])) {
-        	$sortway = 'asc';
-    	} else if ( $_REQUEST['sortway'] == 'desc') {
-        	$sortway = 'desc';
-    	} else {
-        	$sortway = 'asc';
-    	}           
+        // sort
+        if (!isset($_REQUEST['sortway'])) {
+            $sortway = 'asc';
+        } else if ( $_REQUEST['sortway'] == 'desc') {
+            $sortway = 'desc';
+        } else {
+            $sortway = 'asc';
+        }
 
-    	if (!isset($_REQUEST['sortfield'])) {
-        	$sortfield = 'Account_Type';
-    	} else {
-        	$sortfield = $_REQUEST['sortfield'];
-    	}
+        if (!isset($_REQUEST['sortfield'])) {
+            $sortfield = 'Account_Type';
+        } else {
+            $sortfield = $_REQUEST['sortfield'];
+        }
 
 
 
-		$q .= " order by $sortfield  $sortway" . (($sortfield == 'Account_Type') ? ", Last_Name" :"" ) . "";
+        $q .= " order by $sortfield  $sortway" . (($sortfield == 'Account_Type') ? ", Last_Name" :"" ) . "";
         $result = mysql_query($q) or die(mysql_error());
 
 
@@ -263,7 +263,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
             $out_array[$counter]['group_owner_name'] = get_groupowner_name($row['gid']);
             $out_array[$counter]['status'] = $row['Status'];
             $out_array[$counter]['edit_url'] = "$base_url&mode=users&user_mode=edit_account&cid=".$row['cid'];
-            if($row['cid'] != $user_info['cid']) 
+            if($row['cid'] != $user_info['cid'])
                 $out_array[$counter]['delete_url'] = "$base_url&mode=users&user_mode=delete&cid=".$row['cid'];
             $counter++;
         }

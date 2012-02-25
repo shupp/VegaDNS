@@ -4,13 +4,13 @@
         <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
         <TITLE>VegaDNS Administration</TITLE>
         <link rel="STYLESHEET" type="text/css" href="templates/core-style.css">
-	<!--[if gte IE 5.5000]>
-	<script type="text/javascript" src="templates/pngfix.js"></script>
-	<![endif]-->
+    <!--[if gte IE 5.5000]>
+    <script type="text/javascript" src="templates/pngfix.js"></script>
+    <![endif]-->
 
     </HEAD>
     <body background="images/background.jpg">
-     
+
 <center>
 
 <table border=0 width="100%">

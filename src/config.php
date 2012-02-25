@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 
 
@@ -36,7 +36,7 @@ $mysql_user = 'vegadns';
 $mysql_pass = 'secret';
 $mysql_db = 'vegadns';
 
-// Local URL 
+// Local URL
 $vegadns_url = 'http://127.0.0.1/vegadns-0.11.0/';
 
 // Contact info used in from/to addresses of email notifactions for inactive
@@ -73,7 +73,7 @@ $dns_tools_dir = '/usr/local/bin';
 
 $version = '0.11.0';
 
-if(!ereg(".*/index.php$", $_SERVER['PHP_SELF']) 
+if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])
     && !ereg(".*/axfr_get.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
     exit;

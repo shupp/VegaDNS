@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -98,7 +98,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         $sortway = 'desc';
     } else {
         $sortway = 'asc';
-    }   	
+    }
 
     if (!isset($_REQUEST['sortfield'])) {
         $sortfield = 'type';
@@ -188,7 +188,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     $counter = 0;
     while (++$counter && $row = mysql_fetch_array($result)) {
         // Get SOA
-        if(!isset($soa) && $row['type'] == 'S') $soa = $row; 
+        if(!isset($soa) && $row['type'] == 'S') $soa = $row;
 
         if($counter < $first_record) continue;
         if($counter <= $last_record) {
@@ -197,8 +197,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $records[$counter]['type'] = $row['type'];
             $records[$counter]['val'] = $row['val'];
             $records[$counter]['distance'] = $row['distance'];
-	    $records[$counter]['weight'] = $row['weight'];
-	    $records[$counter]['port'] = $row['port'];	    
+            $records[$counter]['weight'] = $row['weight'];
+            $records[$counter]['port'] = $row['port'];
             $records[$counter]['ttl'] = $row['ttl'];
         }
     }
@@ -210,7 +210,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         } else {
             $tldemail = "hostmaster.$domain";
             while((list($num,$array) = each($records)) && !isset($tldhost)) {
-                if($array['type'] == 'N') $soa_array['tldhost'] = $array['host']; 
+                if($array['type'] == 'N') $soa_array['tldhost'] = $array['host'];
             }
             $soa_array['serial'] = "default";
             $soa_array['refresh'] = 16384;
@@ -257,12 +257,12 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             } else {
                 $out_array[$counter]['distance'] = 'n/a';
             }
-	    if($type == 'SRV') {
+            if($type == 'SRV') {
                 $out_array[$counter]['weight'] = $array['weight'];
             } else {
                 $out_array[$counter]['weight'] = 'n/a';
             }
-	    if($type == 'SRV') {
+            if($type == 'SRV') {
                 $out_array[$counter]['port'] = $array['port'];
             } else {
                 $out_array[$counter]['port'] = 'n/a';
@@ -324,7 +324,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'AAAA') {
-	    $address = uncompress_ipv6($_REQUEST['address']);
+            $address = uncompress_ipv6($_REQUEST['address']);
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
@@ -355,55 +355,60 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             '".mysql_escape_string($mxaddress)."',
             '".mysql_escape_string($_REQUEST['distance'])."',
             '".$_REQUEST['ttl']."')";
-        } if($_REQUEST['type'] == 'NS') {
-            $q = "insert into records 
+        }
+        if($_REQUEST['type'] == 'NS') {
+            $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."')";
-        } if($_REQUEST['type'] == 'PTR') {
-            $q = "insert into records 
+        }
+        if($_REQUEST['type'] == 'PTR') {
+            $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."')";
-        } if($_REQUEST['type'] == 'TXT') {
-            $q = "insert into records 
+        }
+        if($_REQUEST['type'] == 'TXT') {
+            $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."')";
-        } if($_REQUEST['type'] == 'CNAME') {
-            $q = "insert into records 
+        }
+        if($_REQUEST['type'] == 'CNAME') {
+            $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."')";
-        } if($_REQUEST['type'] == 'SRV') {
-	    if(!ereg("\..+$", $_REQUEST['address'])) {
+        }
+        if($_REQUEST['type'] == 'SRV') {
+            if(!ereg("\..+$", $_REQUEST['address'])) {
                 $srvaddress = $_REQUEST['address'].".".$domain;
             } else {
                 $srvaddress = $_REQUEST['address'];
             }
-	    $q = "insert into records
-	    (domain_id,host,type,val,distance,weight,port,ttl) values(
-	    '".get_dom_id($domain)."',
+            $q = "insert into records
+            (domain_id,host,type,val,distance,weight,port,ttl) values(
+            '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($srvaddress)."',
             '".mysql_escape_string($_REQUEST['distance'])."',
-	    '".mysql_escape_string($_REQUEST['weight'])."',
-	    '".mysql_escape_string($_REQUEST['port'])."',
+            '".mysql_escape_string($_REQUEST['weight'])."',
+            '".mysql_escape_string($_REQUEST['port'])."',
             '".$_REQUEST['ttl']."')";
- 
+
         }
         mysql_query($q) or die(mysql_error());
         set_msg("Record added successfully!");
@@ -478,7 +483,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         $smarty->display('footer.tpl');
         exit;
     }
-    
+
     // Build array
     $array['host'] = $_REQUEST['contactaddr'].':'.$_REQUEST['primary_name_server'];
     $array['val'] = $_REQUEST['refresh'].':'.$_REQUEST['retry'].':'.$_REQUEST['expire'].':'.$_REQUEST['minimum'].':'.$_REQUEST['serial'];
@@ -490,7 +495,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     $val = $return['refresh'].':'.$return['retry'].':'.$return['expire'].':'.$return['minimum'].':'.$return['serial'];
     $q = "update records set host='$host',
         val='$val',
-        ttl='".$_REQUEST['ttl']."'  where type='S' and 
+        ttl='".$_REQUEST['ttl']."'  where type='S' and
         domain_id='".get_dom_id($domain)."'";
     mysql_query($q) or die(mysql_error());
 
@@ -498,7 +503,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     set_msg("SOA record updated successfully");
     header("Location: $base_url&mode=records&domain=".urlencode($domain));
     exit;
-    
+
 } else if($_REQUEST['record_mode'] == 'view_log') {
 
     $smarty->display('header.tpl');
@@ -559,8 +564,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     if($result != 'OK') {
 
         // Set values
-        $q = "select * from records where record_id='".$_REQUEST['record_id']."' and domain_id='".        
-            get_dom_id($domain)."' and type!='S' limit 1";    
+        $q = "select * from records where record_id='".$_REQUEST['record_id']."' and domain_id='".
+            get_dom_id($domain)."' and type!='S' limit 1";
          $result = mysql_query($q) or die(mysql_error());    $row = mysql_fetch_array($result);
 
         $smarty->assign('record_id', $_REQUEST['record_id']);
@@ -568,8 +573,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         $smarty->assign('address', $row['val']);
         $smarty->assign('type', get_type($row['type']));
         $smarty->assign('distance', $row['distance']);
-	$smarty->assign('weight', $row['weight']);
-    	$smarty->assign('port', $row['port']);
+        $smarty->assign('weight', $row['weight']);
+        $smarty->assign('port', $row['port']);
         $smarty->assign('ttl', $row['ttl']);
         set_msg_err(htmlentities($result, ENT_QUOTES));
         $smarty->display('header.tpl');
@@ -580,18 +585,18 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
         // Update record
 
-	if ($_REQUEST['type']=='AAAA' || $_REQUEST['type']=='AAAA+PTR') {
-		$address = uncompress_ipv6($_REQUEST['address']);
-	} else {
-		$address = $_REQUEST['address'];
-	}
+        if ($_REQUEST['type']=='AAAA' || $_REQUEST['type']=='AAAA+PTR') {
+            $address = uncompress_ipv6($_REQUEST['address']);
+        } else {
+            $address = $_REQUEST['address'];
+        }
 
         $q = "update records set ".
             "host='$name',".
             "val='".$address."',".
             "distance='".$_REQUEST['distance']."',".
-	    "weight='".$_REQUEST['weight']."',".
-	    "port='".$_REQUEST['port']."',".
+            "weight='".$_REQUEST['weight']."',".
+            "port='".$_REQUEST['port']."',".
             "ttl='".$_REQUEST['ttl']."' ".
             "where record_id='".$_REQUEST['record_id']."' and domain_id='".
                 get_dom_id($domain)."'";

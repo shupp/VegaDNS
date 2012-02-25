@@ -197,8 +197,8 @@ if(!isset($_REQUEST['state'])) {
         // Setup smarty stuff
         $smarty->assign('email', $email);
         $smarty->assign('state', $_REQUEST['state']);
-	if(isset($_REQUEST['mode']))
-        	$smarty->assign('mode', $_REQUEST['mode']);
+        if(isset($_REQUEST['mode']))
+            $smarty->assign('mode', $_REQUEST['mode']);
         $smarty->assign('base_url', $base_url);
         $smarty->assign('logout_url', $_SERVER['PHP_SELF'].'?'.SID.'&state=end');
         $smarty->assign('account_type', $user_info['Account_Type']);

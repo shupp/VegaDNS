@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -33,8 +33,8 @@ function authenticate_user($email, $password) {
     // Garbage collection for sessions
     $oldsessions = time()-$timeout;
     mysql_query("delete from active_sessions where time < $oldsessions");
-    $result = mysql_query("select Email from accounts where 
-        Email='".mysql_real_escape_string(strtolower($email))."' and 
+    $result = mysql_query("select Email from accounts where
+        Email='".mysql_real_escape_string(strtolower($email))."' and
         Password='".md5($password)."' and
         Status='active' LIMIT 1") or die(mysql_error());
     $resultarray = mysql_fetch_array($result);
@@ -43,13 +43,13 @@ function authenticate_user($email, $password) {
         mysql_query("delete from active_sessions where email='".
             mysql_real_escape_string($email)."'") or die("error logging in");
         mysql_query("insert into active_sessions (
-            sid, 
-            email, 
-            time) 
+            sid,
+            email,
+            time)
 
             VALUES (
-            '".session_id()."', 
-            '".mysql_real_escape_string($email)."', 
+            '".session_id()."',
+            '".mysql_real_escape_string($email)."',
             '".time()."')");
         return 'TRUE';
     } else {
@@ -59,8 +59,8 @@ function authenticate_user($email, $password) {
 
 function verify_session() {
     global $timeout;
-    $querystring = "select email from active_sessions where 
-        sid='".session_id()."' and 
+    $querystring = "select email from active_sessions where
+        sid='".session_id()."' and
         time > '".(time() - $timeout)."' LIMIT 1";
     $result = mysql_query($querystring);
     $resultarray = mysql_fetch_array($result);
@@ -125,7 +125,7 @@ function get_groupowner_email($gid) {
 
 function check_email_format($address) {
 
-    $result = ereg("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*$", 
+    $result = ereg("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*$",
         strtolower($address));
     return $result;
 
@@ -235,16 +235,16 @@ function validate_ip($ip) {
 
 function validate_ipv6($ip) {
     // Singleton
-	static $class = null;
+    static $class = null;
     if ($class === null) {
         $class = new Net_IPv6;
     }
-	return $class->checkIPv6($ip);
+    return $class->checkIPv6($ip);
 }
 
 function uncompress_ipv6($ip) {
     // Singleton
-	static $class = null;
+    static $class = null;
     if ($class === null) {
         $class = new Net_IPv6;
     }
@@ -334,7 +334,7 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
         if(check_domain_name_format($name) == FALSE) {
             return "\"$name\" is not a valid MX record name";
         }
-        if(!eregi("^([0-9])+$", $distance)) 
+        if(!eregi("^([0-9])+$", $distance))
             return "\"$distance\" is not a valid MX distance";
     }
 
@@ -357,18 +357,17 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
     // verify SRV record
     if ($type == 'V')  {
 
-	if (!eregi("^_.*\._.*$",$name))
-		return"SRV \"$name\" should be in the format _service._protocol";	
-	
-	if (($distance > 65535) || !eregi("^([0-9])+$", $distance)) 
-                return "SRV distance must be a numeric value between 0 and 65535";
+    if (!eregi("^_.*\._.*$",$name))
+        return"SRV \"$name\" should be in the format _service._protocol";
 
-	if (($weight > 65535) || !eregi("^([0-9])+$", $weight))
-                return "SRV weight must be a numeric value between 0 and 65535";
-        
-	if (($port > 65535) || !eregi("^([0-9])+$", $port) ) 
-                return "SRV port must be a numeric value between 0 and 65535";
+    if (($distance > 65535) || !eregi("^([0-9])+$", $distance))
+        return "SRV distance must be a numeric value between 0 and 65535";
 
+    if (($weight > 65535) || !eregi("^([0-9])+$", $weight))
+        return "SRV weight must be a numeric value between 0 and 65535";
+
+    if (($port > 65535) || !eregi("^([0-9])+$", $port) )
+        return "SRV port must be a numeric value between 0 and 65535";
     }
 
     // make sure a TTL was given
@@ -447,105 +446,74 @@ function get_account_info($id) {
     return mysql_fetch_array($result);
 }
 
-/*
-// DOPRY: old version of function
-// DOPRY: making encode_rdata_octet and  encode_qname so it will be easier to incorporate new record types on same code.
-function encode_srv_rdata($distance,$weight,$port,$target) {
-	// priotity weight   port     qname
-	// MSB LSB, MSB LSB, MSB LSB, LABEL_SEQUENCE
-
-	$rdata = '';
-
-        //pack data into 16 bit big-endian format just in case.
-        $data = pack("nnn",$distance,$weight,$port);
-
-        //get decimal value of individual bytes
-        $bytes = unpack('C*',$data);
-
-        //convert byte to oct pad to three characters and append to record
-        foreach($bytes as $byte) $rdata .= "\\".str_pad(decoct($byte),3,0, STR_PAD_LEFT);
-
-        //split the target into proper parts to become a proper QNAME see RFC1035 4.1.2
-        $qnameparts = split('\.',$target);
-
-        //write length octet, then characters... ( I think djbdbs handles converting them to octet... doesn't seem RFC compliant
-        //but produces identical output to Rob Mayoff's SRV generator...);
-        foreach ($qnameparts as $part)  $rdata .= "\\".str_pad(decoct(strlen($part)),3,0,STR_PAD_LEFT)."".$part;
-
-        //add term octet for QNAME
-       $rdata .= "\\000";
-
-        return $rdata;
-}
-*/
 
 // DOPRY: begin generic  encoding functions
 function encode_rdata_octets($value) {
-        // DOPRY: Big Endian 16 bit MSB LSB encoding for decimal values to rdata octets(tinydns-data)
+    // DOPRY: Big Endian 16 bit MSB LSB encoding for decimal values to rdata octets(tinydns-data)
 
-        // DOPRY: pack into 16 bit big endian, just in case.
-        $data = pack("n",$value);
+    // DOPRY: pack into 16 bit big endian, just in case.
+    $data = pack("n",$value);
 
-        // DOPRY: unpack bytes
-        $bytes = unpack("Cmsb/Clsb", $data);
+    // DOPRY: unpack bytes
+    $bytes = unpack("Cmsb/Clsb", $data);
 
-        // DOPRY: add the backslashes and pad string to length
-        $octets = "\\".str_pad(decoct($bytes['msb']),3,0, STR_PAD_LEFT).
-                 "\\".str_pad(decoct($bytes['lsb']),3,0, STR_PAD_LEFT);
+    // DOPRY: add the backslashes and pad string to length
+    $octets = "\\".str_pad(decoct($bytes['msb']),3,0, STR_PAD_LEFT).
+             "\\".str_pad(decoct($bytes['lsb']),3,0, STR_PAD_LEFT);
 
-        return $octets;
+    return $octets;
 }
 
 function encode_rdata_qname($hostname) {
-        // DOPRY: QNAME(RFC 1035 section 4.1.2) encoding for url to octets(tinydns-data)
+    // DOPRY: QNAME(RFC 1035 section 4.1.2) encoding for url to octets(tinydns-data)
 
-        // DOPRY: split the hostname by . (need length of each element)
-        $qnameparts = split('\.',$hostname);
+    // DOPRY: split the hostname by . (need length of each element)
+    $qnameparts = split('\.',$hostname);
 
-        // DOPRY: write length octet, then characters... ( I think djbdbs handles converting them to oct... doesn't seem RFC compliant
-        //but produces identical output to Rob Mayoff's SRV generator...);
+    // DOPRY: write length octet, then characters... ( I think djbdbs handles converting them to oct... doesn't seem RFC compliant
+    //but produces identical output to Rob Mayoff's SRV generator...);
 
-        $qname = '';
-        foreach ($qnameparts as $part)  $qname .= "\\".str_pad(decoct(strlen($part)),3,0,STR_PAD_LEFT)."".$part;
+    $qname = '';
+    foreach ($qnameparts as $part)  $qname .= "\\".str_pad(decoct(strlen($part)),3,0,STR_PAD_LEFT)."".$part;
 
-        // DOPRY: add term octet for QNAME
-        $qname .= "\\000";
-        return $qname;
+    // DOPRY: add term octet for QNAME
+    $qname .= "\\000";
+    return $qname;
 }
 // DOPRY: end generic record  encoding functions
 
 // DOPRY: begin generic record decoding functions
 function decode_rdata_octets($octets) {
-	$octs = split('[\\]',$octets);
-	$data = pack("CC",octdec($octs[1]),octdec($octs[2]));
-	$value = unpack("ndec",$data);
-	return $value['dec'];
+    $octs = split('[\\]',$octets);
+    $data = pack("CC",octdec($octs[1]),octdec($octs[2]));
+    $value = unpack("ndec",$data);
+    return $value['dec'];
 
 }
 
 function decode_rdata_qname($qname) {
-	$hostname = '';
-	$pos = 0;
+    $hostname = '';
+    $pos = 0;
 
-	//use len -4 to offet for terminating character
-	$len = strlen($qname)-4;
-	while ($pos < $len-4) {
+    //use len -4 to offet for terminating character
+    $len = strlen($qname)-4;
+    while ($pos < $len-4) {
 
-		//position + 1 ot offset for backslash
-		$element_length = substr($qname,$pos+1,3);
-		$element_length = octdec($element_length);
-		
-		// move position past the length identifier
-		$pos += 4;
+        //position + 1 ot offset for backslash
+        $element_length = substr($qname,$pos+1,3);
+        $element_length = octdec($element_length);
 
-		// get substr
-	 	$hostname .= substr($qname,$pos,$element_length).".";
-		
-		//move position to end of element.	
-		$pos += $element_length;
-			
-	} 
-	return $hostname;
+        // move position past the length identifier
+        $pos += 4;
+
+        // get substr
+         $hostname .= substr($qname,$pos,$element_length).".";
+
+        //move position to end of element.
+        $pos += $element_length;
+
+    }
+    return $hostname;
 }
 
 // DOPRY: generic rdata encoding function for tinydns-data
@@ -553,43 +521,44 @@ function decode_rdata_qname($qname) {
 //  ex) for SRV records $format='cccq';
 
 function encode_rdata($format, $values) {
-	$rdata = '';
-	$len = strlen($format);
-	if ($len != count($values))  die("encode_rdata: value count mismatch in format"); 
-	for ($i = 0; $i < $len; $i++) {
-		$format_code  =  substr($format,$i,1);
-		switch ($format_code) {
-			case 'c' : $rdata .= encode_rdata_octets($values[$i]); break;
-			case 'q' : $rdata .= encode_rdata_qname($values[$i]); break;
-			default: die("encode_rdata: invalid format code: '$format_code'. 'c' or 'q' only");
-		} 
-	}	
-	return $rdata;
-}	
+    $rdata = '';
+    $len = strlen($format);
+    if ($len != count($values))  die("encode_rdata: value count mismatch in format");
+    for ($i = 0; $i < $len; $i++) {
+        $format_code  =  substr($format,$i,1);
+        switch ($format_code) {
+            case 'c' : $rdata .= encode_rdata_octets($values[$i]); break;
+            case 'q' : $rdata .= encode_rdata_qname($values[$i]); break;
+            default: die("encode_rdata: invalid format code: '$format_code'. 'c' or 'q' only");
+        }
+    }
+    return $rdata;
+}
 
 function decode_rdata($format, $value) {
-	$rdata = array();
-	$pos = 0;
-	$len = strlen($format);
-        for ($i = 0; $i < $len; $i++) {
-                $format_code  =  substr($format,$i,1);
-                switch ($format_code) {
-                        case 'c' : 
-				$octets = substr($value,$pos,8);
-				$rdata[$i] =  decode_rdata_octets($octets); 
-				$pos += 8;
-				break;
-                        case 'q' :
-				if (!preg_match('/.+000/',$value,$qname,0,$pos)) die("decode_rdata: couldn't match qname at format position ".($i+1)."\n");
-				print $qname[0]."\n";
-				$rdata[$i] .= decode_rdata_qname($qname[0]); 
-				$pos += strlen($qname[0]);
-				break;
-				
-                        default: die("decode_rdata: invalid format code: '$format_code'. 'c' or 'q' only");
-                }
+    $rdata = array();
+    $pos = 0;
+    $len = strlen($format);
+    for ($i = 0; $i < $len; $i++) {
+        $format_code  =  substr($format,$i,1);
+        switch ($format_code) {
+            case 'c' :
+                $octets = substr($value,$pos,8);
+                $rdata[$i] =  decode_rdata_octets($octets);
+                $pos += 8;
+                break;
+            case 'q' :
+                if (!preg_match('/.+000/',$value,$qname,0,$pos)) die("decode_rdata: couldn't match qname at format position ".($i+1)."\n");
+                print $qname[0]."\n";
+                $rdata[$i] .= decode_rdata_qname($qname[0]);
+                $pos += strlen($qname[0]);
+                break;
+
+            default:
+                die("decode_rdata: invalid format code: '$format_code'. 'c' or 'q' only");
         }
-        return $rdata;
+    }
+    return $rdata;
 }
 
 
@@ -681,22 +650,21 @@ function parse_dataline($line) {
             $out_array['distance'] = '';
             $out_array['ttl'] = $array[3];
         }
-	if($array[1] == '33') {
-	   // DOPRY:
-	   $out_array['host'] = $array[0];
+        if($array[1] == '33') {
+           // DOPRY:
+           $out_array['host'] = $array[0];
            $out_array['type'] = 'V';
 
-	   // decode the rdata octets
-	   $srv_rdata = decode_rdata('cccq',$array[2]);
-	   $out_array['val'] = $srv_rdata[3];
+           // decode the rdata octets
+           $srv_rdata = decode_rdata('cccq',$array[2]);
+           $out_array['val'] = $srv_rdata[3];
            $out_array['distance'] = $srv_rdata[0];
-	   $out_array['weight'] = $srv_rdata[1];
-	   $out_array['port'] = $srv_rdata[2];
+           $out_array['weight'] = $srv_rdata[1];
+           $out_array['port'] = $srv_rdata[2];
            // back to your regularly scheduled programming.
 
            $out_array['ttl'] = $array[3];
- 
-	}
+        }
     }
     return $out_array;
 

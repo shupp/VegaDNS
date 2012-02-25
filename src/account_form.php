@@ -1,19 +1,19 @@
 <?php
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -22,7 +22,7 @@ if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
 
 
 
-if($_REQUEST['user_mode'] != 'add_account' 
+if($_REQUEST['user_mode'] != 'add_account'
     && $_REQUEST['user_mode'] != 'add_account_now')
     $smarty->assign('cid', $id);
 

@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -60,15 +60,15 @@ if(!isset($_REQUEST['record_mode'])) {
         $records[$counter]['type'] = $row['type'];
         $records[$counter]['val'] = $row['val'];
         $records[$counter]['distance'] = $row['distance'];
-	$records[$counter]['weight'] = $row['weight'];
-	$records[$counter]['port'] = $row['port'];
+        $records[$counter]['weight'] = $row['weight'];
+        $records[$counter]['port'] = $row['port'];
         $records[$counter]['ttl'] = $row['ttl'];
         $counter++;
     }
 
     // Get SOA
     while((list($num,$array) = each($records)) && !isset($soa)) {
-        if($array['type'] == 'S') $soa = $array; 
+        if($array['type'] == 'S') $soa = $array;
     }
     reset($records);
 
@@ -78,7 +78,7 @@ if(!isset($_REQUEST['record_mode'])) {
     } else {
         $tldemail = "hostmaster.$domain";
         while((list($num,$array) = each($records)) && !isset($tldhost)) {
-            if($array['type'] == 'N') $soa_array['tldhost'] = $array['host']; 
+            if($array['type'] == 'N') $soa_array['tldhost'] = $array['host'];
         }
         $soa_array['serial'] = "default";
         $soa_array['refresh'] = 16384;
@@ -99,12 +99,12 @@ if(!isset($_REQUEST['record_mode'])) {
             } else {
                 $out_array[$counter]['distance'] = 'n/a';
             }
-	    if($type == 'SRV') {
+            if($type == 'SRV') {
                 $out_array[$counter]['weight'] = $array['weight'];
-		$out_array[$counter]['port'] = $array['port'];
+                $out_array[$counter]['port'] = $array['port'];
             } else {
                 $out_array[$counter]['weight'] = 'n/a';
-		$out_array[$counter]['port'] = 'n/a';
+                $out_array[$counter]['port'] = 'n/a';
             }
 
             $out_array[$counter]['ttl'] = $array['ttl'];
@@ -117,7 +117,7 @@ if(!isset($_REQUEST['record_mode'])) {
     $smarty->assign('add_record_url', "$base_url&mode=default_records&record_mode=add_record");
     $smarty->assign('soa_array', $soa_array);
     if(isset($out_array))
-    	$smarty->assign('out_array', $out_array);
+        $smarty->assign('out_array', $out_array);
 
     $smarty->display('header.tpl');
     $smarty->display('list_default_records.tpl');
@@ -164,7 +164,7 @@ if(!isset($_REQUEST['record_mode'])) {
         }
 
         if($_REQUEST['type'] == 'A') {
-            $q = "insert into default_records 
+            $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
@@ -178,7 +178,7 @@ if(!isset($_REQUEST['record_mode'])) {
             } else {
                 $mxaddress = $_REQUEST['address'];
             }
-            $q = "insert into default_records 
+            $q = "insert into default_records
             (group_owner_id,host,type,val,distance,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
@@ -188,7 +188,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'NS') {
-            $q = "insert into default_records 
+            $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
@@ -197,7 +197,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'CNAME') {
-            $q = "insert into default_records 
+            $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
@@ -206,7 +206,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'TXT') {
-            $q = "insert into default_records 
+            $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
@@ -214,22 +214,22 @@ if(!isset($_REQUEST['record_mode'])) {
             '".mysql_escape_string($_REQUEST['address'])."',
             '".$_REQUEST['ttl']."',
             '$default_type')";
-	} else if ($_REQUEST['type'] == 'SRV') {
-	    if(!ereg("\..+$", $_REQUEST['address'])) {
+        } else if ($_REQUEST['type'] == 'SRV') {
+            if(!ereg("\..+$", $_REQUEST['address'])) {
                 $srvaddress = $_REQUEST['address'].".DOMAIN";
             } else {
                 $srvaddress = $_REQUEST['address'];
             }
 
-	    $q = "insert into default_records
-	    (group_owner_id,host,type,val,distance,weight,port,ttl,default_type) values (
-	    '".$user_info['cid']."',
+        $q = "insert into default_records
+        (group_owner_id,host,type,val,distance,weight,port,ttl,default_type) values (
+        '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             '".mysql_escape_string($srvaddress)."',
             '".mysql_escape_string($_REQUEST['distance'])."',
-	    '".mysql_escape_string($_REQUEST['weight'])."',
-	    '".mysql_escape_string($_REQUEST['port'])."',
+        '".mysql_escape_string($_REQUEST['weight'])."',
+        '".mysql_escape_string($_REQUEST['port'])."',
             '".$_REQUEST['ttl']."',
             '$default_type')";
         }
@@ -282,9 +282,9 @@ if(!isset($_REQUEST['record_mode'])) {
     // Get records list
     $sa_q = "select * from default_records where default_type='system' and type='S'";
     $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."' and type='S'";
-    if($user_info['Account_Type'] == 'senior_admin') {        
+    if($user_info['Account_Type'] == 'senior_admin') {
         $result = mysql_query($sa_q) or die(mysql_error());
-    } else {        
+    } else {
         $result = mysql_query($ga_q) or die(mysql_error());
         if(mysql_num_rows($result) == 0)
             $result = mysql_query($sa_q) or die(mysql_error());
@@ -310,7 +310,7 @@ if(!isset($_REQUEST['record_mode'])) {
         $smarty->display('footer.tpl');
         exit;
     }
-    
+
     // See if this group_admin has an existing soa
     if($user_info['Account_Type'] == 'group_admin') {
         $default_type = 'group';
@@ -351,7 +351,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '".mysql_escape_string($_REQUEST['ttl'])."',
             'group')";
     } else {
-        $q = "replace into default_records set 
+        $q = "replace into default_records set
             record_id='$id',
             host='".mysql_escape_string($host)."',
             type='S',
@@ -366,7 +366,7 @@ if(!isset($_REQUEST['record_mode'])) {
     set_msg("Default SOA record updated successfully");
     header("Location: $base_url&mode=default_records");
     exit;
-    
+
 } else {
 
     die("Error: illegal records_mode");

@@ -1,24 +1,24 @@
 <?php
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
  *
  *
  *
- * NOTE:    
- *          This functionality ONLY exists outside of the main application 
- *          because tcplient kept dying fatally due to file descriptor 7 
+ *
+ * NOTE:
+ *          This functionality ONLY exists outside of the main application
+ *          because tcplient kept dying fatally due to file descriptor 7
  *          being unavailable, which only occurs AFTER session_start() is
  *          called.
  *

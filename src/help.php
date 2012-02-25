@@ -2,19 +2,19 @@
 
 
 /*
- * 
+ *
  * VegaDNS - DNS Administration Tool for use with djbdns
- * 
+ *
  * CREDITS:
  * Written by Bill Shupp
  * <hostmaster@shupp.org>
- * 
+ *
  * LICENSE:
  * This software is distributed under the GNU General Public License
  * Copyright 2003-2012, Bill Shupp
  * see COPYING for details
- * 
- */ 
+ *
+ */
 
 if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
@@ -51,10 +51,10 @@ if(!isset($_REQUEST['mode'])) {
             header("Location: ".$_SERVER['PHP_SELF']."?".SID."&state=help");
             exit;
         } else {
-	    $fa=mysql_fetch_array($result);
+            $fa=mysql_fetch_array($result);
             // Send Password
-	    $newpass = substr(md5(rand(0,10000)."vegadns_".$_REQUEST['username'].rand(0,10000)),0,rand(5,8));
-	    mysql_query("update accounts set Password='".md5($newpass)."' where cid=".$fa[0]);
+            $newpass = substr(md5(rand(0,10000)."vegadns_".$_REQUEST['username'].rand(0,10000)),0,rand(5,8));
+            mysql_query("update accounts set Password='".md5($newpass)."' where cid=".$fa[0]);
             $body = "Here is your requested information:\n\n";
             $body .= "Your new password is: ".$newpass."\n\n";
             $body .= "If you have further questions, please contact $supportemail\n";
