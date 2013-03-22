@@ -220,7 +220,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         exit;
     }
     // make sure it's at least a correct domain name
-    if (!eregi("^[\.a-z0-9-]+$",$domain)) {
+    if (!preg_match('/^[\.a-z0-9-\/]+$/i',$domain)) {
         set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " does not appear to be a valid domain name");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');

@@ -139,7 +139,7 @@ function check_domain_name_format($name) {
     if(ereg('\.\.', $name)) {
         return FALSE;
     } else {
-        $result = eregi("^[\*\.a-z0-9-]+\.[a-z0-9-]+$", strtolower($name));
+        $result = preg_match('/^[\*\.a-z0-9-\/]+\.[a-z0-9-]+[\.]{0,1}$/i', strtolower($name));
         return $result;
     }
 
