@@ -89,6 +89,7 @@ if(isset($_REQUEST['state']) && $_REQUEST['state'] == 'get_data') {
         header("Content-type: text/plain");
         require('src/data.php');
     } else {
+        header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
         echo "Error: Host ".$_SERVER['REMOTE_ADDR']." is not authorized to access this page";
     }
     exit;
