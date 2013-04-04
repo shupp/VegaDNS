@@ -54,6 +54,9 @@ $use_ipv6 = false;
 
 $trusted_hosts = '127.0.0.1';
 
+// Set this to 1 if you don't want to limit access to get_data
+$trusted = 0;
+
 // IP Address of the local tinydns instance.  This is the IP that will be used
 // for dns lookups on authoritative information
 $tinydns_ip = '127.0.0.1';

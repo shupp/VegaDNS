@@ -78,10 +78,17 @@ if(!is_writable("$private_dirs/cache")) die("Error: $private_dirs/cache is not w
 if(isset($_REQUEST['state']) && $_REQUEST['state'] == 'get_data') {
 
     // Check trusted hosts
-    $trusted = 0;
     $array = explode(',',$trusted_hosts);
+    $remote_addr = ip2long($_SERVER['REMOTE_ADDR']);
     while((list($key,$value) = each($array)) && $trusted == 0) {
-        if(trim($value) == $_SERVER['REMOTE_ADDR']) $trusted = 1;
+        $cidr = explode("/", trim($value), 2);
+        $addr = ip2long($cidr[0]);
+        $len = (count($cidr) == 2) ? intval($cidr[1]) : 32;
+        $shift = 32 - $len;
+        if (($remote_addr >> $shift) == ($addr >> $shift)) {
+            $trusted = 1;
+            break;
+        }
     }
 
     if($trusted == 1) {
