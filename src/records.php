@@ -410,6 +410,15 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             '".$_REQUEST['ttl']."')";
 
         }
+        if($_REQUEST['type'] == 'SPF') {
+            $q = "insert into records
+            (domain_id,host,type,val,ttl) values(
+            '".get_dom_id($domain)."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            '".mysql_escape_string($_REQUEST['address'])."',
+            '".$_REQUEST['ttl']."')";
+        }
         mysql_query($q) or die(mysql_error());
         set_msg("Record added successfully!");
         header("Location: $base_url&mode=records&domain=".urlencode($domain));

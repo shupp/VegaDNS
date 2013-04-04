@@ -193,6 +193,7 @@ function get_type($type) {
     if($type == 'T') return 'TXT';
     if($type == 'C') return 'CNAME';
     if($type == 'V') return 'SRV';
+    if($type == 'F') return 'SPF';
 
 }
 
@@ -208,6 +209,7 @@ function set_type($type) {
     if($type == 'TXT') return 'T';
     if($type == 'CNAME') return 'C';
     if($type == 'SRV') return 'V';
+    if($type == 'SPF') return 'F';
 
 }
 
@@ -575,6 +577,9 @@ function build_data_line($row,$domain) {
         $s = "^".$row['host'].":".$row['val'].":".$row['ttl']."\n";
     } else if($row['type'] == 'T') {
         $s = "'".$row['host'].":".str_replace(":",'\072', $row['val']).":".$row['ttl']."\n";
+    } else if($row['type'] == 'F') {
+        $val_str = str_replace(":",'\072', $row['val']);
+        $s = ":".$row['host'].":99:\\".str_pad(decoct(strlen($row['val'])),3,0,STR_PAD_LEFT)."".$val_str.":".$row['ttl']."\n";
     } else if($row['type'] == 'C') {
         $s = "C".$row['host'].":".$row['val'].":".$row['ttl']."\n";
     } else if($row['type'] == 'S') {
@@ -646,6 +651,14 @@ function parse_dataline($line) {
             // Is a TXT record
             $out_array['host'] = $array[0];
             $out_array['type'] = 'T';
+            $out_array['val'] = $array[2];
+            $out_array['distance'] = '';
+            $out_array['ttl'] = $array[3];
+        }
+        if($array[1] == '99') {
+            // Is a SPF record
+            $out_array['host'] = $array[0];
+            $out_array['type'] = 'F';
             $out_array['val'] = $array[2];
             $out_array['distance'] = '';
             $out_array['ttl'] = $array[3];
