@@ -1,3 +1,12 @@
+** UPGRADING FROM 0.11.2 OR LOWER PLEASE READ **                  4/4/2013
+
+You SHOULD run the ALTER statements in records_update.sql:
+
+    mysql -u <user> -p<pass> <db_name> < records_update.sql
+
+These provide even longer `val` columns for things like SPF/TXT records
+
+
 ** UPGRADING FROM 0.9.10 OR LOWER PLEASE READ **                  3/20/2010
 
 You MUST run the ALTER statements in srv_support.sql:
