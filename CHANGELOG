@@ -1,3 +1,16 @@
+* 0.11.3 4/4/2013
+    - Bill Shupp (hostmaster@shupp.org)
+        - Updated records_update.sql - the val column needs to be much bigger
+          (changing to 512) for SPF records - See UPGRADE
+        - Added RFC 4408 support (SPF via type 99)
+        - Added CIDR suport for $trusted_hosts, you can now optionally use
+          1.2.3.0/24 in the list instead of single IPs
+        - Moved $trusted into src/config.php so you can easily set to 1 if you want
+          to remove application level IP limits to exports
+        - Removed specific version from update-data.sh, doesn't make sense to
+          maintain it here
+        - Set 403 status when forbidding access to exports
+
 * 0.11.2 3/22/2013
     - Bill Shupp (hostmaster@shupp.org)
         - Added support for RFC 2317
