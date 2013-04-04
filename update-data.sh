@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # The FULL path to the index.php file for the VegaDNS server
-VEGADNS='http://127.0.0.1/vegadns-0.11.2/index.php'
+VEGADNS='http://127.0.0.1/vegadns-x.x/index.php'
 
 # NOTE: You can get updates from multiple VegaDNS servers if 
 # desired. Simply separate them by spaces like so:
