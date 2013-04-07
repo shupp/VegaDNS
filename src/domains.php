@@ -32,11 +32,13 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         set_msg("Delete Cancelled");
     }
 
+    $params = array();
     // Get search string if it exists
     if(isset($_REQUEST['search']) && $_REQUEST['search'] != "") {
         $tempstring = preg_replace('/[*]/', '%', $_REQUEST['search']);
         $tempstring = preg_replace('/[ ]/', '%', $tempstring);
-        $searchstring = "domain like '%".mysql_escape_string($tempstring)."%'";
+        $params[':tempstring'] = '%'.$tempstring.'%';
+        $searchstring = 'domain like :tempstring';
         // Set appropriate query
         if($user_info['Account_Type'] == 'senior_admin') {
             $searchstring = 'where '.$searchstring;
@@ -101,8 +103,9 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     $q .= "order by $sortfield $sortway ".( ($sortfield == "status") ? ", domain" : "" )."";
 
-    $result = mysql_query($q) or die(mysql_error());
-    $totaldomains = mysql_num_rows($result);
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
+    $totaldomains = $stmt->rowCount();
 
     // Pagination
     if(isset($_REQUEST['page'])) {
@@ -162,7 +165,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
         $domain_count = 0;
         // Actually list domains
-        while(++$domain_count && ($row = mysql_fetch_array($result))
+        while(++$domain_count && ($row = $stmt->fetch())
             && ($domain_count <= $last_domain)) {
 
             if($domain_count < $first_domain) continue;
