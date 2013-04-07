@@ -454,7 +454,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     }
 
     $q = "update domains set status='active' where domain_id=".$_REQUEST['domain_id']."";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
     dns_log($_REQUEST['domain_id'], "Changed status to ACTIVE");
     set_msg("Domain activated successfully");
     header("Location: $base_url&mode=domains");
@@ -479,7 +479,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     }
 
     $q = "update domains set status='inactive' where domain_id=".$_REQUEST['domain_id']."";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
     dns_log($_REQUEST['domain_id'], "Changed status to INACTIVE");
 
