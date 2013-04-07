@@ -134,7 +134,6 @@ if(!isset($_REQUEST['state'])) {
     // CANCEL
 
     // End session
-    $pdo = VDB::singleton();
     $q = "delete from active_sessions where sid='".session_id()."'";
     $result = $pdo->query($q) or die(print_r($pdo->errorInfo()));
     session_unset();
@@ -202,7 +201,6 @@ if(!isset($_REQUEST['state'])) {
         // Set base url for convenience
         $base_url = $_SERVER['PHP_SELF']."?".SID."&state=logged_in";
         // Get current account settings
-        $pdo = VDB::singleton();
         $result = $pdo->query("select * from accounts where Email='$email'")
             or die(print_r($pdo->errorInfo()));
         $user_info = $result->fetchAll();

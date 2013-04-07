@@ -21,7 +21,7 @@ if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     exit;
 }
 
-VDB::singleton();
+$pdo = VDB::singleton();
 
 mysql_connect("$mysql_host", "$mysql_user", "$mysql_pass")
     or die("error connecting to database");
