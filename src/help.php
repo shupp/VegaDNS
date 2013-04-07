@@ -43,15 +43,15 @@ if(!isset($_REQUEST['mode'])) {
 
     // Make sure it's in the database
     require('src/connect.php');
-        $result = mysql_query("select cid from accounts where Email='".
-            strtolower($_REQUEST['username'])."'") or die(mysql_error());
+        $stmt = $pdo->query("select cid from accounts where Email='".
+            strtolower($_REQUEST['username'])."'") or die(print_r($pdo->errorInfo()));
 
-        if(mysql_num_rows($result) < 1) {
+        if($stmt->rowCount() < 1) {
             set_msg_err("Error: \"".$_REQUEST['username']."\" does not appear in our database");
             header("Location: ".$_SERVER['PHP_SELF']."?".SID."&state=help");
             exit;
         } else {
-            $fa=mysql_fetch_array($result);
+            $fa = $stmt->fetch();
             // Send Password
             $newpass = substr(md5(rand(0,10000)."vegadns_".$_REQUEST['username'].rand(0,10000)),0,rand(5,8));
             mysql_query("update accounts set Password='".md5($newpass)."' where cid=".$fa[0]);
