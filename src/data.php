@@ -28,11 +28,11 @@ if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
 
 // build data
 $q = "select a.domain, b.host, b.type, b.val, b.distance, b.weight, b.port, b.ttl  from domains a left join records  b on a.domain_id = b.domain_id where a.status='active' order by a.domain, b.type, b.host, b.val";
-$result = mysql_query($q) or die(mysql_error());
+$stmt = $pdo->query($q) or die(print_r($stmt->errorInfo()));
 $out = "";
 
 $lastdomain = "";
-while($row = mysql_fetch_array($result)) {
+while($row = $stmt->fetch()) {
     // Set comment if it's the beginning of a new domain
     if($lastdomain != $row['domain']) $out .= "\n#".$row['domain']."\n";
 
