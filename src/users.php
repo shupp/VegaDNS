@@ -90,12 +90,17 @@ if($_REQUEST['user_mode'] == 'edit_account') {
 
     if(isset($new_gid) && $new_gid != NULL) $q .= "gid='$new_gid', ";
 
-    $q .= "
-
-        First_Name='".mysql_escape_string($_REQUEST['first_name'])."',
-        Last_Name='".mysql_escape_string($_REQUEST['last_name'])."',
-        Phone='".mysql_escape_string($_REQUEST['phone'])."',
-        Email='".mysql_escape_string(strtolower($_REQUEST['email_address']))."'";
+    $params = array(
+        ':first_name' => $_REQUEST['first_name'],
+        ':last_name'  => $_REQUEST['last_name'],
+        ':phone'      => $_REQUEST['phone'],
+        ':email'      => strtolower($_REQUEST['email_address'])
+    );
+    $q .= '
+        First_Name=:first_name,
+        Last_Name=:last_name,
+        Phone=:phone,
+        Email=:email';
     if ($_REQUEST['password']!="") {
      $q .=  ", Password='".md5($_REQUEST['password'])."'";
     }
@@ -105,13 +110,15 @@ if($_REQUEST['user_mode'] == 'edit_account') {
     }
     $q .= " where cid='".get_cid($account_info['Email'])."'";
 
-    mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
 
     // Update email in active sessions if necessary
     if($account_info['Email'] != strtolower($_REQUEST['email_address'])) {
-        $q = "update active_sessions set Email='".
-            strtolower($_REQUEST['email_address'])."' where Email='".$account_info['Email']."'";
-        mysql_query($q) or die(mysql_error());
+        $params = array(':email' => strtolower($_REQUEST['email_address']));
+        $q = "update active_sessions set Email=:email where Email='".$account_info['Email']."'";
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params) or die(print_r($stmt->errorInfo()));
     }
 
     set_msg("Account edited successfully");
@@ -164,6 +171,12 @@ if($_REQUEST['user_mode'] == 'edit_account') {
         require('src/check_account_data.php');
 
         // Add account
+        $params = array(
+            ':first_name' => $_REQUEST['first_name'],
+            ':last_name'  => $_REQUEST['last_name'],
+            ':email'      => $_REQUEST['email_address'],
+            ':phone'      => $_REQUEST['phone']
+        );
         $q = "insert into accounts (";
         if($user_info['Account_Type'] == 'group_admin')
         $q .= "gid,";
@@ -178,11 +191,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
                 values(";
         if($user_info['Account_Type'] == 'group_admin')
         $q .= " '".$user_info['cid']."',";
-        $q .= " '".mysql_escape_string($_REQUEST['first_name'])."',
-                '".mysql_escape_string($_REQUEST['last_name'])."',
-                '".mysql_escape_string($_REQUEST['email_address'])."',
-                '".mysql_escape_string($_REQUEST['phone'])."',
-                '".md5($_REQUEST['password'])."',";
+        $q .= ":first_name,:last_name,:email,:phone,'".md5($_REQUEST['password'])."',";
         if($user_info['Account_Type'] == 'group_admin') {
             $q .= " 'user',
                     'active')";
@@ -191,7 +200,8 @@ if($_REQUEST['user_mode'] == 'edit_account') {
                     '".$_REQUEST['status']."')";
         }
 
-        mysql_query($q) or die(mysql_error());
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params) or die(print_r($stmt->errorInfo()));
         set_msg("Account added successfully");
         header("Location: $base_url");
         exit;
@@ -234,7 +244,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
 
 
         $q .= " order by $sortfield  $sortway" . (($sortfield == 'Account_Type') ? ", Last_Name" :"" ) . "";
-        $result = mysql_query($q) or die(mysql_error());
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 
         $smarty->assign('user_account_type', $user_info['Account_Type']);
@@ -256,7 +266,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
         }
 
         $counter = 0;
-        while($row = mysql_fetch_array($result)) {
+        while($row = $stmt->fetch()) {
             $out_array[$counter]['name'] = $row['First_Name'].' '.$row['Last_Name'];
             $out_array[$counter]['email'] = $row['Email'];
             $out_array[$counter]['account_type'] = $row['Account_Type'];
@@ -297,8 +307,8 @@ if($_REQUEST['user_mode'] == 'edit_account') {
 
         // Get user info
         $q = "select * from accounts where cid='".$_REQUEST['cid']."' LIMIT 1";
-        $result = mysql_query($q) or die(mysql_error());
-        $row = mysql_fetch_array($result);
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        $row = $stmt->fetch();
 
         $smarty->assign('name', $row['First_Name'] ." ".$row['Last_Name']);
         $smarty->assign('cancel_url', "$base_url&mode=users&user_mode=cancelled");
@@ -334,8 +344,8 @@ if($_REQUEST['user_mode'] == 'edit_account') {
     // Make sure this group_admin has rights to delete
     if($user_info['Account_Type'] == 'group_admin') {
         $q = "select gid from accounts where cid='".$_REQUEST['cid']."'";
-        $result = mysql_query($q) or die(mysql_error());
-        $owner_info = mysql_fetch_array($result);
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        $owner_info = $stmt->fetch();
 
         if($user_info['cid'] != $owner_info['gid']) {
             set_msg_err("Error: you do not have privileges to delete this user");
@@ -352,8 +362,8 @@ if($_REQUEST['user_mode'] == 'edit_account') {
         $q1 = "update domains set owner_id=0 where owner_id='".$_REQUEST['cid']."'";
     }
     $q2 = "delete from accounts where cid='".$_REQUEST['cid']."'";
-    mysql_query($q1) or die(mysql_error());
-    mysql_query($q2) or die(mysql_error());
+    $pdo->query($q1) or die(print_r($pdo->errorInfo()));
+    $pdo->query($q1) or die(print_r($pdo->errorInfo()));
 
     set_msg("User deleted successfully");
     header("Location: $base_url&mode=users&user_mode=show_users");
