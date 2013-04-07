@@ -686,29 +686,29 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
         // Get domain data, make sure it even exists
         $q = "select * from domains where domain_id='".$_REQUEST['domain_id']."' limit 1";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0) {
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() == 0) {
             set_msg_err("Error: ".$_REQUEST['domain']." is not in the database");
             $smarty->display('header.tpl');
             $smarty->display('footer.tpl');
             exit;
         }
-        $row = mysql_fetch_array($result);
+        $row = $stmt->fetch();
 
         // Get owner info
         $q = "select * from accounts where cid='".$row['owner_id']."' limit 1";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) > 0) {
-            $owner_row = mysql_fetch_array($result);
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() > 0) {
+            $owner_row = $stmt->fetch();
         } else {
             $owner_row = NULL;
         }
 
         // Get group owner info
         $q = "select * from accounts where cid='".$row['group_owner_id']."' limit 1";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) > 0) {
-            $group_owner_row = mysql_fetch_array($result);
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() > 0) {
+            $group_owner_row = $stmt->fetch();
         } else {
             $group_owner_row = NULL;
         }
@@ -736,8 +736,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             // make sure the email addresses are in in the database
             $owner_id = get_cid(strtolower($_REQUEST['email_address']));
             $q = "select 'Email' from accounts where cid='$owner_id'";
-            $result = mysql_query($q) or die(mysql_error());
-            if(mysql_num_rows($result) == 0) {
+            $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+            if($stmt->rowCount() == 0) {
                 set_msg_err("Error: ".$_REQUEST['email_address']." is not in the database");
                 $smarty->display('header.tpl');
                 $smarty->display('footer.tpl');
@@ -747,8 +747,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             if($user_info['Account_Type'] == 'senior_admin' && isset($_REQUEST['group_email_address']) && $_REQUEST['group_email_address'] != '') {
                 $group_owner_id = get_cid(strtolower($_REQUEST['group_email_address']));
                 $q = "select 'Email' from accounts where cid='$group_owner_id' and Account_Type='group_admin'";
-                $result = mysql_query($q) or die(mysql_error());
-                if(mysql_num_rows($result) == 0) {
+                $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+                if($stmt->rowCount() == 0) {
                     set_msg_err("Error: ".$_REQUEST['group_email_address']." is not in the database, or their Account_Type is not 'group_admin'");
                     $smarty->display('header.tpl');
                     require('src/change_owner.php');
@@ -762,7 +762,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             if($change_group == 1)
             $q .= ", group_owner_id = '$group_owner_id'";
             $q .= " where domain_id = '".$_REQUEST['domain_id']."'";
-            $result = mysql_query($q) or die(mysql_error());
+            $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
             $log_entry = "changed owner to ".get_owner_name($owner_id);
             if($change_group == 1)

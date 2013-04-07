@@ -42,9 +42,9 @@ $smarty->assign('user_account_type', $user_info['Account_Type']);
 if($user_info['Account_Type'] == 'group_admin') {
     // Show list of available users
     $q = "select Email from accounts where gid='".$user_info['cid']."'";
-    $result = mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
     $counter = 0;
-    while($users_row = mysql_fetch_array($result)) {
+    while($users_row = $stmt->fetch()) {
         $users_email_array[$counter] = $users_row['Email'];
         if($users_row['Email'] == $owner_row['Email'])
             $smarty->assign('user_email_selected', $users_row['Email']);
