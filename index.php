@@ -202,9 +202,11 @@ if(!isset($_REQUEST['state'])) {
         // Set base url for convenience
         $base_url = $_SERVER['PHP_SELF']."?".SID."&state=logged_in";
         // Get current account settings
-        $result = mysql_query("select * from accounts where Email='$email'")
-            or die(mysql_error());
-        $user_info = mysql_fetch_array($result);
+        $pdo = VDB::singleton();
+        $result = $pdo->query("select * from accounts where Email='$email'")
+            or die(print_r($pdo->errorInfo()));
+        $user_info = $result->fetchAll();
+        $user_info = $user_info[0];
 
         // Setup smarty stuff
         $smarty->assign('email', $email);
