@@ -231,9 +231,11 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         exit;
     }
 
-    $q = "select * from domains where domain='".mysql_escape_string($domain)."'";
-    $result = mysql_query($q);
-    if(mysql_num_rows($result) > 0) {
+    $params = array(':domain' => $domain);
+    $q = 'select * from domains where domain=:domain';
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
+    if($stmt->rowCount() > 0) {
 
         set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " already exists");
         $smarty->display('header.tpl');
@@ -259,11 +261,12 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Add domain
     $q = "insert into domains (domain,owner_id,group_owner_id,status)
-        values('".mysql_escape_string($domain)."',
+        values(:domain,
         '$owner_id',
         '$group_owner_id',
         '$domain_status')";
-    $result = mysql_query($q) or die(mysql_error()."<p>query was: $q");
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
 
     // Get new domain id, or die
     $id = get_dom_id($domain);
@@ -273,27 +276,27 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     // Get default records
     if($user_info['Account_Type'] == 'user') {
         $q = "select * from default_records where default_type='group' and group_owner_id='".$user_info['gid']."'";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0) {
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() == 0) {
             // Get system default records
             $q = "select * from default_records where default_type='system'";
-            $result = mysql_query($q) or die(mysql_error());
+            $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
          }
     } else if($user_info['Account_Type'] == 'group_admin') {
         $q = "select * from default_records where default_type='group' and group_owner_id='".$user_info['cid']."'";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0) {
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() == 0) {
             // Get system default records
             $q = "select * from default_records where default_type='system'";
-            $result = mysql_query($q) or die(mysql_error());
+            $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
         }
     } else if($user_info['Account_Type'] == 'senior_admin') {
         // Get system default records
         $q = "select * from default_records where default_type='system'";
-        $result = mysql_query($q) or die(mysql_error());
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
     }
 
-    if(mysql_num_rows($result) == 0) {
+    if($stmt->rowCount() == 0) {
         set_msg_err("Error: you have not yet setup default records");
         header("Location: $base_url");
         exit;
@@ -301,7 +304,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Build arrays
     $counter = 0;
-    while($row = mysql_fetch_array($result)) {
+    while($row = $stmt->fetch()) {
         if($row['type'] == 'S' && !isset($soa_array)) {
             $soa_array = $row;
         } else {
@@ -314,13 +317,15 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     // Add SOA record
     $host = ereg_replace("DOMAIN", $domain, $soa_array['host']);
     $val = ereg_replace("DOMAIN", $domain, $soa_array['val']);
+    $params = array(':host' => $host);
     $q = "insert into records (domain_id,host,type,val,ttl)
             values('$id',
-            '".mysql_escape_string($host)."',
+            :host,
             'S',
             '$val',
             '".$soa_array['ttl']."')";
-    mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
     dns_log($id, "added soa");
 
     // Add default records
@@ -329,14 +334,16 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
         while(list($key,$row) = each($records_array)) {
             $host = ereg_replace("DOMAIN", $domain, $row['host']);
             $val = ereg_replace("DOMAIN", $domain, $row['val']);
+            $params = array(':host' => $host);
             $q = "insert into records (domain_id,host,type,val,distance,ttl)
                 values('$id',
-                '".mysql_escape_string($host)."',
+                :host,
                 '".$row['type']."',
                 '$val',
                 '".$row['distance']."',
                 '".$row['ttl']."')";
-            mysql_query($q) or die(mysql_error());
+            $stmt = $pdo->prepare($q);
+            $stmt->execute($params) or die(print_r($stmt->errorInfo()));
             dns_log($id, "added ".$row['type']." $host with value $val");
         }
     }
