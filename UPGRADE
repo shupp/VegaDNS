@@ -49,6 +49,9 @@ update-data.sh now provides some errors, and you want to get them.
 As of version 0.8, passwords are no longer stored as plain text, but rather as
 md5 hashes.  In order for your old passwords to work, you need to run the md5upgrade patch, which is located in the md5upgrade directory of your VegaDNS source.
 
+NOTE: The md5upgrade script was removed after 0.11.3.  Grab the 0.11.3 source if you still need this:
+https://github.com/shupp/VegaDNS/archive/0.11.3.zip
+
 To upgrade, just point your browser to:
 
 http://your-server/vegadns-x.x/md5upgrade/index.php
