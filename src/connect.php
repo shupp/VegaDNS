@@ -21,14 +21,7 @@ if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
     exit;
 }
 
-
-
-
-try {
-    $GLOBALS['pdo'] = new PDO('mysql:dbname=' . $mysql_db .';host=' . $mysql_host, $mysql_user, $mysql_pass);
-} catch (PDOException $e) {
-    die("error connecting to database: " . $e);
-}
+VDB::singleton();
 
 mysql_connect("$mysql_host", "$mysql_user", "$mysql_pass")
     or die("error connecting to database");

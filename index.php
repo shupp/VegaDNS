@@ -65,6 +65,9 @@ require('src/functions.php');
 // Get IPv6 Functions
 require_once 'src/Net/IPv6.php';
 
+// Get PDO wrapper
+require_once 'src/VDB.php';
+
 // Connect to database
 require('src/connect.php');
 
