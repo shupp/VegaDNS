@@ -34,8 +34,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Get search string if it exists
     if(isset($_REQUEST['search']) && $_REQUEST['search'] != "") {
-        $tempstring = ereg_replace("[*]", "%", $_REQUEST['search']);
-        $tempstring = ereg_replace("[ ]", "%", $tempstring);
+        $tempstring = preg_replace('/[*]/', '%', $_REQUEST['search']);
+        $tempstring = preg_replace('/[ ]/', '%', $tempstring);
         $searchstring = "domain like '%".mysql_escape_string($tempstring)."%'";
         // Set appropriate query
         if($user_info['Account_Type'] == 'senior_admin') {
