@@ -134,8 +134,9 @@ if(!isset($_REQUEST['state'])) {
     // CANCEL
 
     // End session
+    $pdo = VDB::singleton();
     $q = "delete from active_sessions where sid='".session_id()."'";
-    mysql_query($q) or die(mysql_error());
+    $result = $pdo->query($q) or die(print_r($pdo->errorInfo()));
     session_unset();
     session_destroy();
     header("Location: index.php");
