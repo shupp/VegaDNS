@@ -48,9 +48,11 @@ if(!check_email_format($_REQUEST['email_address'])) {
 }
 // If the email address is changing, check that it's not already in use
 if($account_info['Email'] != strtolower($_REQUEST['email_address'])) {
-    $q = mysql_query("select Email from accounts where Email='".
-        mysql_escape_string(strtolower($_REQUEST['email_address']))."'");
-    $email_rows = mysql_num_rows($q);
+    $params = array(':email' => strtolower($_REQUEST['email_address']));
+    $q = 'select Email from accounts where Email=:email';
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
+    $email_rows = $stmt->rowCount();
     if($email_rows > 0) {
         set_msg_err("Error: email address already in use");
         $smarty->display('header.tpl');
