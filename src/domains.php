@@ -364,17 +364,17 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Get domain info
     $q = "select * from domains where domain_id='".$_REQUEST['domain_id']."' limit 1";
-    $result = mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
     // Does the domain exist?
-    if(mysql_num_rows($result) == 0) {
+    if($stmt->rowCount() == 0) {
         set_msg_err("Error: domain ".htmlentities($_REQUEST['domain'], ENT_QUOTES)." does not exist");
         $smarty->display('header.tpl');
         $smarty->display('footer.tpl');
         exit;
     }
 
-    $row = mysql_fetch_array($result);
+    $row = $stmt->fetch();
 
     $smarty->assign('domain', $_REQUEST['domain']);
     $smarty->assign('cancel_url', "$base_url&mode=domains&domain_mode=delete_cancelled");
@@ -395,17 +395,17 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     // Make sure the user has rights to delete this domain
     $q = "select * from domains where domain_id='".$_REQUEST['domain_id']."' limit 1";
-    $result = mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
     // Does the domain exist?
-    if(mysql_num_rows($result) == 0) {
+    if($stmt->rowCount() == 0) {
         set_msg_err("Error: domain ".htmlentities($_REQUEST['domain'], ENT_QUOTES)." does not exist");
         $smarty->display('header.tpl');
         $smarty->display('footer.tpl');
         exit;
     }
 
-    $dom_row = mysql_fetch_array($result);
+    $dom_row = $stmt->fetch();
 
     // make sure the user has permission to delete this domain
     if($user_info['Account_Type'] != 'senior_admin') {
@@ -426,11 +426,11 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
 
     $q = "delete from domains where domain_id='".$_REQUEST['domain_id']."'";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
     $q = "delete from records where domain_id='".$_REQUEST['domain_id']."'";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
     $q = "delete from log where domain_id='".$_REQUEST['domain_id']."'";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
     set_msg("Domain $domain deleted successfully");
     header("Location: $base_url&mode=domains");
     exit;
