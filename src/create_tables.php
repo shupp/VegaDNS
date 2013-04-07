@@ -38,10 +38,10 @@ $q = "CREATE TABLE accounts (
   Status enum('active','inactive') NOT NULL default 'inactive',
   UNIQUE KEY cid (cid,Email)
 )";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "INSERT INTO accounts VALUES (0,0,'test@test.com','".md5('test')."','Test','User','','senior_admin','active')";
-mysql_query($q) or die(mysql_error()."<br>".$q);
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "CREATE TABLE active_sessions (
   sid varchar(32) NOT NULL default '',
@@ -49,10 +49,10 @@ $q = "CREATE TABLE active_sessions (
   time int(14) NOT NULL default '0',
   PRIMARY KEY  (sid)
 )";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "INSERT INTO active_sessions VALUES ('".session_id()."','test@test.com',".time().")";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "CREATE TABLE domains (
   domain_id int(11) NOT NULL auto_increment,
@@ -62,7 +62,7 @@ $q = "CREATE TABLE domains (
   status enum('active','inactive') NOT NULL default 'inactive',
   KEY domain_id (domain_id,domain)
 )";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "CREATE TABLE log (
   domain_id int(11) NOT NULL default '0',
@@ -72,7 +72,7 @@ $q = "CREATE TABLE log (
   entry varchar(200) NOT NULL default '',
   time int(11) NOT NULL default '0'
 )";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "CREATE TABLE records (
   domain_id int(11) NOT NULL default '0',
@@ -87,7 +87,7 @@ $q = "CREATE TABLE records (
   UNIQUE KEY records_id (record_id),
   KEY records_idx (domain_id,record_id,host)
 )";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 $q = "CREATE TABLE default_records (
   record_id int(11) NOT NULL auto_increment,
@@ -102,8 +102,8 @@ $q = "CREATE TABLE default_records (
   default_type enum('system','group') NOT NULL default 'system',
   UNIQUE KEY records_id (record_id)
 )";
-mysql_query($q) or die(mysql_error());
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 $q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,'','',86400,'system')";
-mysql_query($q) or die(mysql_error()."<br>".$q);
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 ?>
