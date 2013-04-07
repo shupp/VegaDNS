@@ -27,14 +27,14 @@ if(!isset($dom_row['domain_id'])) {
 } else {
 
     $q = "select * from log where domain_id='".$dom_row['domain_id']."'";
-    $result = mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
-    if(mysql_num_rows($result) == 0) {
+    if($stmt->rowCount() == 0) {
         echo "<span class=\"error\">Error: no log entries found</span>\n";
     } else {
         // Build array
         $counter = 0;
-        while($row = mysql_fetch_array($result)) {
+        while($row = $stmt->fetch()) {
             $logs[$counter]['cid'] = $row['cid'];
             $logs[$counter]['email'] = $row['Email'];
             $logs[$counter]['name'] = $row['Name'];
