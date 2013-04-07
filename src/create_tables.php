@@ -37,7 +37,7 @@ $q = "CREATE TABLE accounts (
   Account_Type enum('user','group_admin','senior_admin') NOT NULL default 'user',
   Status enum('active','inactive') NOT NULL default 'inactive',
   UNIQUE KEY cid (cid,Email)
-) TYPE=MyISAM";
+)";
 mysql_query($q) or die(mysql_error());
 
 $q = "INSERT INTO accounts VALUES (0,0,'test@test.com','".md5('test')."','Test','User','','senior_admin','active')";
@@ -48,7 +48,7 @@ $q = "CREATE TABLE active_sessions (
   Email varchar(60) NOT NULL default '',
   time int(14) NOT NULL default '0',
   PRIMARY KEY  (sid)
-) TYPE=MyISAM";
+)";
 mysql_query($q) or die(mysql_error());
 
 $q = "INSERT INTO active_sessions VALUES ('".session_id()."','test@test.com',".time().")";
@@ -61,7 +61,7 @@ $q = "CREATE TABLE domains (
   group_owner_id int(11) default NULL,
   status enum('active','inactive') NOT NULL default 'inactive',
   KEY domain_id (domain_id,domain)
-) TYPE=MyISAM";
+)";
 mysql_query($q) or die(mysql_error());
 
 $q = "CREATE TABLE log (
@@ -71,7 +71,7 @@ $q = "CREATE TABLE log (
   Name varchar(60) NOT NULL default '',
   entry varchar(200) NOT NULL default '',
   time int(11) NOT NULL default '0'
-) TYPE=MyISAM";
+)";
 mysql_query($q) or die(mysql_error());
 
 $q = "CREATE TABLE records (
@@ -86,7 +86,7 @@ $q = "CREATE TABLE records (
   ttl int(11) NOT NULL default '86400',
   UNIQUE KEY records_id (record_id),
   KEY records_idx (domain_id,record_id,host)
-) TYPE=MyISAM";
+)";
 mysql_query($q) or die(mysql_error());
 
 $q = "CREATE TABLE default_records (
@@ -101,7 +101,7 @@ $q = "CREATE TABLE default_records (
   ttl int(11) NOT NULL default '86400',
   default_type enum('system','group') NOT NULL default 'system',
   UNIQUE KEY records_id (record_id)
-) TYPE=MyISAM";
+)";
 mysql_query($q) or die(mysql_error());
 $q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,'','',86400,'system')";
 mysql_query($q) or die(mysql_error()."<br>".$q);
