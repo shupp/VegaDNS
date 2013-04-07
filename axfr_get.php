@@ -25,6 +25,8 @@
  */
 
 
+require_once 'src/config.php';
+
 
 // CHECKS
 
@@ -45,7 +47,7 @@ $hostname = $_REQUEST['hostname'];
 $rand = rand();
 $file = "/tmp/$domain.$rand";
 
-$command = "/usr/local/bin/tcpclient -R '".escapeshellcmd($hostname)."' 53 /usr/local/bin/axfr-get '".escapeshellcmd($domain)."' $file $file.tmp 2>&1";
+$command = "$dns_tools_dir/tcpclient -R '".escapeshellcmd($hostname)."' 53 $dns_tools_dir/axfr-get '".escapeshellcmd($domain)."' $file $file.tmp 2>&1";
 exec($command, $out);
 
 // Print any errors first
