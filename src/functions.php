@@ -30,27 +30,35 @@ if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
 function authenticate_user($email, $password) {
     global $timeout;
 
+    $pdo = VDB::singleton();
+
     // Garbage collection for sessions
     $oldsessions = time()-$timeout;
-    mysql_query("delete from active_sessions where time < $oldsessions");
-    $result = mysql_query("select Email from accounts where
-        Email='".mysql_real_escape_string(strtolower($email))."' and
+    $pdo->query("delete from active_sessions where time < $oldsessions");
+    $params = array(':email' => strtolower($email));
+    $q = "select Email from accounts where
+        Email=:email and
         Password='".md5($password)."' and
-        Status='active' LIMIT 1") or die(mysql_error());
-    $resultarray = mysql_fetch_array($result);
+        Status='active' LIMIT 1";
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
+    $resultarray = $stmt->fetch();
     if($resultarray['Email'] != "") {
         // Kill any other sessions by this user
-        mysql_query("delete from active_sessions where email='".
-            mysql_real_escape_string($email)."'") or die("error logging in");
-        mysql_query("insert into active_sessions (
+        $q = "delete from active_sessions where email=:email";
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params) or die("error logging in");
+        $q = "insert into active_sessions (
             sid,
             email,
             time)
 
             VALUES (
             '".session_id()."',
-            '".mysql_real_escape_string($email)."',
-            '".time()."')");
+            :email,
+            '".time()."')";
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params) or die(print_r($stmt->errorInfo()));
         return 'TRUE';
     } else {
         return 'FALSE';
