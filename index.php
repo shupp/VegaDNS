@@ -44,11 +44,9 @@ require('src/functions.php');
 // Get IPv6 Functions
 require_once 'src/Net/IPv6.php';
 
-// Get PDO wrapper
+// Get PDO wrapper and connect
 require_once 'src/VDB.php';
-
-// Connect to database
-require('src/connect.php');
+$pdo = VDB::singleton();
 
 // Make sure the private_dirs exist and are writable
 if(!is_writable($session_dir)) die("Error: $session_dir is not writabale.  Please read INSTALL");

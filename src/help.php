@@ -42,7 +42,6 @@ if(!isset($_REQUEST['mode'])) {
     }
 
     // Make sure it's in the database
-    require('src/connect.php');
         $stmt = $pdo->query("select cid from accounts where Email='".
             strtolower($_REQUEST['username'])."'") or die(print_r($pdo->errorInfo()));
 
