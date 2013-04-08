@@ -37,16 +37,18 @@ $domain = $_REQUEST['domain'];
 $smarty->assign('domain', $domain);
 
 // Get domain information
-$q = "select * from domains where domain='$domain'";
-$result = mysql_query($q) or die(mysql_error());
-if(mysql_num_rows($result) == 0) {
+$params = array(':domain' => $domain);
+$q = "select * from domains where domain=:domain";
+$stmt = $pdo->prepare($q);
+$stmt->execute($params) or die(print_r($stmt->errorInfo()));
+if($stmt->rowCount() == 0) {
     set_msg_err("Error: domain $domain does not exist");
     $smarty->display('header.tpl');
     $smarty->display('footer.tpl');
     exit;
 }
 
-$dom_row = mysql_fetch_array($result);
+$dom_row = $stmt->fetch();
 
 // Make sure this user has permission to view/edit this domain
 
