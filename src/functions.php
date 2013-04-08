@@ -87,7 +87,7 @@ function get_cid($email) {
     $pdo = VDB::singleton();
 
     $cid_result = $pdo->query("select cid from accounts where Email='$email'")
-        or die(print_r($pto->errorInfo()));
+        or die(print_r($pdo->errorInfo()));
     if($cid_result->rowCount() == 0) {
         return NULL;
     } else {
@@ -103,7 +103,7 @@ function get_owner_name($id) {
     $pdo = VDB::singleton();
 
     $result = $pdo->query("select First_Name, Last_Name from accounts where cid='$id'")
-        or die(print_r($pto->errorInfo()));
+        or die(print_r($pdo->errorInfo()));
     if($result->rowCount() > 0) {
         $row = $result->fetch();
         return $row['First_Name']." ".$row['Last_Name'];
@@ -115,10 +115,12 @@ function get_owner_name($id) {
 
 function get_groupowner_name($gid) {
 
-    $result = mysql_query("select First_Name, Last_Name from accounts where cid='$gid'")
-        or die(mysql_error());
-    if(mysql_num_rows($result) > 0) {
-        $row = mysql_fetch_array($result);
+    $pdo = VDB::singleton();
+
+    $result = $pdo->query("select First_Name, Last_Name from accounts where cid='$gid'")
+        or die(print_r($pdo->errorInfo()));
+    if($result->rowCount() > 0) {
+        $row = $result->fetch();
         return $row['First_Name']." ".$row['Last_Name'];
     } else {
         return 'none';
@@ -128,10 +130,12 @@ function get_groupowner_name($gid) {
 
 function get_groupowner_email($gid) {
 
-    $result = mysql_query("select Email from accounts where cid='$gid'")
-        or die(mysql_error());
-    if(mysql_num_rows($result) > 0) {
-        $row = mysql_fetch_array($result);
+    $pdo = VDB::singleton();
+
+    $result = $pdo->query("select Email from accounts where cid='$gid'")
+        or die(print_r($pdo->errorInfo()));
+    if($result->rowCount() > 0) {
+        $row = $result->fetch();
         return $row['Email'];
     } else {
         return 'none';
@@ -163,21 +167,25 @@ function check_domain_name_format($name) {
 
 function check_first_use() {
 
-    $result = mysql_query("show tables") or die(mysql_error());
-    if(mysql_num_rows($result) == 0) return 1;
+    $pdo = VDB::singleton();
+
+    $result = $pdo->query("show tables") or die(print_r($pdo->errorInfo()));
+    if($result->rowCount() == 0) return 1;
     return 0;
 
 }
 
 function get_dom_id($domain) {
 
+    $pdo = VDB::singleton();
     $q = "select domain_id from domains where domain='$domain'";
-    $result = mysql_query($q) or die(mysql_error());
+    $result = $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
-    if(mysql_num_rows($result) == 0) {
+    if($result->rowCount() == 0) {
         return -1;
     } else {
-        return mysql_result($result,0);
+        $row = $result->fetch();
+        return $row[0];
     }
 
 }
@@ -185,15 +193,23 @@ function get_dom_id($domain) {
 function dns_log($domain_id,$entry) {
 
     global $user_info;
+    $pdo = VDB::singleton();
     $name = $user_info['First_Name']." ".$user_info['Last_Name'];
+    $params = array(
+        ':email'     => $user_info['Email'],
+        ':name'      => $name,
+        ':domain_id' => $domain_id,
+        ':entry'     => $entry
+    );
     $q = "insert into log (cid,Email,Name,domain_id,entry,time) values(
         ".$user_info['cid'].",
-        '".mysql_escape_string($user_info['Email'])."',
-        '".mysql_escape_string($name)."',
-        '".mysql_escape_string($domain_id)."',
-        '".mysql_escape_string($entry)."',
+        :email,
+        :name,
+        :domain_id,
+        :entry,
         ".time().")";
-    mysql_query($q) or die(mysql_error());
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
 
 }
 
@@ -458,10 +474,11 @@ function set_edit_id($user_info) {
 }
 
 function get_account_info($id) {
+    $pdo = VDB::singleton();
     $q = "select * from accounts where cid=$id";
-    $result = mysql_query("select * from accounts where cid=$id")
-        or die(mysql_error());
-    return mysql_fetch_array($result);
+    $result = $pdo->query("select * from accounts where cid=$id")
+        or die(print_r($pdo->errorInfo()));
+    return $result->fetch();
 }
 
 
