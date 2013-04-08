@@ -6,7 +6,7 @@
 <input type="hidden" name="record_mode" value="edit_soa_now">
 
 
-<table border=0 width="70%" bgcolor="white">
+<table border=0 bgcolor="white">
 <tr>
     <td>
         <table border=0 width="100%">
