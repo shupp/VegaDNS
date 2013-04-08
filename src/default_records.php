@@ -45,16 +45,16 @@ if(!isset($_REQUEST['record_mode'])) {
     $sa_q = "select * from default_records where default_type='system'";
     $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."'";
     if($user_info['Account_Type'] == 'senior_admin') {
-        $result = mysql_query($sa_q) or die(mysql_error());
+        $stmt = $pdo->query($sa_q) or die(print_r($pdo->errorInfo()));
     } else {
-        $result = mysql_query($ga_q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0)
-            $result = mysql_query($sa_q) or die(mysql_error());
+        $stmt = $pdo->query($ga_q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() == 0)
+            $stmt = $pdo->query($sa_q) or die(print_r($pdo->errorInfo()));
     }
 
     // Build records data structure
     $counter = 0;
-    while ($row = mysql_fetch_array($result)) {
+    while ($row = $stmt->fetch()) {
         $records[$counter]['record_id'] = $row['record_id'];
         $records[$counter]['host'] = $row['host'];
         $records[$counter]['type'] = $row['type'];
@@ -163,13 +163,26 @@ if(!isset($_REQUEST['record_mode'])) {
             $name = $_REQUEST['name'];
         }
 
+        $params = array();
         if($_REQUEST['type'] == 'A') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
+            '".$_REQUEST['ttl']."',
+            '$default_type')";
+        } else if($_REQUEST['type'] == 'AAAA') {
+            $address = uncompress_ipv6($_REQUEST['address']);
+            $params[':address'] = $address;
+            $q = "insert into default_records
+            (group_owner_id,host,type,val,ttl,default_type) values(
+            '".$user_info['cid']."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            :address,
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'MX') {
@@ -178,40 +191,45 @@ if(!isset($_REQUEST['record_mode'])) {
             } else {
                 $mxaddress = $_REQUEST['address'];
             }
+            $params[':mxaddress'] = $mxaddress;
+            $params[':distance']  = $_REQUEST['distance'];
             $q = "insert into default_records
             (group_owner_id,host,type,val,distance,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($mxaddress)."',
-            '".mysql_escape_string($_REQUEST['distance'])."',
+            :mxaddress,
+            :distance,
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'NS') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'CNAME') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'TXT') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into default_records
             (group_owner_id,host,type,val,ttl,default_type) values(
             '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if ($_REQUEST['type'] == 'SRV') {
@@ -221,19 +239,34 @@ if(!isset($_REQUEST['record_mode'])) {
                 $srvaddress = $_REQUEST['address'];
             }
 
-        $q = "insert into default_records
-        (group_owner_id,host,type,val,distance,weight,port,ttl,default_type) values (
-        '".$user_info['cid']."',
+            $params[':srvaddress'] = $srvaddress;
+            $params[':distance']   = $_REQUEST['distance'];
+            $params[':weight']     = $_REQUEST['weight'];
+            $params[':port']       = $_REQUEST['port'];
+            $q = "insert into default_records
+                (group_owner_id,host,type,val,distance,weight,port,ttl,default_type) values (
+                '".$user_info['cid']."',
+                '$name',
+                '".set_type($_REQUEST['type'])."',
+                :srvaddress,
+                :distance,
+                :weight,
+                :port,
+                '".$_REQUEST['ttl']."',
+                '$default_type')";
+        } else if($_REQUEST['type'] == 'SPF') {
+            $params[':address'] = $_REQUEST['address'];
+            $q = "insert into default_records
+            (group_owner_id,host,type,val,ttl,default_type) values(
+            '".$user_info['cid']."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($srvaddress)."',
-            '".mysql_escape_string($_REQUEST['distance'])."',
-        '".mysql_escape_string($_REQUEST['weight'])."',
-        '".mysql_escape_string($_REQUEST['port'])."',
+            :address,
             '".$_REQUEST['ttl']."',
             '$default_type')";
         }
-        mysql_query($q) or die(mysql_error());
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params) or die(print_r($stmt->errorInfo()));
         set_msg("Record added successfully!");
         header("Location: $base_url&mode=default_records");
         exit;
@@ -243,8 +276,8 @@ if(!isset($_REQUEST['record_mode'])) {
 
     // Get record info
     $q = "select * from default_records where record_id='".$_REQUEST['record_id']."' limit 1";
-    $result = mysql_query($q) or die(mysql_error());
-    $row = mysql_fetch_array($result);
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+    $row = $stmt->fetch();
 
     $smarty->assign('type', get_type($row['type']));
     $smarty->assign('host', $row['host']);
@@ -270,7 +303,7 @@ if(!isset($_REQUEST['record_mode'])) {
     } else {
         $q = "delete from default_records where record_id='".$_REQUEST['record_id']."' and group_owner_id='".$user_info['cid']."'";
     }
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
     set_msg("Record deleted successfully");
     header("Location: $base_url&mode=default_records");
     exit;
@@ -283,14 +316,14 @@ if(!isset($_REQUEST['record_mode'])) {
     $sa_q = "select * from default_records where default_type='system' and type='S'";
     $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."' and type='S'";
     if($user_info['Account_Type'] == 'senior_admin') {
-        $result = mysql_query($sa_q) or die(mysql_error());
+        $stmt = $pdo->query($sa_q) or die(print_r($pdo->errorInfo()));
     } else {
-        $result = mysql_query($ga_q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0)
-            $result = mysql_query($sa_q) or die(mysql_error());
+        $stmt = $pdo->query($ga_q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() == 0)
+            $stmt = $pdo->query($sa_q) or die(print_r($pdo->errorInfo()));
     }
 
-    $row = mysql_fetch_array($result);
+    $row = $stmt->fetch();
     $soa = parse_soa($row);
 
     // Edit SOA Menu
@@ -315,18 +348,20 @@ if(!isset($_REQUEST['record_mode'])) {
     if($user_info['Account_Type'] == 'group_admin') {
         $default_type = 'group';
         $q = "select record_id from default_records where type='S' and group_owner_id='".$user_info['cid']."' limit 1";
-        $result = mysql_query($q) or die(mysql_error());
-        if(mysql_num_rows($result) == 0) {
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        if($stmt->rowCount() == 0) {
             $new_soa = 1;
         } else {
             $new_soa = 0;
-            $id = mysql_result($result, 0);
+            $row = $stmt->fetch();
+            $id = $row[0];
         }
     } else {
         $default_type = 'system';
         $q = "select record_id from default_records where type='S' and default_type='system' limit 1";
-        $result = mysql_query($q) or die(mysql_error());
-        $id = mysql_result($result, 0);
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        $row = $stmt->fetch();
+        $id = $row[0];
         $new_soa = 0;
     }
     // Build array from $_REQUEST
@@ -340,27 +375,36 @@ if(!isset($_REQUEST['record_mode'])) {
     $val = $return['refresh'].':'.$return['retry'].':'.$return['expire'].':'.$return['minimum'];
 
     // Update table
+    $params = array();
     if($new_soa == 1) {
+        $params[':host'] = $host;
+        $params[':val']  = $val;
+        $params[':ttl']  = $_REQUEST['ttl'];
         $q = "insert into default_records values(
             '',
             ".$user_info['cid'].",
-            '".mysql_escape_string($host)."',
+            :host,
             'S',
-            '".mysql_escape_string($val)."',
+            :val,
             0,,,
-            '".mysql_escape_string($_REQUEST['ttl'])."',
+            :ttl,
             'group')";
     } else {
+        $params[':host'] = $host;
+        $params[':val']  = $val;
+        $params[':ttl']  = $_REQUEST['ttl'];
+        $params[':default_type'] = $default_type;
         $q = "replace into default_records set
             record_id='$id',
-            host='".mysql_escape_string($host)."',
+            host=:host,
             type='S',
-            val='".mysql_escape_string($val)."',
-            ttl='".mysql_escape_string($_REQUEST['ttl'])."',
-            default_type='".mysql_escape_string($default_type)."',
+            val=:val,
+            ttl=:ttl,
+            default_type=:default_type,
             group_owner_id='".$user_info['cid']."'";
     }
-    mysql_query($q) or die(mysql_error().'<br>'.$q);
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
 
     // Display domain
     set_msg("Default SOA record updated successfully");
