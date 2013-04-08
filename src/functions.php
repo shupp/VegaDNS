@@ -67,11 +67,14 @@ function authenticate_user($email, $password) {
 
 function verify_session() {
     global $timeout;
+
+    $pdo = VDB::singleton();
+
     $querystring = "select email from active_sessions where
         sid='".session_id()."' and
         time > '".(time() - $timeout)."' LIMIT 1";
-    $result = mysql_query($querystring);
-    $resultarray = mysql_fetch_array($result);
+    $stmt = $pdo->query($querystring);
+    $resultarray = $stmt->fetch();
     if($resultarray['email'] != "") {
         return $resultarray['email'];
     } else {
