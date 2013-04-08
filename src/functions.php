@@ -100,10 +100,12 @@ function get_cid($email) {
 
 function get_owner_name($id) {
 
-    $result = mysql_query("select First_Name, Last_Name from accounts where cid='$id'")
-        or die(mysql_error());
-    if(mysql_num_rows($result) > 0) {
-        $row = mysql_fetch_array($result);
+    $pdo = VDB::singleton();
+
+    $result = $pdo->query("select First_Name, Last_Name from accounts where cid='$id'")
+        or die(print_r($pto->errorInfo()));
+    if($result->rowCount() > 0) {
+        $row = $result->fetch();
         return $row['First_Name']." ".$row['Last_Name'];
     } else {
         return 'none';
