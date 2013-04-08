@@ -83,8 +83,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     // Get search string if it exists
     $params = array();
     if(isset($_REQUEST['search']) && $_REQUEST['search'] != "") {
-        $tempstring = ereg_replace("[*]", "%", $_REQUEST['search']);
-        $tempstring = ereg_replace("[ ]", "%", $tempstring);
+        $tempstring = preg_replace('/[*]/', '%', $_REQUEST['search']);
+        $tempstring = preg_replace('/[ ]/', '%', $tempstring);
         $params[':search'] = '%' . $tempstring . '%';
         $searchstring = "host like :search and type != 'S' and ";
 
@@ -297,7 +297,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 } else if($_REQUEST['record_mode'] == 'add_record_now') {
 
     // Add domain to 'name'
-    if(!eregi("^.*\.($domain)\.*$", $_REQUEST['name']) && !eregi("^($domain)\.*$", $_REQUEST['name'])) {
+    if(!preg_match('/^.*\.($domain)\.*$/i', $_REQUEST['name']) && !preg_match('/^($domain)\.*$/i', $_REQUEST['name'])) {
         if(strlen($_REQUEST['name']) > 0) {
             $name = $_REQUEST['name'].".$domain";
         } else {
@@ -352,7 +352,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             :address,
             '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'MX') {
-            if(!ereg("\..+$", $_REQUEST['address'])) {
+            if(!preg_match('/\..+$/', $_REQUEST['address'])) {
                 $mxaddress = $_REQUEST['address'].".".$domain;
             } else {
                 $mxaddress = $_REQUEST['address'];
@@ -409,7 +409,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             '".$_REQUEST['ttl']."')";
         }
         if($_REQUEST['type'] == 'SRV') {
-            if(!ereg("\..+$", $_REQUEST['address'])) {
+            if(!preg_match('/\..+$/', $_REQUEST['address'])) {
                 $srvaddress = $_REQUEST['address'].".".$domain;
             } else {
                 $srvaddress = $_REQUEST['address'];
@@ -499,7 +499,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
 } if($_REQUEST['record_mode'] == 'edit_soa_now') {
 
-    if(!eregi("^[^.].*\..*", ereg_replace("\.$", "", $_REQUEST['primary_name_server']))) {
+    if(!preg_match('/^[^.].*\..*/i', preg_replace('/\.$/', '', $_REQUEST['primary_name_server']))) {
         set_msg_err("Error: primary name server ".$_REQUEST['primary_name_server']." does not appear to be a valid second level or or more domain");
         $smarty->display('header.tpl');
         require('src/edit_soa_form.php');
@@ -581,7 +581,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 } else if($_REQUEST['record_mode'] == 'edit_record_now') {
 
     // Add domain to 'name'
-    if(!eregi("^.*\.($domain)\.*$", $_REQUEST['name']) && !eregi("^($domain)\.*$", $_REQUEST['name'])) {
+    if(!preg_match('/^.*\.($domain)\.*$/i', $_REQUEST['name']) && !preg_match('/^($domain)\.*$/i', $_REQUEST['name'])) {
         if(strlen($_REQUEST['name']) > 0) {
             $name = $_REQUEST['name'].".$domain";
         } else {
