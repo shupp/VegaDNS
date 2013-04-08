@@ -152,7 +152,7 @@ if(!isset($_REQUEST['record_mode'])) {
         }
 
         // Add domain to 'name'
-        if(!eregi("^.*\.(DOMAIN)$", $_REQUEST['name']) && !eregi("^(DOMAIN)$", $_REQUEST['name'])
+        if(!preg_match('/^.*\.(DOMAIN)$/i', $_REQUEST['name']) && !preg_match('/^(DOMAIN)$/i', $_REQUEST['name'])
             && $_REQUEST['type'] != 'PTR') {
             if(strlen($_REQUEST['name']) > 0) {
                 $name = $_REQUEST['name'].".DOMAIN";
@@ -186,7 +186,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if($_REQUEST['type'] == 'MX') {
-            if(!ereg("\..+$", $_REQUEST['address'])) {
+            if(!preg_match('/\..+$/', $_REQUEST['address'])) {
                 $mxaddress = $_REQUEST['address'].".DOMAIN";
             } else {
                 $mxaddress = $_REQUEST['address'];
@@ -233,7 +233,7 @@ if(!isset($_REQUEST['record_mode'])) {
             '".$_REQUEST['ttl']."',
             '$default_type')";
         } else if ($_REQUEST['type'] == 'SRV') {
-            if(!ereg("\..+$", $_REQUEST['address'])) {
+            if(!preg_match('/\..+$/', $_REQUEST['address'])) {
                 $srvaddress = $_REQUEST['address'].".DOMAIN";
             } else {
                 $srvaddress = $_REQUEST['address'];
