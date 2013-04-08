@@ -84,12 +84,15 @@ function verify_session() {
 
 function get_cid($email) {
 
-    $cid_result = mysql_query("select cid from accounts where Email='$email'")
-        or die(mysql_error());
-    if(mysql_num_rows($cid_result) == 0) {
+    $pdo = VDB::singleton();
+
+    $cid_result = $pdo->query("select cid from accounts where Email='$email'")
+        or die(print_r($pto->errorInfo()));
+    if($cid_result->rowCount() == 0) {
         return NULL;
     } else {
-        $cid = mysql_result($cid_result,0);
+        $row = $cid_result->fetch();
+        $cid = $row[0];
         return $cid;
     }
 
