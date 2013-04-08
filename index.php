@@ -26,14 +26,6 @@ ini_set('session.use_cookies',0);
 ini_set('session.use_only_cookies', 0);
 ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
 
-// Check that register_globals is off
-if(ini_get('register_globals')) {
-    die('Error: register_globals is on.');
-}
-if(ini_get('safe_mode')) {
-    die('Error: safe_mode is on.');
-}
-
 // Use 4.1.1 patch only if necessary
 if(phpversion() < '4.1.1') {
     if(!isset($_REQUEST)) {

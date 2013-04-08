@@ -1,8 +1,5 @@
 BEFORE YOU INSTALL
 
-*   make sure PHP 4 or higher is installed on your web server, and that both
-    register_globals and safe_mode are turned OFF, at least for this
-    VirtualHost
 *   make sure php has support for mysql.  On Debian, for example, this would
     be the php5-mysql package.
 *   make sure wget is installed (http://www.gnu.org/directory/wget.html).

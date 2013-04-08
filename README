@@ -13,7 +13,7 @@ FEATURES
 
 REQUIREMENTS
 
-* PHP 4 (Requires register_globals to be Off for security)
+* PHP 5.1
 * MySQL
 * djbdns (http://cr.yp.to/djbdns.html)
 * ucspi-tcp (http://cr.yp.to/ucspi-tcp.html)
