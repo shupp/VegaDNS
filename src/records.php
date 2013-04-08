@@ -452,8 +452,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
     // Get record info
     $q = "select * from records where record_id='".$_REQUEST['record_id']."' limit 1";
-    $result = mysql_query($q) or die(mysql_error());
-    $row = mysql_fetch_array($result);
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+    $row = $stmt->fetch();
 
     $smarty->assign('type', get_type($row['type']));
     $smarty->assign('host', $row['host']);
@@ -475,7 +475,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     }
 
     $q = "delete from records where record_id='".$_REQUEST['record_id']."'";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
     set_msg("Record deleted successfully");
     header("Location: $base_url&mode=records&domain=".urlencode($domain));
     exit;
@@ -486,8 +486,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
     $q = "select * from records where type='S' and domain_id='".
         get_dom_id($domain)."' limit 1";
-    $result = mysql_query($q) or die(mysql_error());
-    $row = mysql_fetch_array($result);
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+    $row = $stmt->fetch();
 
     $soa = parse_soa($row);
 
@@ -529,7 +529,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         val='$val',
         ttl='".$_REQUEST['ttl']."'  where type='S' and
         domain_id='".get_dom_id($domain)."'";
-    mysql_query($q) or die(mysql_error());
+    $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
     // Display domain
     set_msg("SOA record updated successfully");
@@ -558,8 +558,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
     $q = "select * from records where record_id='".$_REQUEST['record_id']."' and domain_id='".
         get_dom_id($domain)."' and type!='S' limit 1";
-    $result = mysql_query($q) or die(mysql_error());
-    $row = mysql_fetch_array($result);
+    $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+    $row = $stmt->fetch();
 
 
     // Set values for template
@@ -598,7 +598,8 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         // Set values
         $q = "select * from records where record_id='".$_REQUEST['record_id']."' and domain_id='".
             get_dom_id($domain)."' and type!='S' limit 1";
-         $result = mysql_query($q) or die(mysql_error());    $row = mysql_fetch_array($result);
+        $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
+        $row = $stmt->fetch();
 
         $smarty->assign('record_id', $_REQUEST['record_id']);
         $smarty->assign('name', $row['host']);
@@ -633,7 +634,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             "where record_id='".$_REQUEST['record_id']."' and domain_id='".
                 get_dom_id($domain)."'";
 
-        mysql_query($q) or die(mysql_error());
+        $pdo->query($q) or die(print_r($pdo->errorInfo()));
         set_msg("Record updated successfully!");
         header("Location: $base_url&mode=records&domain=".urlencode($domain));
         exit;
