@@ -321,31 +321,35 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
         // add record to db
 
+        $params = array();
         if($_REQUEST['type'] == 'A') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'AAAA') {
             $address = uncompress_ipv6($_REQUEST['address']);
+            $params[':address'] = $address;
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($address)."',
+            :address,
             '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'AAAA+PTR') {
             $address = uncompress_ipv6($_REQUEST['address']);
+            $params[':address'] = $address;
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($address)."',
+            :address,
             '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'MX') {
             if(!ereg("\..+$", $_REQUEST['address'])) {
@@ -353,49 +357,55 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             } else {
                 $mxaddress = $_REQUEST['address'];
             }
+            $params[':mxaddress'] = $mxaddress;
+            $params[':distance']  = $_REQUEST['distance'];
             $q = "insert into records
             (domain_id,host,type,val,distance,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($mxaddress)."',
-            '".mysql_escape_string($_REQUEST['distance'])."',
+            :mxaddress,
+            :distance,
             '".$_REQUEST['ttl']."')";
         }
         if($_REQUEST['type'] == 'NS') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."')";
         }
         if($_REQUEST['type'] == 'PTR') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."')";
         }
         if($_REQUEST['type'] == 'TXT') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."')";
         }
         if($_REQUEST['type'] == 'CNAME') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."')";
         }
         if($_REQUEST['type'] == 'SRV') {
@@ -404,28 +414,35 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             } else {
                 $srvaddress = $_REQUEST['address'];
             }
+            $params[':srvaddress'] = $srvaddress;
+            $params[':distance']   = $_REQUEST['distance'];
+            $params[':weight']     = $_REQUEST['weight'];
+            $params[':port']       = $_REQUEST['port'];
+
             $q = "insert into records
             (domain_id,host,type,val,distance,weight,port,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($srvaddress)."',
-            '".mysql_escape_string($_REQUEST['distance'])."',
-            '".mysql_escape_string($_REQUEST['weight'])."',
-            '".mysql_escape_string($_REQUEST['port'])."',
+            :srvaddress,
+            :distance,
+            :weight,
+            :port,
             '".$_REQUEST['ttl']."')";
 
         }
         if($_REQUEST['type'] == 'SPF') {
+            $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
             (domain_id,host,type,val,ttl) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
-            '".mysql_escape_string($_REQUEST['address'])."',
+            :address,
             '".$_REQUEST['ttl']."')";
         }
-        mysql_query($q) or die(mysql_error());
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params) or die(print_r($stmt->errorInfo()));
         set_msg("Record added successfully!");
         header("Location: $base_url&mode=records&domain=".urlencode($domain));
         exit;
