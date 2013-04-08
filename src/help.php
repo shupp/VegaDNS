@@ -54,7 +54,7 @@ if(!isset($_REQUEST['mode'])) {
             $fa = $stmt->fetch();
             // Send Password
             $newpass = substr(md5(rand(0,10000)."vegadns_".$_REQUEST['username'].rand(0,10000)),0,rand(5,8));
-            mysql_query("update accounts set Password='".md5($newpass)."' where cid=".$fa[0]);
+            $pdo->query("update accounts set Password='".md5($newpass)."' where cid=".$fa[0]);
             $body = "Here is your requested information:\n\n";
             $body .= "Your new password is: ".$newpass."\n\n";
             $body .= "If you have further questions, please contact $supportemail\n";
