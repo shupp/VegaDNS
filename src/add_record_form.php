@@ -38,7 +38,7 @@ if($_REQUEST['mode'] == 'records') {
     }
 } else if ($_REQUEST['mode'] == 'default_records') {
     if ($use_ipv6) {
-        $smarty->assign('typearray', array('A','AAAA','AAAA+PTR','NS','MX','TXT','CNAME','SRV','SPF'));
+        $smarty->assign('typearray', array('A','AAAA','NS','MX','TXT','CNAME','SRV','SPF'));
     } else {
         $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME','SRV','SPF'));
     }
