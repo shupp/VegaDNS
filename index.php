@@ -26,19 +26,6 @@ ini_set('session.use_cookies',0);
 ini_set('session.use_only_cookies', 0);
 ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
 
-// Use 4.1.1 patch only if necessary
-if(phpversion() < '4.1.1') {
-    if(!isset($_REQUEST)) {
-        while(list($key,$value)=each($HTTP_GET_VARS)) {
-            $_REQUEST[$$key] = $value;
-        }
-        while(list($key,$value)=each($HTTP_POST_VARS)) {
-            $_REQUEST[$$key] = $value;
-        }
-    }
-    if(!isset($_SERVER)) $_SERVER = $HTTP_SERVER_VARS;
-}
-
 // Smarty
 define('SMARTY_DIR', 'smarty/');
 require(SMARTY_DIR.'/Smarty.class.php');
