@@ -76,8 +76,8 @@ $dns_tools_dir = '/usr/local/bin';
 
 require_once 'version.php';
 
-if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])
-    && !ereg(".*/axfr_get.php$", $_SERVER['PHP_SELF'])) {
+if(!preg_match('/.*\/index.php$/', $_SERVER['PHP_SELF'])
+    && !preg_match('/.*\/axfr_get.php$/', $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
     exit;
 }

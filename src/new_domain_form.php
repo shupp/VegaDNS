@@ -16,7 +16,7 @@
  *
  */
 
-if(!ereg(".*/index.php$", $_SERVER['PHP_SELF'])) {
+if(!preg_match('/.*\/index.php$/', $_SERVER['PHP_SELF'])) {
     header("Location:../index.php");
     exit;
 }
