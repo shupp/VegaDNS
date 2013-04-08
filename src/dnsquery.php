@@ -57,7 +57,7 @@ if(isset($_REQUEST['query_mode'])) {
     $smarty->assign('command', $command);
     set_time_limit(0);
     $result = shell_exec($command);
-    $smarty->assign('result', ereg_replace("\n", '<br>', $result));
+    $smarty->assign('result', preg_replace("/\n/", '<br>', $result));
 
 }
 

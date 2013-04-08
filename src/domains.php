@@ -155,7 +155,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     while(list($key,$val) = each($sort_array)) {
         $newsortway = get_sortway($sortfield, $val, $sortway);
-        $url = "<a href='$sortbaseurl&sortway=$newsortway&sortfield=$val'>".ereg_replace('_', ' ', $key)."</a>";
+        $url = "<a href='$sortbaseurl&sortway=$newsortway&sortfield=$val'>".preg_replace('/_/', ' ', $key)."</a>";
         if($sortfield == $val) $url .= "&nbsp;<img border=0 alt='$sortway' src=images/$sortway.png>";
         $smarty->assign($key, $url);
     }
@@ -215,7 +215,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     $domain = strtolower($_REQUEST['domain']);
     // make sure it's at least a second level domain
-    if(!eregi(".*\..*", $domain)) {
+    if(!preg_match('/.*\..*/i', $domain)) {
         set_msg_err("Error: domain " . htmlentities($domain, ENT_QUOTES) . " does not appear to be at least a second level domain");
         $smarty->display('header.tpl');
         require('src/new_domain_form.php');
@@ -315,8 +315,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
 
     // Add SOA record
-    $host = ereg_replace("DOMAIN", $domain, $soa_array['host']);
-    $val = ereg_replace("DOMAIN", $domain, $soa_array['val']);
+    $host = preg_replace('/DOMAIN/', $domain, $soa_array['host']);
+    $val = preg_replace('/DOMAIN/', $domain, $soa_array['val']);
     $params = array(':host' => $host);
     $q = "insert into records (domain_id,host,type,val,ttl)
             values('$id',
@@ -332,8 +332,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
     if(isset($records_array) && is_array($records_array)) {
         while(list($key,$row) = each($records_array)) {
-            $host = ereg_replace("DOMAIN", $domain, $row['host']);
-            $val = ereg_replace("DOMAIN", $domain, $row['val']);
+            $host = preg_replace('/DOMAIN/', $domain, $row['host']);
+            $val = preg_replace('/DOMAIN/', $domain, $row['val']);
             $params = array(':host' => $host);
             $q = "insert into records (domain_id,host,type,val,distance,ttl)
                 values('$id',
@@ -578,7 +578,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
 
         // Make $out an array
         $out_array = explode("\n", $out);
-        if(ereg("^#.*$", $out_array[0])) {
+        if(preg_match('/^#.*$/', $out_array[0])) {
             $out_array['domain'] = $domain;
             $domains_array[$counter] = $out_array;
             $counter++;
@@ -607,7 +607,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             $skip_ns = 'TRUE';
             if(is_array($def_ns)) {
                 foreach ($def_ns as $ns) {
-                    $host = ereg_replace("DOMAIN", $domain, $ns['host']);
+                    $host = preg_replace('/DOMAIN/', $domain, $ns['host']);
                     $params = array(
                         ':host' => $host,
                         ':val'  => $ns['val']
@@ -628,7 +628,7 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
             }
         }
         while(list($line_key,$value) = each($line)) {
-            if($line_key != 'domain' && !ereg("^#", $value)) {
+            if($line_key != 'domain' && !preg_match('/^#/', $value)) {
                 $result = parse_dataline($value);
                 if(!is_array($result)) continue;
                 if ((isset($_REQUEST['default_soa']) && $_REQUEST['default_soa']=="on") && ($result['type']=='S')) {
