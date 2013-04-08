@@ -145,7 +145,7 @@ function get_groupowner_email($gid) {
 
 function check_email_format($address) {
 
-    $result = ereg("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*$",
+    $result = preg_match('/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*$/',
         strtolower($address));
     return $result;
 
@@ -154,9 +154,9 @@ function check_email_format($address) {
 function check_domain_name_format($name) {
 
     // Hack to allow for DOMAIN substitutions in default records
-    $name = ereg_replace('DOMAIN', 'test.com', $name);
+    $name = preg_replace('/DOMAIN/', 'test.com', $name);
 
-    if(ereg('\.\.', $name)) {
+    if(preg_match('/\.\./', $name)) {
         return FALSE;
     } else {
         $result = preg_match('/^[\*\.a-z0-9-\/]+\.[a-z0-9-]+[\.]{0,1}$/i', strtolower($name));
@@ -254,7 +254,7 @@ function validate_ip($ip) {
     } else {
         foreach($tmp AS $sub) {
             if($return != FALSE) {
-                if(!eregi("^([0-9])", $sub)) {
+                if(!preg_match('/^([0-9])/i', $sub)) {
                     $return = FALSE;
                 } else if($sub > 255){
                     $return = FALSE;
@@ -368,13 +368,13 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
         if(check_domain_name_format($name) == FALSE) {
             return "\"$name\" is not a valid MX record name";
         }
-        if(!eregi("^([0-9])+$", $distance))
+        if(!preg_match('/^([0-9])+$/i', $distance))
             return "\"$distance\" is not a valid MX distance";
     }
 
     // verify PTR
     if($type == 'P') {
-       if(!eregi("^.*\.in-addr.arpa\.*$", $name))
+       if(!preg_match('/^.*\.in-addr.arpa\.*$/i', $name))
             return "PTR \"$name\" does not end in .in-addr.arpa.";
     }
 
@@ -391,16 +391,16 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
     // verify SRV record
     if ($type == 'V')  {
 
-    if (!eregi("^_.*\._.*$",$name))
+    if (!preg_match('/^_.*\._.*$/i',$name))
         return"SRV \"$name\" should be in the format _service._protocol";
 
-    if (($distance > 65535) || !eregi("^([0-9])+$", $distance))
+    if (($distance > 65535) || !preg_match('/^([0-9])+$/i', $distance))
         return "SRV distance must be a numeric value between 0 and 65535";
 
-    if (($weight > 65535) || !eregi("^([0-9])+$", $weight))
+    if (($weight > 65535) || !preg_match('/^([0-9])+$/i', $weight))
         return "SRV weight must be a numeric value between 0 and 65535";
 
-    if (($port > 65535) || !eregi("^([0-9])+$", $port) )
+    if (($port > 65535) || !preg_match('/^([0-9])+$/i', $port) )
         return "SRV port must be a numeric value between 0 and 65535";
     }
 
@@ -619,7 +619,7 @@ function build_data_line($row,$domain) {
         $soa = parse_soa($row);
         $s = "Z".$domain.":".$soa['tldhost'].":".$soa['tldemail'].":".$soa['serial'].":".$soa['refresh'].":".$soa['retry'].":".$soa['expire'].":".$soa['minimum'].":".$soa['ttl']."\n";
     } else if($row['type'] == 'V') {
-        $s = ":".$row['host'].":33:".encode_rdata('cccq',array($row['distance'],$row['weight'],$row['port'],ereg_replace('\.$', '', $row['val']))).":".$row['ttl']."\n";
+        $s = ":".$row['host'].":33:".encode_rdata('cccq',array($row['distance'],$row['weight'],$row['port'],preg_replace('/\.$/', '', $row['val']))).":".$row['ttl']."\n";
     } else if(($row['type'] == '3' || $row['type'] == '6') && $use_ipv6) {
         $s = ":".$row['host'].":28:".ipv6_to_octal($row['val']).":".$row['ttl']."\n";
         if($row['type'] == '6') {
@@ -637,7 +637,7 @@ function build_data_line($row,$domain) {
 function parse_dataline($line) {
 
     // Strip first char
-    $stripped = ereg_replace("^.", "", $line);
+    $stripped = preg_replace('/^./', '', $line);
     $array = explode(":", $stripped);
     $out_array = '';
 
