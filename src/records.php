@@ -81,10 +81,13 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     }
 
     // Get search string if it exists
+    $params = array();
     if(isset($_REQUEST['search']) && $_REQUEST['search'] != "") {
-        $searchstring = ereg_replace("[*]", "%", $_REQUEST['search']);
-        $searchstring = ereg_replace("[ ]", "%", $searchstring);
-        $searchstring = "host like '%".mysql_escape_string($_REQUEST['search'])."%' and type != 'S' and ";
+        $tempstring = ereg_replace("[*]", "%", $_REQUEST['search']);
+        $tempstring = ereg_replace("[ ]", "%", $tempstring);
+        $params[':search'] = '%' . $tempstring . '%';
+        $searchstring = "host like :search and type != 'S' and ";
+
         $smarty->assign('search', $_REQUEST['search']);
         $smarty->assign('searchtexttag', " matching \"".$_REQUEST['search']."\"");
         $search = $_REQUEST['search'];
@@ -111,8 +114,9 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     // Get records list
     $q = "select * from records where $searchstring domain_id = '".
         $dom_row['domain_id']."' order by $sortfield $sortway".(($sortfield=='type') ? ", host" : "")."";
-    $result = mysql_query($q) or die(mysql_error());
-    $totalrecords = mysql_num_rows($result);
+    $stmt = $pdo->prepare($q);
+    $stmt->execute($params) or die(print_r($stmt->errorInfo()));
+    $totalrecords = $stmt->rowCount();
 
     // See if the search failed to match
     if($totalrecords == 0 && $searchstring != "") {
@@ -188,7 +192,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 
     // Build records data structure
     $counter = 0;
-    while (++$counter && $row = mysql_fetch_array($result)) {
+    while (++$counter && $row = $stmt->fetch()) {
         // Get SOA
         if(!isset($soa) && $row['type'] == 'S') $soa = $row;
 
