@@ -503,7 +503,7 @@ function encode_rdata_qname($hostname) {
     // DOPRY: QNAME(RFC 1035 section 4.1.2) encoding for url to octets(tinydns-data)
 
     // DOPRY: split the hostname by . (need length of each element)
-    $qnameparts = split('\.',$hostname);
+    $qnameparts = preg_split('/\./',$hostname);
 
     // DOPRY: write length octet, then characters... ( I think djbdbs handles converting them to oct... doesn't seem RFC compliant
     //but produces identical output to Rob Mayoff's SRV generator...);
@@ -519,7 +519,7 @@ function encode_rdata_qname($hostname) {
 
 // DOPRY: begin generic record decoding functions
 function decode_rdata_octets($octets) {
-    $octs = split('[\\]',$octets);
+    $octs = preg_split('/[\\]/',$octets);
     $data = pack("CC",octdec($octs[1]),octdec($octs[2]));
     $value = unpack("ndec",$data);
     return $value['dec'];
