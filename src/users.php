@@ -260,7 +260,7 @@ if($_REQUEST['user_mode'] == 'edit_account') {
 
         while(list($key,$val) = each($sort_array)) {
             $newsortway = get_sortway($sortfield, $val, $sortway);
-            $url = "<a href='$sortbaseurl&sortway=$newsortway&sortfield=$val'>".ereg_replace('_', ' ', $key)."</a>";
+            $url = "<a href='$sortbaseurl&sortway=$newsortway&sortfield=$val'>".preg_replace('/_/', ' ', $key)."</a>";
             if($sortfield == $val) $url .= "&nbsp;<img border=0 alt='$sortway' src=images/$sortway.png>";
             $smarty->assign($key, $url);
         }
