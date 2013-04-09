@@ -46,7 +46,12 @@ require_once 'src/Net/IPv6.php';
 
 // Get PDO wrapper and connect
 require_once 'src/VDB.php';
-$pdo = VDB::singleton();
+try {
+    $pdo = VDB::singleton();
+} catch (Exception $e) {
+    echo "Error connecting to database: " . $e->getMessage();
+    exit;
+}
 
 // Make sure the private_dirs exist and are writable
 if(!is_writable($session_dir)) die("Error: $session_dir is not writabale.  Please read INSTALL");
