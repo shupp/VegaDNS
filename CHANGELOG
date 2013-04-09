@@ -1,3 +1,17 @@
+* 0.12.0 4/8/2013
+    - Bill Shupp (hostmaster@shupp.org)
+        - Removed all deprectated PHP functionality
+            - Migrated from legacy mysql driver to PDO
+              (Requires PHP 5.1 for pdo)
+            - Moved from ereg to preg functions
+            - Removed PHP 4 specific stuff
+            - Removed register_globals/safe_mode checks
+        - Removed Type=MyISAM in create_tables.php (GH #14)
+        - Fixed display in editing SOA records
+        - Fixed wildcard search for records
+        - Got rid of legacy md5upgrade directory
+        - axfr_get.php now uses $dns_tools_dir for axfr-get and tcpclient
+
 * 0.11.3 4/4/2013
     - Bill Shupp (hostmaster@shupp.org)
         - Updated records_update.sql - the val column needs to be much bigger
