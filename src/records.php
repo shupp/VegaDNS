@@ -297,7 +297,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 } else if($_REQUEST['record_mode'] == 'add_record_now') {
 
     // Add domain to 'name'
-    if(!preg_match('/^.*\.($domain)\.*$/i', $_REQUEST['name']) && !preg_match('/^($domain)\.*$/i', $_REQUEST['name'])) {
+    if(!preg_match('/^.*\.('.$domain.')\.*$/i', $_REQUEST['name']) && !preg_match('/^('.$domain.')\.*$/i', $_REQUEST['name'])) {
         if(strlen($_REQUEST['name']) > 0) {
             $name = $_REQUEST['name'].".$domain";
         } else {
@@ -581,7 +581,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
 } else if($_REQUEST['record_mode'] == 'edit_record_now') {
 
     // Add domain to 'name'
-    if(!preg_match('/^.*\.($domain)\.*$/i', $_REQUEST['name']) && !preg_match('/^($domain)\.*$/i', $_REQUEST['name'])) {
+    if(!preg_match('/^.*\.('.$domain.')\.*$/i', $_REQUEST['name']) && !preg_match('/^('.$domain.')\.*$/i', $_REQUEST['name'])) {
         if(strlen($_REQUEST['name']) > 0) {
             $name = $_REQUEST['name'].".$domain";
         } else {
