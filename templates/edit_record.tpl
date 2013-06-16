@@ -46,6 +46,14 @@
         <td>TTL</td>
         <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl}">
     </tr>
+    <tr bgcolor="#eeeeee">
+        <td>Location</td>
+        <td><input size=7 maxlenth=2 type="text" name="location" value="{$location|escape:'html'}">
+    </tr>
+    <tr bgcolor="#eeeeee">
+        <td>Location</td>
+        <td><input size=7 maxlenth=2 type="text" name="location" value="{$location}">
+    </tr>
     </table>
 </td></tr>
 </table>

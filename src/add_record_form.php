@@ -74,4 +74,10 @@ if(isset($_REQUEST['ttl'])) {
     $smarty->assign('ttl', 3600);
 }
 
+if(isset($_REQUEST['location'])) {
+    $smarty->assign('location', $_REQUEST['location']);
+} else {
+    $smarty->assign('location', '');
+}
+
 $smarty->display('add_record_form.tpl');

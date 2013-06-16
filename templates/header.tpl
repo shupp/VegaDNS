@@ -2,7 +2,7 @@
 <HTML>
     <HEAD>
         <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
-        <TITLE>VegaDNS Administration</TITLE>
+        <TITLE>ANR DNS Administration</TITLE>
         <link rel="STYLESHEET" type="text/css" href="templates/core-style.css">
     <!--[if gte IE 5.5000]>
     <script type="text/javascript" src="templates/pngfix.js"></script>
@@ -26,7 +26,7 @@
 {/if}
     <td align="center">
     <img src="images/vegadns.png" alt="VegaDNS">
-    <br>tinydns administration - version {$version}
+    <br>ANR dns administration - version {$version}
     </td>
 {if $state == "logged_in" && $email != ""}
     <td width="25%">

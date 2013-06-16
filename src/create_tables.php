@@ -84,6 +84,7 @@ $q = "CREATE TABLE records (
   weight int(4) default NULL,
   port int(4) default NULL,
   ttl int(11) NOT NULL default '86400',
+  location char(2) default NULL,
   UNIQUE KEY records_id (record_id),
   KEY records_idx (domain_id,record_id,host)
 )";
