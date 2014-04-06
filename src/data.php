@@ -28,7 +28,7 @@ if(!preg_match('/.*\/index.php$/', $_SERVER['PHP_SELF'])) {
 
 // build data
 $q = "select a.domain, b.host, b.type, b.val, b.distance, b.weight, b.port, b.ttl  from domains a left join records  b on a.domain_id = b.domain_id where a.status='active' order by a.domain, b.type, b.host, b.val";
-$stmt = $pdo->query($q) or die(print_r($stmt->errorInfo()));
+$stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
 $out = "";
 
 $lastdomain = "";
