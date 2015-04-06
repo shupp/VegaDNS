@@ -156,6 +156,11 @@ function check_domain_name_format($name) {
     // Hack to allow for DOMAIN substitutions in default records
     $name = preg_replace('/DOMAIN/', 'test.com', $name);
 
+    return validate_domain_name($name);
+
+}
+
+function validate_domain_name($name) {
     if(preg_match('/\.\./', $name)) {
         return FALSE;
     } else {
@@ -385,6 +390,9 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
         }
         if(check_domain_name_format($name) == FALSE) {
             return "\"$name\" is not a valid CNAME record name";
+        }
+        if(validate_domain_name($address) == FALSE) {
+            return "\"$address\" is not a valid CNAME record address";
         }
     }
 
