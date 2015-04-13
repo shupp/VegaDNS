@@ -1,9 +1,11 @@
 from flask import Flask, abort, redirect, url_for, jsonify
 app = Flask(__name__)
 
+
 @app.route('/', methods=['GET'])
 def index():
     return redirect(url_for('domains'))
+
 
 @app.route('/v1/domains', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def domains():

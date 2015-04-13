@@ -1,5 +1,7 @@
-import unittest, json
+import unittest
+import json
 from application import app
+
 
 class TestDomains(unittest.TestCase):
     def test_get(self):
