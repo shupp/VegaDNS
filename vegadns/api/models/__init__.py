@@ -1,5 +1,6 @@
 from vegadns.api.common import config # need logger
 from peewee import *
+from lib.shortcuts import model_to_dict
 
 
 database = MySQLDatabase(
@@ -12,16 +13,7 @@ database = MySQLDatabase(
 )
 
 class BaseModel(Model):
-    # http://stackoverflow.com/questions/21975920/peewee-model-to-json
-    def __str__(self):
-        r = {}
-        for k in self._data.keys():
-            try:
-                r[k] = str(getattr(self, k))
-            except:
-                # FIXME do something better here
-                r[k] = json.dumps(getattr(self, k))
-        return str(r)
-
+    def to_dict(self):
+        return model_to_dict(self)
     class Meta:
         database = database

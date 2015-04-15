@@ -12,7 +12,7 @@ class Domain(Resource):
             domain = self.get_domain(id)
         except:
             abort(404, message="domain does not exist")
-        return {'status': 'ok', 'domain': str(domain)}
+        return {'status': 'ok', 'domain': domain.to_dict()}
 
     def get_domain(self, id):
         # FIXME authorization

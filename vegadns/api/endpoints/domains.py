@@ -11,7 +11,7 @@ class Domains(Resource):
         try:
             domains = []
             for domain in self.get_domain_list():
-                domains.append(str(domain))
+                domains.append(domain.to_dict())
         except:
             abort(404, message="no domains found")
         return {'status': 'ok', 'domains': domains}
