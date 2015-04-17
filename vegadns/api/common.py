@@ -1,8 +1,7 @@
-from ConfigParser import SafeConfigParser
 import os
+from ConfigParser import SafeConfigParser
 
 # Get config
 config = SafeConfigParser()
 config.read('vegadns/api/config/default.ini')
-if (os.access('vegadns/api/config/local.ini', os.R_OK)):
-    config.read('vegadns/api/config/local.ini')
+config.read('vegadns/api/config/local.ini')

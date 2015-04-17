@@ -1,12 +1,17 @@
 import unittest
 import json
+
 from mock import MagicMock
 
-from vegadns.api import app
 import vegadns.api.endpoints.domain
+from vegadns.api import app
 
 
 class TestDomain(unittest.TestCase):
+    def setUp(self):
+        # Use Flask's test client
+        self.test_app = app.test_client()
+
     def test_get_success(self):
         # mock get_domain and to_dict
         mock_value = {
@@ -17,13 +22,11 @@ class TestDomain(unittest.TestCase):
             'domain_id': 1
         }
         mock_model = MagicMock()
-        mock_model.to_dict = MagicMock(return_value = mock_value)
+        mock_model.to_dict = MagicMock(return_value=mock_value)
         vegadns.api.endpoints.domain.Domain.get_domain = MagicMock(
-            return_value = mock_model
+            return_value=mock_model
         )
 
-        # Use Flask's test client
-        self.test_app = app.test_client()
         response = self.test_app.get('/domains/1')
         self.assertEqual(response.status, "200 OK")
         decoded = json.loads(response.data)

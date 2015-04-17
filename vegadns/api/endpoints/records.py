@@ -1,7 +1,9 @@
 from flask import Flask, abort, redirect, url_for, request
 from flask.ext.restful import Resource, Api, abort
+
 from vegadns.api import endpoint
 from vegadns.api.models.record import Record as ModelRecord
+
 
 @endpoint
 class Records(Resource):
@@ -9,7 +11,7 @@ class Records(Resource):
 
     def get(self):
         domain = request.args.get('domain')
-        if domain == None:
+        if domain is None:
             abort(400, message="'domain' parameter is required")
 
         try:

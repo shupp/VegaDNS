@@ -1,5 +1,6 @@
 from flask import Flask, abort, redirect, url_for, jsonify
 from flask.ext.restful import Resource, Api
+
 from vegadns.api.common import config
 
 
