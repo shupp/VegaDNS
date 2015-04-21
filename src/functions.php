@@ -294,10 +294,18 @@ function ipv6_to_octal($ip) {
     $ip = uncompress_ipv6($ip);
     $out = '';
     foreach (explode(':', $ip) as $part) {
-        $oneAndTwo    = $part[0] . $part[1];
-        $threeAndFour = $part[2] . $part[3];
-        $out .= '\\' . str_pad(base_convert($oneAndTwo, 16, 8), 3, '0', STR_PAD_LEFT);
-        $out .= '\\' . str_pad(base_convert($threeAndFour, 16, 8), 3, '0', STR_PAD_LEFT);
+        // Check for IPv4 dotted decimal usage
+        if (validate_ip($part)) {
+            $ipv4Parts = preg_split('/\./', $part);
+            foreach ($ipv4Parts as $ipv4) {
+                $out .= '\\' . str_pad(base_convert($ipv4, 10, 8), 3, '0', STR_PAD_LEFT);
+            }
+        } else {
+            $oneAndTwo    = $part[0] . $part[1];
+            $threeAndFour = $part[2] . $part[3];
+            $out .= '\\' . str_pad(base_convert($oneAndTwo, 16, 8), 3, '0', STR_PAD_LEFT);
+            $out .= '\\' . str_pad(base_convert($threeAndFour, 16, 8), 3, '0', STR_PAD_LEFT);
+        }
     }
     return $out;
 }
