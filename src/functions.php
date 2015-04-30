@@ -627,7 +627,8 @@ function build_data_line($row,$domain) {
     } else if($row['type'] == 'T') {
         $s = "'".$row['host'].":".str_replace(":",'\072', $row['val']).":".$row['ttl']."\n";
     } else if($row['type'] == 'F') {
-        $s = ":".$row['host'].":99:".str_replace(":",'\072', $row['val']).":".$row['ttl']."\n";
+        $val_str = str_replace(":",'\072', $row['val']);
+        $s = ":".$row['host'].":99:\\".str_pad(decoct(strlen($row['val'])),3,0,STR_PAD_LEFT)."".$val_str.":".$row['ttl']."\n";
     } else if($row['type'] == 'C') {
         $s = "C".$row['host'].":".$row['val'].":".$row['ttl']."\n";
     } else if($row['type'] == 'S') {
