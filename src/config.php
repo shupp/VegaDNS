@@ -70,6 +70,10 @@ $timeout = 3600;
 // Directory containing dnsq and dnsqr
 $dns_tools_dir = '/usr/local/bin';
 
+// Set to true if you want to store sessions in mysql rather than in files
+// (required when load balancing VegaDNS)
+$use_mysql_sessions = false;
+
 /////////////////////////////////////
 // NO NEED TO EDIT BELOW THIS LINE //
 /////////////////////////////////////

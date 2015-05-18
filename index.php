@@ -89,8 +89,13 @@ if(isset($_REQUEST['state']) && $_REQUEST['state'] == 'get_data') {
 
 // Setup session
 session_name('VDNSSessid');
-session_save_path($session_dir);
-session_start();
+if (isset($use_mysql_sessions) && $use_mysql_sessions == true) {
+    require_once 'src/MySQLSessions.php';
+    $mysql_sessions = MysqlSessions::singleton();
+} else {
+    session_save_path($session_dir);
+    session_start();
+}
 $smarty->assign('session_name', session_name());
 $smarty->assign('session_id', session_id());
 
