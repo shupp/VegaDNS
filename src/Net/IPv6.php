@@ -19,7 +19,7 @@
  * @author    Alexander Merz <alexander.merz@web.de>
  * @copyright 2003-2005 The PHP Group
  * @license   BSD License http://www.opensource.org/licenses/bsd-license.php
- * @version   CVS: $Id: IPv6.php 306821 2010-12-29 13:53:22Z alexmerz $
+ * @version   CVS: $Id: IPv6.php 324297 2012-03-16 12:35:50Z alexmerz $
  * @link      http://pear.php.net/package/Net_IPv6
  */
 
@@ -715,7 +715,7 @@ class Net_IPv6
 
         $cip = ':' . join(':', $ipp) . ':';
 
-        preg_match_all("/(:0)+/", $cip, $zeros);
+        preg_match_all("/(:0)(:0)+/", $cip, $zeros);
 
         if (count($zeros[0]) > 0) {
 
@@ -748,6 +748,33 @@ class Net_IPv6
     }
 
     // }}}
+    // {{{ recommendedFormat()
+    /**
+     * Represent IPv6 address in RFC5952 format.
+     *
+     * @param String  $ip a valid IPv6-adress (hex format)
+     *
+     * @return String the recommended representation of IPv6-adress (hex format)
+     * @access public
+     * @see    compress()
+     * @static
+     * @author koyama at hoge dot org
+     * @todo This method may become a part of compress() in a further releases
+     */
+    function recommendedFormat($ip)
+    {
+        $compressed = self::compress($ip, true);
+        // RFC5952 4.2.2
+        // The symbol "::" MUST NOT be used to shorten just one
+        // 16-bit 0 field.
+        if ((substr_count($compressed, ':') == 7) &&
+            (strpos($compressed, '::') !== false)) {
+            $compressed = str_replace('::', ':0:', $compressed);
+        }
+        return $compressed;
+    }
+    // }}}
+
     // {{{ isCompressible()
 
     /**
@@ -831,14 +858,28 @@ class Net_IPv6
      */
     function checkIPv6($ip)
     {
-        $ip = Net_IPv6::removePrefixLength($ip);
-        $ip = Net_IPv6::removeNetmaskSpec($ip);
+
+        $elements = Net_IPv6::separate($ip);
+    
+        $ip = $elements[0];
+
+        if('' != $elements[1] && ( !is_numeric($elements[1]) || 0 > $elements || 128 < $elements[1])) {
+
+            return false;
+
+        } 
 
         $ipPart = Net_IPv6::SplitV64($ip);
         $count  = 0;
 
         if (!empty($ipPart[0])) {
-            $ipv6 =explode(':', $ipPart[0]);
+            $ipv6 = explode(':', $ipPart[0]);
+
+            foreach($ipv6 as $element) { // made a validate precheck
+                if(!preg_match('/[0-9a-fA-F]*/', $element)) {
+                    return false;
+                }
+            }
 
             for ($i = 0; $i < count($ipv6); $i++) {
 
