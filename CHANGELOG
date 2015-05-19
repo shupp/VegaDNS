@@ -1,3 +1,17 @@
+* 0.13.0 5/19/2015
+    - Bill Shupp (hostmaster@shupp.org)
+       - Fixed bug where errorInfo() is called on the wrong object on exports
+         upon query failure
+       - Added validation for CNAME record values to avoid empty values
+       - create_tables.php did not have the current "val" column size for
+         records and default_records tables
+       - Fixed lack of IPv4 dotted decimal support in ipv4_to_octal() function
+       - Added optional mysql session handling to support load balancing.  See
+         $use_mysql_sessions in src/config.php.
+       - Upgraded smarty from 2.6.26 to 2.6.28 to get security fixes
+       - Upgraded Net_IPv6 to 1.2.2b2 to get invalid character fix
+       - Updated validate_domain_name() regex to be more specific
+
 * 0.12.1 6/16/2013
     - mufus (GH PR #16)
         - Fixed incorrect preg introduced in 0.12.0
