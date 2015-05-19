@@ -164,7 +164,10 @@ function validate_domain_name($name) {
     if(preg_match('/\.\./', $name)) {
         return FALSE;
     } else {
-        $result = preg_match('/^[\*\.a-z0-9-\/]+\.[a-z0-9-]+[\.]{0,1}$/i', strtolower($name));
+        $result = preg_match(
+            '/^(\*\.)?([a-z0-9_]\.|[a-z0-9_][a-z0-9_-]*[a-z0-9_]\.)*([a-z0-9_]|[a-z0-9_][a-z0-9_-]*[a-z0-9_])\.?$/',
+            strtolower($name)
+        );
         return $result;
     }
 
