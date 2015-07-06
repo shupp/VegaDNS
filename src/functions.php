@@ -198,6 +198,18 @@ function get_dom_id($domain) {
 
 }
 
+function get_latest_log_timestamp() {
+    $pdo = VDB::singleton();
+    $q = "select time from log order by time desc limit 1;";
+    $stmt = $pdo->query($q);
+    $result = $stmt->fetch();
+    if(isset($result["time"])) {
+        return $result["time"];
+    } else {
+        return 0;
+    }
+}
+
 function dns_log($domain_id,$entry) {
 
     global $user_info;

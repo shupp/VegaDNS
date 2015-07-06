@@ -74,6 +74,10 @@ $dns_tools_dir = '/usr/local/bin';
 // (required when load balancing VegaDNS)
 $use_mysql_sessions = false;
 
+// Set this to a record name you want to query for version information
+// over a TXT record
+// $vegadns_generation_txt_record = "vegadns-generation.example.com";
+
 /////////////////////////////////////
 // NO NEED TO EDIT BELOW THIS LINE //
 /////////////////////////////////////

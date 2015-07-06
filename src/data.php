@@ -41,6 +41,21 @@ while($row = $stmt->fetch()) {
     $lastdomain = $row['domain'];
 }
 
+if(isset($vegadns_generation_txt_record)) {
+        #$s = "'".$row['host'].":".str_replace(":",'\072', $row['val']).":".$row['ttl']."\n";
+    $timestamp = get_latest_log_timestamp();
+    $sum = md5($out);
+    $row = array(
+	'type' => 'T',
+	'host' => $vegadns_generation_txt_record,
+	'val' => $timestamp . '-' . $sum,
+        'ttl' => 3600
+    );
+    $generation_record = build_data_line($row, "notused_for_txt");
+
+    $out .= "\n# VegaDNS Generation TXT Record\n$generation_record";
+}
+
 print($out);
 exit;
 
