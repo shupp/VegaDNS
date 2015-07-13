@@ -1,4 +1,4 @@
-* 0.13.0 5/19/2015
+* 0.13.0 7/13/2015
     - Bill Shupp (hostmaster@shupp.org)
        - Fixed bug where errorInfo() is called on the wrong object on exports
          upon query failure
@@ -11,6 +11,9 @@
        - Upgraded smarty from 2.6.26 to 2.6.28 to get security fixes
        - Upgraded Net_IPv6 to 1.2.2b2 to get invalid character fix
        - Updated validate_domain_name() regex to be more specific
+       - Added optional $vegadns_generation_txt_record in config.php for
+         monitoring data set version in VegaDNS and tinydns.  Unset by default.
+       - Update copyrights again
 
 * 0.12.1 6/16/2013
     - mufus (GH PR #16)
