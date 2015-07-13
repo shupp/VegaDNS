@@ -37,7 +37,7 @@ $mysql_pass = 'secret';
 $mysql_db = 'vegadns';
 
 // Local URL
-$vegadns_url = 'http://127.0.0.1/vegadns-0.11.1/';
+$vegadns_url = 'http://127.0.0.1/';
 
 // Contact info used in from/to addresses of email notifactions for inactive
 // domains
