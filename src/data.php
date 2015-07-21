@@ -42,7 +42,6 @@ while($row = $stmt->fetch()) {
 }
 
 if(isset($vegadns_generation_txt_record)) {
-        #$s = "'".$row['host'].":".str_replace(":",'\072', $row['val']).":".$row['ttl']."\n";
     $timestamp = get_latest_log_timestamp();
     $sum = md5($out);
     $row = array(
