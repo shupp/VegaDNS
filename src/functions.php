@@ -238,6 +238,7 @@ function get_type($type) {
     if($type == 'S') return 'SOA';
     if($type == 'N') return 'NS';
     if($type == 'A') return 'A';
+    if($type == '=') return 'A+PTR';
     if($type == '3') return 'AAAA';
     if($type == '6') return 'AAAA+PTR';
     if($type == 'M') return 'MX';
@@ -254,6 +255,7 @@ function set_type($type) {
     if($type == 'SOA') return 'S';
     if($type == 'NS') return 'N';
     if($type == 'A') return 'A';
+    if($type == 'A+PTR') return '=';
     if($type == 'AAAA') return '3';
     if($type == 'AAAA+PTR') return '6';
     if($type == 'MX') return 'M';
@@ -356,6 +358,15 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
         if(check_domain_name_format($name) == FALSE) {
             return "\"$name\" is not a valid A record name";
         }
+    }
+
+    if ($type == '=') {
+      if(validate_ip($address) == FALSE) {
+          return "\"$address\" is not a valid A+PTR record address";
+      }
+      if(check_domain_name_format($name) == FALSE) {
+          return "\"$name\" is not a valid A+PTR record name";
+      }
     }
 
     // verify AAAA record
@@ -633,6 +644,8 @@ function build_data_line($row,$domain) {
 
     if($row['type'] == 'A') {
         $s = "+".$row['host'].":".$row['val'].":".$row['ttl']."\n";
+    } else if($row['type'] == '=') {
+        $s = "=".$row['host'].":".$row['val'].":".$row['ttl']."\n";
     } else if($row['type'] == 'M') {
         $s = "@".$row['host']."::".$row['val'].":".$row['distance'].":".$row['ttl']."\n";
     } else if($row['type'] == 'N') {
@@ -679,7 +692,13 @@ function parse_dataline($line) {
         $out_array['val'] = $array[1];
         $out_array['distance'] = '';
         $out_array['ttl'] = $array[2];
-    } else if(strncmp('C', $line, 1) == 0) {
+    } else if(strncmp('=', $line, 1) == 0) {
+        $out_array['host'] = $array[0];
+        $out_array['type'] = '=';
+        $out_array['val'] = $array[1];
+        $out_array['distance'] = '';
+        $out_array['ttl'] = $array[2];
+    }else if(strncmp('C', $line, 1) == 0) {
         $out_array['host'] = $array[0];
         $out_array['type'] = 'C';
         $out_array['val'] = $array[1];
