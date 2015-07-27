@@ -331,6 +331,16 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             '".set_type($_REQUEST['type'])."',
             :address,
             '".$_REQUEST['ttl']."')";
+
+        } else if($_REQUEST['type'] == 'A+PTR') {
+            $params[':address'] = $_REQUEST['address'];
+            $q = "insert into records
+            (domain_id,host,type,val,ttl) values(
+            '".get_dom_id($domain)."',
+            '$name',
+            '".set_type($_REQUEST['type'])."',
+            :address,
+            '".$_REQUEST['ttl']."')";
         } else if($_REQUEST['type'] == 'AAAA') {
             $address = uncompress_ipv6($_REQUEST['address']);
             $params[':address'] = $address;
