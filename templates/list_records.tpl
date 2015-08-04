@@ -85,11 +85,11 @@
   </tr>
 </table>
 
-<table border=0 width="100%">
+<table border=0 width="100%" style="table-layout:fixed">
   <tr bgcolor="#cccccc">
       <td nowrap>{$Name}</td>
       <td width="5%" nowrap>{$Type}</td>
-      <td nowrap>{$Address}</td>
+      <td style="word-wrap:break-word">{$Address}</td>
       <td nowrap width="10%">{$Distance}</td>
       <td nowrap width="10%">Weight</td>
       <td nowrap width="5%">Port</td>

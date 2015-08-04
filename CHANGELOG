@@ -17,6 +17,7 @@
         - Added optional $vegadns_generation_txt_record in config.php for
           monitoring data set version in VegaDNS and tinydns.  Unset by default.
         - Update copyrights again
+        - Records - use fixed table layout, wrap address/values - GH Issue #19
 
 * 0.12.1 6/16/2013
     - mufus (GH PR #16)
