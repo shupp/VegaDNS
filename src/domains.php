@@ -247,8 +247,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     // Set domain status, ids based on account type
     if($user_info['Account_Type'] == 'senior_admin') {
         $domain_status = 'active';
-        $owner_id = '';
-        $group_owner_id = '';
+        $owner_id = 0;
+        $group_owner_id = 0;
     } else if($user_info['Account_Type'] == 'group_admin') {
         $domain_status = 'inactive';
         $owner_id = $user_info['cid'];
@@ -262,8 +262,8 @@ if(!isset($_REQUEST['domain_mode']) || $_REQUEST['domain_mode'] == 'delete_cance
     // Add domain
     $q = "insert into domains (domain,owner_id,group_owner_id,status)
         values(:domain,
-        '$owner_id',
-        '$group_owner_id',
+        $owner_id,
+        $group_owner_id,
         '$domain_status')";
     $stmt = $pdo->prepare($q);
     $stmt->execute($params) or die(print_r($stmt->errorInfo()));
