@@ -1,3 +1,8 @@
+* 0.13.1 10/20/2015
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fixed PHP SQL type issue for owner ids when creating a new domain
+          tnx Pablo Murillo
+
 * 0.13.0 10/5/2015
     - Brian Hartvigsen (brian.andrew@brianandjenny.com)
         - Added A+PTR support
