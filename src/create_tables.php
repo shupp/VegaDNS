@@ -103,7 +103,7 @@ $q = "CREATE TABLE default_records (
   UNIQUE KEY records_id (record_id)
 )";
 $pdo->query($q) or die(print_r($pdo->errorInfo()));
-$q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,'','',86400,'system')";
+$q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,NULL,NULL,86400,'system')";
 $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
 ?>

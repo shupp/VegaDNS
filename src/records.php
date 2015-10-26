@@ -634,12 +634,24 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $address = $_REQUEST['address'];
         }
 
+        if (strlen($_REQUEST['weight'])) {
+            $weightstring = "weight=".$_REQUEST['weight'].",";
+        } else {
+            $weightstring = null;
+        }
+
+        if (strlen($_REQUEST['port'])) {
+            $portstring = "port=".$_REQUEST['port'].",";
+        } else {
+            $portstring = null;
+        }
+
         $q = "update records set ".
             "host='$name',".
             "val='".$address."',".
             "distance='".$_REQUEST['distance']."',".
-            "weight='".$_REQUEST['weight']."',".
-            "port='".$_REQUEST['port']."',".
+            $weightstring .
+            $portstring .
             "ttl='".$_REQUEST['ttl']."' ".
             "where record_id='".$_REQUEST['record_id']."' and domain_id='".
                 get_dom_id($domain)."'";
