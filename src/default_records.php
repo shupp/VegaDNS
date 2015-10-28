@@ -380,15 +380,23 @@ if(!isset($_REQUEST['record_mode'])) {
         $params[':host'] = $host;
         $params[':val']  = $val;
         $params[':ttl']  = $_REQUEST['ttl'];
-        $q = "insert into default_records values(
-            '',
-            ".$user_info['cid'].",
-            :host,
-            'S',
-            :val,
-            0,,,
-            :ttl,
-            'group')";
+        $q = "insert into default_records
+            (
+                group_owner_id,
+                host,
+                type,
+                val,
+                ttl,
+                default_type
+            )
+            values(
+                ".$user_info['cid'].",
+                :host,
+                'S',
+                :val,
+                :ttl,
+                'group'
+        )";
     } else {
         $params[':host'] = $host;
         $params[':val']  = $val;
