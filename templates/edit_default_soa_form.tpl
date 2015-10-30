@@ -18,12 +18,12 @@
         <table border=0 "width=100%">
             <tr bgcolor="#eeeeee">
                 <td nowrap>Primary Name Server</td>
-                <td align="left"><input type="text" name="primary_name_server" value="ns1.myserver.com"></td>
+                <td align="left"><input type="text" name="primary_name_server" value="{$soa_array.tldhost}"></td>
                 <td>defaults:</td>
             </tr>
             <tr bgcolor="#eeeeee">
                 <td nowrap>Contact Address</td>
-                <td align="left"><input type=text name="contactaddr" value="hostmaster.DOMAIN"></td>
+                <td align="left"><input type=text name="contactaddr" value="{$soa_array.tldemail}"></td>
                 <td align="left">hostmaster.DOMAIN</td>
             </tr>
             <tr bgcolor="#eeeeee">
