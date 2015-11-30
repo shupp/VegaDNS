@@ -1,3 +1,8 @@
+* 0.13.2 11/30/2015
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fixed more PHP SQL type issues, GH #24
+        - Fixed static data in default soa template, GH #24
+
 * 0.13.1 10/20/2015
     - Bill Shupp (hostmaster@shupp.org)
         - Fixed PHP SQL type issue for owner ids when creating a new domain
