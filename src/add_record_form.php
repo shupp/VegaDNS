@@ -74,4 +74,18 @@ if(isset($_REQUEST['ttl'])) {
     $smarty->assign('ttl', 3600);
 }
 
+$q1 = "select location from locations";
+$stmt1 = $pdo->query($q1) or die(print_r($stmt1->errorInfo()));
+while($row = $stmt1->fetch()) {
+    $loc .= " ".$row['location'];
+}
+
+$smarty->assign('select_location', explode(' ',$loc));
+    if(isset($_REQUEST['location'])) {
+        $smarty->assign('loc_selected', $_REQUEST['location']);
+    } else if(isset($account_info)) {
+        $smarty->assign('loc_selected', ' ');
+    }
+
+
 $smarty->display('add_record_form.tpl');

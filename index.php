@@ -54,10 +54,10 @@ try {
 }
 
 // Make sure the private_dirs exist and are writable
-if(!is_writable($session_dir)) die("Error: $session_dir is not writabale.  Please read INSTALL");
-if(!is_writable("$private_dirs/templates_c")) die("Error: $private_dirs/templates_c is not writabale.  Please read INSTALL");
-if(!is_writable("$private_dirs/configs")) die("Error: $private_dirs/configs is not writabale.  Please read INSTALL");
-if(!is_writable("$private_dirs/cache")) die("Error: $private_dirs/cache is not writabale.  Please read INSTALL");
+if(!is_writable($session_dir)) die("Error: $session_dir is not writable.  Please read INSTALL");
+if(!is_writable("$private_dirs/templates_c")) die("Error: $private_dirs/templates_c is not writable.  Please read INSTALL");
+if(!is_writable("$private_dirs/configs")) die("Error: $private_dirs/configs is not writable.  Please read INSTALL");
+if(!is_writable("$private_dirs/cache")) die("Error: $private_dirs/cache is not writable.  Please read INSTALL");
 
 
 if(isset($_REQUEST['state']) && $_REQUEST['state'] == 'get_data') {
@@ -214,6 +214,13 @@ if(!isset($_REQUEST['state'])) {
             // LIST DOMAINS
 
             require('src/domains.php');
+            exit;
+
+        } else if($_REQUEST['mode'] == "locations") {
+
+            // LIST LOCATIONS
+
+            require('src/locations.php');
             exit;
 
         } else if($_REQUEST['mode'] == "users") {

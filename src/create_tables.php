@@ -64,6 +64,15 @@ $q = "CREATE TABLE domains (
 )";
 $pdo->query($q) or die(print_r($pdo->errorInfo()));
 
+$q = "CREATE TABLE locations (
+  location_id int(11) NOT NULL auto_increment,
+  location varchar(3) default NULL,
+  prefix varchar(100) default NULL,
+  status enum('active','inactive') NOT NULL default 'inactive',
+  KEY location_id (location_id,location)
+)";
+$pdo->query($q) or die(print_r($pdo->errorInfo()));
+
 $q = "CREATE TABLE log (
   domain_id int(11) NOT NULL default '0',
   cid int(11) NOT NULL default '0',
@@ -84,6 +93,7 @@ $q = "CREATE TABLE records (
   weight int(4) default NULL,
   port int(4) default NULL,
   ttl int(11) NOT NULL default '86400',
+  location char(2) default NULL,
   UNIQUE KEY records_id (record_id),
   KEY records_idx (domain_id,record_id,host)
 )";

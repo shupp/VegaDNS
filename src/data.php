@@ -23,13 +23,21 @@ if(!preg_match('/.*\/index.php$/', $_SERVER['PHP_SELF'])) {
 
 
 
+// Set locations
+$q1 = "select location, prefix from locations where status='active' order by location";
+$stmt1 = $pdo->query($q1) or die(print_r($stmt1->errorInfo()));
+$out = "# TinyDNS Data \n\n# Locations\n";
 
+while($row = $stmt1->fetch()) {
+    $out .= "%".$row['location'].":".$row['prefix']."\n";
+}
+$out .= "\n";
 
 
 // build data
-$q = "select a.domain, b.host, b.type, b.val, b.distance, b.weight, b.port, b.ttl  from domains a left join records  b on a.domain_id = b.domain_id where a.status='active' order by a.domain, b.type, b.host, b.val";
+$q = "select a.domain, b.host, b.type, b.val, b.distance, b.weight, b.port, b.ttl, b.location  from domains a left join records  b on a.domain_id = b.domain_id where a.status='active' order by a.domain, b.type, b.host, b.val";
 $stmt = $pdo->query($q) or die(print_r($pdo->errorInfo()));
-$out = "";
+$out .= "";
 
 $lastdomain = "";
 while($row = $stmt->fetch()) {

@@ -180,6 +180,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     $sort_array['Address'] = 'val';
     $sort_array['Distance'] = 'distance';
     $sort_array['TTL'] = 'ttl';
+    $sort_array['Location'] = 'location';
 
     $sortbaseurl = "$base_url&mode=records&domain=$domain&page=".( ((isset($_REQUEST['page']) && $_REQUEST['page'] == 'all')) ? "all" : $page);
 
@@ -206,6 +207,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $records[$counter]['weight'] = $row['weight'];
             $records[$counter]['port'] = $row['port'];
             $records[$counter]['ttl'] = $row['ttl'];
+            $records[$counter]['location'] = $row['location'];
         }
     }
 
@@ -275,6 +277,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             }
 
             $out_array[$counter]['ttl'] = $array['ttl'];
+            $out_array[$counter]['location'] = $array['location'];
             $out_array[$counter]['delete_url'] = "$base_url&mode=records&record_mode=delete&record_id=".$array['record_id']."&domain=".urlencode($domain);
             $out_array[$counter]['edit_url'] = "$base_url&mode=records&record_mode=edit_record&record_id=".$array['record_id']."&domain=".urlencode($domain);
             $counter++;
@@ -308,7 +311,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     }
 
     // verify record to be added
-    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl']);
+    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl'], $_REQUEST['location']);
     if($result != 'OK') {
         set_msg_err(htmlentities($result, ENT_QUOTES));
         $smarty->display('header.tpl');
@@ -325,42 +328,45 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         if($_REQUEST['type'] == 'A') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
-
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         } else if($_REQUEST['type'] == 'A+PTR') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         } else if($_REQUEST['type'] == 'AAAA') {
             $address = uncompress_ipv6($_REQUEST['address']);
             $params[':address'] = $address;
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         } else if($_REQUEST['type'] == 'AAAA+PTR') {
             $address = uncompress_ipv6($_REQUEST['address']);
             $params[':address'] = $address;
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         } else if($_REQUEST['type'] == 'MX') {
             if(!preg_match('/\..+$/', $_REQUEST['address'])) {
                 $mxaddress = $_REQUEST['address'].".".$domain;
@@ -370,53 +376,58 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $params[':mxaddress'] = $mxaddress;
             $params[':distance']  = $_REQUEST['distance'];
             $q = "insert into records
-            (domain_id,host,type,val,distance,ttl) values(
+            (domain_id,host,type,val,distance,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :mxaddress,
             :distance,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         }
         if($_REQUEST['type'] == 'NS') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         }
         if($_REQUEST['type'] == 'PTR') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         }
         if($_REQUEST['type'] == 'TXT') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         }
         if($_REQUEST['type'] == 'CNAME') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         }
         if($_REQUEST['type'] == 'SRV') {
             if(!preg_match('/\..+$/', $_REQUEST['address'])) {
@@ -430,7 +441,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $params[':port']       = $_REQUEST['port'];
 
             $q = "insert into records
-            (domain_id,host,type,val,distance,weight,port,ttl) values(
+            (domain_id,host,type,val,distance,weight,port,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
@@ -438,18 +449,20 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             :distance,
             :weight,
             :port,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
 
         }
         if($_REQUEST['type'] == 'SPF') {
             $params[':address'] = $_REQUEST['address'];
             $q = "insert into records
-            (domain_id,host,type,val,ttl) values(
+            (domain_id,host,type,val,ttl,location) values(
             '".get_dom_id($domain)."',
             '$name',
             '".set_type($_REQUEST['type'])."',
             :address,
-            '".$_REQUEST['ttl']."')";
+            '".$_REQUEST['ttl']."',
+            '" . $_REQUEST['location'] . "')";
         }
         $stmt = $pdo->prepare($q);
         $stmt->execute($params) or die(print_r($stmt->errorInfo()));
@@ -581,6 +594,20 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
     $smarty->assign('weight', $row['weight']);
     $smarty->assign('port', $row['port']);
     $smarty->assign('ttl', $row['ttl']);
+    $q1 = "select location from locations";
+    $stmt1 = $pdo->query($q1) or die(print_r($stmt1->errorInfo()));
+    $loc="";
+    while ($row1 = $stmt1->fetch()) {
+        $loc .= " " . $row1['location'];
+    }
+
+    $smarty->assign('select_location', explode(' ', $loc));
+    if (isset($row['location'])) {
+        $smarty->assign('loc_selected', $row['location']);
+    } else {
+        $smarty->assign('loc_selected', ' ');
+    }
+    //$smarty->assign('location', $row['location']);
 
     // Edit Record Menu
     $smarty->display('header.tpl');
@@ -619,6 +646,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
         $smarty->assign('weight', $row['weight']);
         $smarty->assign('port', $row['port']);
         $smarty->assign('ttl', $row['ttl']);
+        $smarty->assign('location', $row['location']);
         set_msg_err(htmlentities($result, ENT_QUOTES));
         $smarty->display('header.tpl');
         $smarty->display('edit_record.tpl');
@@ -653,6 +681,7 @@ if(!isset($_REQUEST['record_mode']) || $_REQUEST['record_mode'] == 'delete_cance
             $weightstring .
             $portstring .
             "ttl='".$_REQUEST['ttl']."' ".
+            "location='" . $_REQUEST['location'] . "' " .
             "where record_id='".$_REQUEST['record_id']."' and domain_id='".
                 get_dom_id($domain)."'";
 

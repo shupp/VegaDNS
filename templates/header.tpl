@@ -45,6 +45,7 @@
         <td align="center">
             <a href="{$base_url}&mode=domains">Domains</a>&nbsp | &nbsp
             <a href="{$base_url}&mode=domains&domain_mode=add">New Domain</a>&nbsp | &nbsp
+            <a href="{$base_url}&mode=locations">Locations</a>&nbsp | &nbsp
             <a href="{$base_url}&mode=users&user_mode=edit_account&cid={$cid}">Edit My Account</a> | &nbsp
             <a href="{$base_url}&mode=dnsquery">DNS Query</a>
         </td>

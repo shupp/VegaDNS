@@ -46,6 +46,16 @@
         <td>TTL</td>
         <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl}">
     </tr>
+    <tr bgcolor="#eeeeee">
+        <td>Location</td>
+        <td><input size=7 maxlenth=2 type="text" name="location" value="{$location}">
+    </tr>
+    <tr bgcolor="#eeeeee">
+        <td>Location</td>
+        <td><select name="location">
+    {html_options values=$select_location selected=$loc_selected output=$select_location}
+           </select></td>
+    </tr>
     </table>
 </td></tr>
 </table>
