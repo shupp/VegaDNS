@@ -1,0 +1,20 @@
+.content-container
+{
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.full-width
+{
+    width: 100%;
+}
+
+td a.button
+{
+    margin-bottom: 0;
+}
+
+.soa-properties
+{
+    margin-bottom: 1em;
+}

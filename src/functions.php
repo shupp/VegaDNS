@@ -779,11 +779,11 @@ function get_sortway($sortfield, $val, $sortway) {
 }
 
 function set_msg_err($error) {
-    $_SESSION['message'] = "<span class=\"error\">$error</span>";
+    $_SESSION['message'] = "<div class=\"callout alert\">".$error."</div>";
 }
 
 function set_msg($msg) {
-    $_SESSION['message'] = $msg;
+    $_SESSION['message'] = "<div class=\"callout warning\">".$msg."</div>";
 }
 
 // Set message from session

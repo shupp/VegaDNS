@@ -1,40 +1,39 @@
-<table border=0 width="70%" bgcolor="white">
-<tr><td>
-<table border=0 width="100%">
-<tr bgcolor="#cccccc">
-    <td align="middle">All User Accounts
-        {if $user_account_type == 'group_admin'} In Your Group{/if}
-</td></tr>
-</table>
-
-<table border=0 width="100%">
-<tr bgcolor="#cccccc">
-  <td nowrap>{$Name}</td>
-  <td nowrap>{$Email}</td>
-  <td nowrap>{$Account_Type}</td>
-  <td nowrap>{$Group_Owner}</td>
-  <td nowrap>{$Status}</td>
-  <td>Edit</td>
-  <td>Delete</td>
-</tr>
-
-{foreach from=$out_array item=row}
-<tr bgcolor="#eeeeee">
-  <td>{$row.name|escape}</td>
-  <td>{$row.email|escape}</td>
-  <td>{$row.account_type}</td>
-  <td>{$row.group_owner_name|escape}</td>
-  <td>{$row.status}</td>
-  <td><a href="{$row.edit_url}">edit</a></td>
-  <td align="center">{strip}
-    {if $row.delete_url == ""}
-    <img border=0 src="images/trash.png">
-    {else}
-    <a href="{$row.delete_url}"><img border=0 src="images/trash.png" alt="Trash"></a>
-    {/if}{/strip}</td>
-</tr>
-{/foreach}
-
-</table>
-</td></tr>
-</table>
+<div class="row">
+    <div class="small-12 columns">
+        <h3>All User Accounts{if $user_account_type == 'group_admin'} In Your Group{/if}</h3>
+        <table class="full-width">
+            <thead>
+                <tr>
+                    <th nowrap>{$Name}</th>
+                    <th nowrap>{$Email}</th>
+                    <th nowrap class="text-center">{$Account_Type}</th>
+                    <th nowrap class="text-center">{$Group_Owner}</th>
+                    <th nowrap class="text-center">{$Status}</th>
+                    <th class="text-center">Edit</th>
+                    <th class="text-center">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            {foreach from=$out_array item=row}
+                <tr>
+                    <td>{$row.name|escape}</td>
+                    <td>{$row.email|escape}</td>
+                    <td class="text-center">{$row.account_type}</td>
+                    <td class="text-center">{$row.group_owner_name|escape}</td>
+                    <td class="text-center">{$row.status}</td>
+                    <td class="text-center"><a href="{$row.edit_url}" class="button success"><i class="fa fa-pencil"></i> edit</a></td>
+                    <td class="text-center">
+                        {strip}
+                            {if $row.delete_url == ""}
+                                <a class="button disabled"><i class="fa fa-trash-o"></i></a>
+                            {else}
+                                <a class="button alert" href="{$row.delete_url}"><i class="fa fa-trash-o"></i></a>
+                            {/if}
+                        {/strip}
+                    </td>
+                </tr>
+            {/foreach}
+            </tbody>
+        </table>
+    </div>
+</div>

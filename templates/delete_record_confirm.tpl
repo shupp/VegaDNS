@@ -1,3 +1,7 @@
-<h3>Are you really sure you want to delete {$type|escape} record {$host|escape}?</h3><p>
-
-<a href="{$cancel_url}">cancel</a> &nbsp | &nbsp <a href="{$delete_url}">delete</a>
+<div class="row">
+    <div class="small-12 medium-8 columns text-center small-centered">
+        <h3>Are you really sure you want to delete {$type|escape} record {$host|escape}?</h3>
+        <a href="{$cancel_url}" class="button warning">cancel</a>
+        <a href="{$delete_url}" class="button alert">delete</a>
+    </div>
+</div>

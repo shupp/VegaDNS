@@ -204,9 +204,11 @@ if(!isset($_REQUEST['state'])) {
         $smarty->assign('cid', $user_info['cid']);
 
 
-        if(!isset($_REQUEST['mode']) || $_REQUEST['mode'] == "main_menu") {
-            $smarty->display('header.tpl');
-            $smarty->display('footer.tpl');
+        if(!isset($_REQUEST['mode']) || $_REQUEST['mode'] == "main_menu" || $_REQUEST['mode'] == "dashboard") {
+
+            // DASHBOARD
+
+            require('src/dashboard.php');
             exit;
 
         } else if($_REQUEST['mode'] == "domains") {
