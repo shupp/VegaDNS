@@ -12,6 +12,11 @@
         <script src="/templates/foundation/js/foundation.min.js"></script>
         <script src="/templates/foundation/js/app.js"></script>
     {/literal}
+    {if $build_config}
+        {literal}
+            <script src="/templates/config-validation.js"></script>
+        {/literal}
+    {/if}
 
     {if $dashboardajax == true }
         {literal}

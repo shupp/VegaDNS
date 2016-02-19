@@ -5,8 +5,8 @@ if(!preg_match('/.*\/index.php$/', $_SERVER['PHP_SELF'])) {
     exit;
 }
 
-include('vendor/sysinfo/lib/class.serverInfo.php');
-$info = new serverInfo();
+//include('vendor/sysinfo/lib/class.serverInfo.php');
+//$info = new serverInfo();
 
 // get domain count
 $q = "select * from domains";
@@ -23,7 +23,7 @@ $totaldomains = $stmt->rowCount();
 
 
 $smarty->assign('totaldomains', $totaldomains);
-$smarty->assign('system', (array)$info);
+//$smarty->assign('system', (array)$info);
 $smarty->assign('dashboardajax', 'true');
 $smarty->display('header.tpl');
 $smarty->display('dashboard.tpl');

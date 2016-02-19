@@ -50,7 +50,10 @@ NOTE:   The Following steps assume your ServerRoot is /usr/local/apache, and
     chown -R nobody:nobody /usr/local/apache/vegadns
     chmod -R 770 /usr/local/apache/vegadns
 
-5.  Copy the vegadns-x.x/src/config-sample.php file to vegadns-x.x/src/config.php then edit.
+5.  EITHER
+    a) visit your domain or IP in a browser;
+    OR;
+    b) Copy the vegadns-x.x/src/config-sample.php file to vegadns-x.x/src/config.php then edit.
     Make *sure* that the "private_dirs" variable is set properly, as well as the MySQL account
     information, and and also the "vegadns_url" variable.
 

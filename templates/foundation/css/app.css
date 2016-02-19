@@ -18,3 +18,20 @@ td a.button
 {
     margin-bottom: 1em;
 }
+
+.formerror
+{
+    color: #EC5840;
+}
+
+input[type="text"].input-error
+{
+    border: 1px solid #EC5840;
+    box-shadow: inset 0 0 2px #EC5840;
+}
+
+input[type="text"].input-error:focus
+{
+    border:: 1px solid #EC5840;
+    box-shadow: 0 0 2px #EC5840;
+}
