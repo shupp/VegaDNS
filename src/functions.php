@@ -413,8 +413,8 @@ function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
 
     // verify PTR
     if($type == 'P') {
-       if(!preg_match('/^.*\.in-addr.arpa\.*$/i', $name))
-            return "PTR \"$name\" does not end in .in-addr.arpa.";
+       if(!preg_match('/^.*\.in-addr.arpa\.*$/i', $name) && !preg_match('/^.*\.ip6.arpa\.*$/i', $name))
+            return "PTR \"$name\" does not end in .in-addr.arpa or ip6.arpa.";
     }
 
     // verify CNAME record
