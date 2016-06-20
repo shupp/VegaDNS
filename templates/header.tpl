@@ -1,77 +1,78 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML>
+<!doctype html>
+<html class="no-js" lang="en">
     <HEAD>
-        <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
         <TITLE>VegaDNS Administration</TITLE>
-        <link rel="STYLESHEET" type="text/css" href="templates/core-style.css">
-    <!--[if gte IE 5.5000]>
-    <script type="text/javascript" src="templates/pngfix.js"></script>
+        <link rel="stylesheet" href="/templates/foundation/css/foundation.css" />
+        <link rel="stylesheet" href="/templates/fontawesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/templates/foundation/css/app.css" />
+
     <![endif]-->
 
     </HEAD>
-    <body background="images/background.jpg">
+    <body>
 
-<center>
+    <div id="header" class="content-container">
+        <div class="row">
+            <div class="small-12 medium-6 large-4 columns">
+                <a href="{$base_url}" class="brand"><img src="images/vegadns.png" alt="VegaDNS"></a>
+            </div>
+            <div class="small-12 medium-6 large-8 columns text-right">
+                {if $state == "logged_in" && $email != ""}
+                    logged in as: {$email}<br/>
+                    <a href="{$base_url}&mode=users&user_mode=edit_account&cid={$cid}">Edit My Account</a><br/>
+                    <a href="{$logout_url}">Log Out</a>
+                {/if}
+            </div>
+        </div>
 
-<table border=0 width="100%">
-    <tr valign="top">
-
-{* Display logged in/logout message *}
-{if $state == "logged_in" && $email != ""}
-    <td width="25%">
-    &nbsp;logged in as:<br>
-    &nbsp;<b>{$email}</b><br>
-    &nbsp<a href="{$logout_url}">log out</a><br>
-    </td>
-{/if}
-    <td align="center">
-    <img src="images/vegadns.png" alt="VegaDNS">
-    <br>tinydns administration - version {$version}
-    </td>
-{if $state == "logged_in" && $email != ""}
-    <td width="25%">
-    </td>
-{/if}
-</tr>
-</table>
-
-<p>
-
-{* Display menu at top at all times now *}
-{if $state == "logged_in" && $email != ""}
-
-<table border=0>
-    <tr>
-        <td align="center">
-            <a href="{$base_url}&mode=domains">Domains</a>&nbsp | &nbsp
-            <a href="{$base_url}&mode=domains&domain_mode=add">New Domain</a>&nbsp | &nbsp
-            <a href="{$base_url}&mode=users&user_mode=edit_account&cid={$cid}">Edit My Account</a> | &nbsp
-            <a href="{$base_url}&mode=dnsquery">DNS Query</a>
-        </td>
-    </tr>
-
-    {if $account_type == 'senior_admin' || $account_type == 'group_admin'}
-    <tr>
-        <td align="center">
-            <a href="{$base_url}&mode=users&user_mode=show_users">Accounts</a>&nbsp | &nbsp
-            <a href="{$base_url}&mode=users&user_mode=add_account">Add Account</a>&nbsp | &nbsp
-            <a href="{$base_url}&mode=default_records">Default Records</a>&nbsp
-
-        {if $account_type == 'senior_admin'}
-            | &nbsp <a href="{$base_url}&mode=domains&domain_mode=import_domains">Import Domains via AXFR</a>&nbsp
+        {* logged in, show menu! *}
+        {if $state == "logged_in" && $email != ""}
+            <div class="row">
+                <div class="small-12 columns">
+                    <div class="top-bar">
+                        <ul class="dropdown menu" data-dropdown-menu>
+                            <li>
+                                <a href="{$base_url}">Dashboard</a>
+                            </li>
+                            <li class="has-submenu">
+                                <a href="{$base_url}&mode=domains">Domains</a>
+                                <ul class="submenu menu vertical" data-submenu>
+                                    <li><a href="{$base_url}&mode=domains&domain_mode=add">New Domain</a></li>
+                                </ul>
+                            </li>
+                            {if $account_type == 'senior_admin' || $account_type == 'group_admin'}
+                                <li class="has-submenu">
+                                    <a href="{$base_url}&mode=users&user_mode=show_users">Accounts</a>
+                                    <ul class="submenu menu vertical" data-submenu>
+                                        <li><a href="{$base_url}&mode=users&user_mode=add_account">Add Account</a></li>
+                                    </ul>
+                                </li>
+                            {/if}
+                            <li class="has-submenu">
+                                <a href="#">Tools</a>
+                                <ul class="submenu menu vertical" data-submenu>
+                                    <li><a href="{$base_url}&mode=default_records">Default Records</a></li>
+                                    <li><a href="{$base_url}&mode=dnsquery">DNS Query</a></li>
+                                    {if $account_type == 'senior_admin'}
+                                    <li><a href="{$base_url}&mode=domains&domain_mode=import_domains">Import Domains via AXFR</a></li>
+                                    {/if}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         {/if}
-        </td>
-    </tr>
-    {/if}
-</table>
-        </td>
-    </tr>
+    </div>
 
-</table>
-{/if}
-<p>
-
-
+    {* i'm not sure where these are coming from yet! *}
     {* Display messages *}
-    <br>{php}display_msg(){/php}</b><br>
-    <p>
+    <div class="row">
+        <div class="small-12 columns">
+            {php}display_msg(){/php}
+        </div>
+    </div>

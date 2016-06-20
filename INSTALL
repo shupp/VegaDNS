@@ -50,8 +50,11 @@ NOTE:   The Following steps assume your ServerRoot is /usr/local/apache, and
     chown -R nobody:nobody /usr/local/apache/vegadns
     chmod -R 770 /usr/local/apache/vegadns
 
-5.  Edit the vegadns-x.x/src/config.php file.  Make *sure* that the
-    "private_dirs" variable is set properly, as well as the MySQL account
+5.  EITHER
+    a) visit your domain or IP in a browser;
+    OR;
+    b) Copy the vegadns-x.x/src/config-sample.php file to vegadns-x.x/src/config.php then edit.
+    Make *sure* that the "private_dirs" variable is set properly, as well as the MySQL account
     information, and and also the "vegadns_url" variable.
 
 6.  Create a tinydns service on 127.0.0.1 for testing

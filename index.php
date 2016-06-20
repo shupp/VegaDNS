@@ -32,6 +32,12 @@ require(SMARTY_DIR.'/Smarty.class.php');
 $smarty = new Smarty;
 $smarty->assign('php_self', $_SERVER['PHP_SELF']);
 
+// Build config file if not already present
+if (!file_exists('src/config.php'))
+{
+    require_once('src/build_config.php');
+}
+
 // Get configuration settings
 require('src/config.php');
 
@@ -100,6 +106,11 @@ $smarty->assign('session_name', session_name());
 $smarty->assign('session_id', session_id());
 
 if(!isset($_REQUEST['state'])) {
+
+    if(isset($set_msg))
+    {
+        set_msg($set_msg);
+    }
 
     if(check_first_use() == 1) {
         // Add tables
@@ -204,9 +215,11 @@ if(!isset($_REQUEST['state'])) {
         $smarty->assign('cid', $user_info['cid']);
 
 
-        if(!isset($_REQUEST['mode']) || $_REQUEST['mode'] == "main_menu") {
-            $smarty->display('header.tpl');
-            $smarty->display('footer.tpl');
+        if(!isset($_REQUEST['mode']) || $_REQUEST['mode'] == "main_menu" || $_REQUEST['mode'] == "dashboard") {
+
+            // DASHBOARD
+
+            require('src/dashboard.php');
             exit;
 
         } else if($_REQUEST['mode'] == "domains") {

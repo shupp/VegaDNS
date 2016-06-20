@@ -1,0 +1,93 @@
+<?php
+
+
+/*
+ *
+ * VegaDNS - DNS Administration Tool for use with djbdns
+ *
+ * CREDITS:
+ * Written by Bill Shupp
+ * <hostmaster@shupp.org>
+ *
+ * LICENSE:
+ * This software is distributed under the GNU General Public License
+ * Copyright 2003-2015, Bill Shupp
+ * see COPYING for details
+ *
+ */
+
+
+
+// Location of vegadns private directories (should be in ServerRoot of Apache)
+$private_dirs = '||private_dirs||';
+
+// Location of sessions dir
+$session_dir = '||sessions_dir||';
+
+// Location of smarty dirs
+$smarty->compile_dir = "$private_dirs/templates_c";
+$smarty->configs_dir = "$private_dirs/configs";
+$smarty->cache_dir = "$private_dirs/cache";
+
+
+// Mysql settings
+$mysql_host = '||mysql_host||';
+$mysql_user = '||mysql_user||';
+$mysql_pass = '||mysql_pass||';
+$mysql_db = '||mysql_db||';
+
+// Local URL
+$vegadns_url = '||local_url||';
+
+// Contact info used in from/to addresses of email notifactions for inactive
+// domains
+$supportname = "||support_name||";
+$supportemail = "||support_email||";
+
+// Enable IPv6 support
+$use_ipv6 = ||v6_support||;
+
+// Hosts allowed to access get_data
+// These are a comma delimited list of IPv4 addresses
+// Such a list could look like:
+// $trusted_hosts = '127.0.0.1,127.0.0.1,127.0.0.3';
+
+$trusted_hosts = '||trusted_hosts||';
+
+// Set this to 1 if you don't want to limit access to get_data
+$trusted = ||get_data_trusted_only||;
+
+// IP Address of the local tinydns instance.  This is the IP that will be used
+// for dns lookups on authoritative information
+$tinydns_ip = '||tinydns_ip||';
+
+// Records per page
+$per_page = ||records_per_page||;
+
+// Session timeout time.  default: 3600 (1 hour)
+$timeout = ||timeout||;
+
+// Directory containing dnsq and dnsqr
+$dns_tools_dir = '||dns_tools_dir||';
+
+// Set to true if you want to store sessions in mysql rather than in files
+// (required when load balancing VegaDNS)
+$use_mysql_sessions = ||mysql_sessions||;
+
+// Set this to a record name you want to query for version information
+// over a TXT record
+// $vegadns_generation_txt_record = "vegadns-generation.example.com";
+
+/////////////////////////////////////
+// NO NEED TO EDIT BELOW THIS LINE //
+/////////////////////////////////////
+
+require_once 'version.php';
+
+if(!preg_match('/.*\/index.php$/', $_SERVER['PHP_SELF'])
+    && !preg_match('/.*\/axfr_get.php$/', $_SERVER['PHP_SELF'])) {
+    header("Location:../index.php");
+    exit;
+}
+
+?>
