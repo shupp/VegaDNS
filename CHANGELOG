@@ -1,3 +1,9 @@
+* 0.13.3 10/21/2016
+    - Bill Shupp (hostmaster@shupp.org)
+        - Fixed axfr_get exploit GH #27.  tnx to wireghoul for the poc.
+        - Allow IPv6 PTR domain suffixes in PTR type, GH PR #26.  tnx tombii.
+        - Update copyrights
+
 * 0.13.2 11/30/2015
     - Bill Shupp (hostmaster@shupp.org)
         - Fixed more PHP SQL type issues, GH #24
