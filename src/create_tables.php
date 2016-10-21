@@ -11,7 +11,7 @@
  *
  * LICENSE:
  * This software is distributed under the GNU General Public License
- * Copyright 2003-2015, Bill Shupp
+ * Copyright 2003-2016, Bill Shupp
  * see COPYING for details
  *
  */
