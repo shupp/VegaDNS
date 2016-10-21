@@ -45,7 +45,7 @@ if(!isset($_REQUEST['domain']) || $_REQUEST['domain'] == "") {
 $domain = $_REQUEST['domain'];
 $hostname = $_REQUEST['hostname'];
 $rand = rand();
-$file = "/tmp/$domain.$rand";
+$file = "/tmp/".escapeshellcmd($domain).".$rand";
 
 $command = "$dns_tools_dir/tcpclient -R '".escapeshellcmd($hostname)."' 53 $dns_tools_dir/axfr-get '".escapeshellcmd($domain)."' $file $file.tmp 2>&1";
 exec($command, $out);
